@@ -1,4 +1,4 @@
-module node-backend
+module app
 
 go 1.19
 
