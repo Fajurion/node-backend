@@ -27,7 +27,13 @@ func Connect() {
 	db.Logger = logger.Default.LogMode(logger.Info)
 
 	// Migrate the schema
+
+	// Migrate account related tables
 	db.AutoMigrate(&account.Account{})
+	db.AutoMigrate(&account.Authentication{})
+	db.AutoMigrate(&account.Session{})
+	db.AutoMigrate(&account.Subscription{})
+	db.AutoMigrate(&account.Rank{})
 
 	// Assign the database to the global variable
 	DBConn = db

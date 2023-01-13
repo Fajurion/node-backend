@@ -1,12 +1,14 @@
 package account
 
-import (
-	"gorm.io/gorm"
-)
+import "time"
 
 type Account struct {
-	gorm.Model
+	ID uint `json:"id" gorm:"primaryKey"`
 
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Username  string    `json:"username"`
+	Tag       string    `json:"tag" gorm:"unique"`
+	Password  string    `json:"password"`
+	Email     string    `json:"email" gorm:"unique"`
+	Rank      uint      `json:"rank"`
+	CreatedAt time.Time `json:"created_at"`
 }
