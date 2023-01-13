@@ -3,7 +3,7 @@ package account
 import "time"
 
 type Session struct {
-	token string `json:"token" gorm:"primaryKey"`
+	Token string `json:"token" gorm:"primaryKey"`
 
 	Account     uint      `json:"account"`
 	AccountName string    `json:"account_name"`

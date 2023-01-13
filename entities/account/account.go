@@ -12,3 +12,10 @@ type Account struct {
 	Rank      uint      `json:"rank"`
 	CreatedAt time.Time `json:"created_at"`
 }
+
+// TODO: Hash password
+func (a *Account) CheckPassword(password string) bool {
+
+	// Check if password is correct
+	return a.Password == password
+}

@@ -1,19 +1,31 @@
 package auth
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"node-backend/database"
+	"node-backend/entities/account"
 
-func register_step1(c *fiber.Ctx) error {
-	return nil
-}
+	"github.com/gofiber/fiber/v2"
+)
 
-func register_step2(c *fiber.Ctx) error {
-	return nil
-}
+func register_test(c *fiber.Ctx) error {
 
-func register_step3(c *fiber.Ctx) error {
-	return nil
-}
+	err := database.DBConn.Create(&account.Account{
+		Username: "test",
+		Tag:      "test",
+		Password: "test123",
+		Email:    "test@gmail.com",
+		Rank:     0,
+	}).Error
 
-func register_finish(c *fiber.Ctx) error {
-	return nil
+	if err != nil {
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"success": false,
+			"message": "error",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"success": true,
+		"message": "success",
+	})
 }
