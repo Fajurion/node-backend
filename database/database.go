@@ -8,6 +8,7 @@ import (
 	"gorm.io/gorm/logger"
 
 	"node-backend/entities/account"
+	"node-backend/entities/node"
 )
 
 var DBConn *gorm.DB
@@ -34,6 +35,9 @@ func Connect() {
 	db.AutoMigrate(&account.Session{})
 	db.AutoMigrate(&account.Subscription{})
 	db.AutoMigrate(&account.Rank{})
+
+	// Migrate node related tables
+	db.AutoMigrate(&node.Node{})
 
 	// Assign the database to the global variable
 	DBConn = db

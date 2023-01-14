@@ -36,7 +36,7 @@ func login(c *fiber.Ctx) error {
 	if account.ID == 0 {
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"success": false,
-			"message": "not.found",
+			"message": "invalid.password",
 		})
 	}
 

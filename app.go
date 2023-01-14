@@ -7,6 +7,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
 func main() {
@@ -19,6 +20,8 @@ func main() {
 
 	// Initialize cors
 	app.Use(cors.New())
+
+	app.Use(logger.New())
 
 	// Handle routing
 	app.Route("/", routes.Router)
