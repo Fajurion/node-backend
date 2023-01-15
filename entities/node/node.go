@@ -3,6 +3,7 @@ package node
 type Node struct {
 	ID uint `json:"id" gorm:"primaryKey"`
 
+	Token           string  `json:"token"`
 	Domain          string  `json:"domain" gorm:"unique"`
 	PeformanceLevel float32 `json:"performance_level"`
 
