@@ -1,6 +1,9 @@
 package account
 
-import "time"
+import (
+	"node-backend/util/auth"
+	"time"
+)
 
 type Account struct {
 	ID uint `json:"id" gorm:"primaryKey"`
@@ -13,9 +16,8 @@ type Account struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// TODO: Hash password
 func (a *Account) CheckPassword(password string) bool {
 
 	// Check if password is correct
-	return a.Password == password
+	return a.Password == auth.HashPassword(password)
 }
