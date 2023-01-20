@@ -2,6 +2,7 @@ package database
 
 import (
 	"log"
+	"time"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -26,6 +27,13 @@ func Connect() {
 
 	log.Println("Successfully connected to the database.")
 	db.Logger = logger.Default.LogMode(logger.Info)
+
+	// Configure the database driver
+	driver,_ := db.DB()
+
+	driver.SetMaxIdleConns(10)
+	driver.SetMaxOpenConns(100)
+	driver.SetConnMaxLifetime(time.Hour)
 
 	// Migrate the schema
 

@@ -12,8 +12,13 @@ type Account struct {
 	Tag       string    `json:"tag" gorm:"unique"`
 	Password  string    `json:"password"`
 	Email     string    `json:"email" gorm:"unique"`
-	Rank      uint      `json:"rank"`
+	RankID    uint      `json:"rank"`
 	CreatedAt time.Time `json:"created_at"`
+
+	Rank           Rank             `gorm:"foreignKey:Account"`
+	Sessions       []Session        `gorm:"foreignKey:Account"`
+	Subscription   Subscription     `gorm:"foreignKey:Account"`
+	Authentication []Authentication `gorm:"foreignKey:Account"`
 }
 
 func (a *Account) CheckPassword(password string) bool {

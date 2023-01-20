@@ -41,7 +41,7 @@ func login(c *fiber.Ctx) error {
 
 	// Get user from database
 	var acc account.Account
-	database.DBConn.Where("email = ?", req.Email).First(&acc)
+	database.DBConn.Model(&account.Account{}).Where("email = ?", req.Email).Preload("Rank").First(&acc)
 
 	// Check account details
 	if err := checkAccountDetails(c, acc, req); err != nil {
@@ -57,11 +57,11 @@ func login(c *fiber.Ctx) error {
 	token := auth.GenerateToken()
 
 	err := database.DBConn.Create(&account.Session{
-		Token:       token,
-		Account:     acc.ID,
-		AccountName: acc.Username,
-		Device:      "web", // TODO: Get device from request
-		Connected:   false,
+		Token:           token,
+		Account:         acc.ID,
+		PermissionLevel: acc.Rank.Level,
+		Device:          "web", // TODO: Get device from request
+		Connected:       false,
 	}).Error
 
 	if err != nil {

@@ -31,7 +31,7 @@ func register_test(c *fiber.Ctx) error {
 		Tag:      registerRequest.Tag,
 		Password: auth.HashPassword(registerRequest.Password),
 		Email:    registerRequest.Email,
-		Rank:     1, // Default rank
+		RankID:     1, // Default rank
 	}).Error
 
 	if err != nil {
