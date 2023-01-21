@@ -52,6 +52,7 @@ func Connect() {
 
 	// Migrate node related tables
 	db.AutoMigrate(&node.Node{})
+	db.AutoMigrate(&node.Cluster{})
 
 	// Migrate app related tables
 	db.AutoMigrate(&app.App{})

@@ -3,12 +3,15 @@ package node
 type Node struct {
 	ID uint `json:"id" gorm:"primaryKey"`
 
+	ClusterID       uint    `json:"cluster"`
 	Token           string  `json:"token"`
 	Domain          string  `json:"domain" gorm:"unique"`
 	PeformanceLevel float32 `json:"performance_level"`
 
 	// started: 0, stopped: 1, starting: 2, stopping: 3, error: 4
 	Status uint `json:"status"`
+
+	Cluster Cluster `gorm:"foreignKey:Cluster"`
 }
 
 func (n *Node) isStarted() bool {
