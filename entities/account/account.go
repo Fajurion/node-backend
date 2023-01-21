@@ -1,6 +1,7 @@
 package account
 
 import (
+	"node-backend/entities/account/properties"
 	"node-backend/util/auth"
 	"time"
 )
@@ -15,10 +16,12 @@ type Account struct {
 	RankID    uint      `json:"rank"`
 	CreatedAt time.Time `json:"created_at"`
 
-	Rank           Rank             `gorm:"foreignKey:Account"`
-	Sessions       []Session        `gorm:"foreignKey:Account"`
-	Subscription   Subscription     `gorm:"foreignKey:Account"`
-	Authentication []Authentication `gorm:"foreignKey:Account"`
+	Rank           Rank                        `gorm:"foreignKey:Account"`
+	Sessions       []Session                   `gorm:"foreignKey:Account"`
+	Subscription   Subscription                `gorm:"foreignKey:Account"`
+	Authentication []Authentication            `gorm:"foreignKey:Account"`
+	Friends        []properties.Friend         `gorm:"foreignKey:Account"`
+	Settings       []properties.AccountSetting `gorm:"foreignKey:Account"`
 }
 
 func (a *Account) CheckPassword(password string) bool {

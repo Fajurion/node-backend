@@ -9,6 +9,9 @@ import (
 	"gorm.io/gorm/logger"
 
 	"node-backend/entities/account"
+	"node-backend/entities/account/properties"
+	"node-backend/entities/app"
+	"node-backend/entities/app/projects"
 	"node-backend/entities/node"
 )
 
@@ -29,7 +32,7 @@ func Connect() {
 	db.Logger = logger.Default.LogMode(logger.Info)
 
 	// Configure the database driver
-	driver,_ := db.DB()
+	driver, _ := db.DB()
 
 	driver.SetMaxIdleConns(10)
 	driver.SetMaxOpenConns(100)
@@ -44,8 +47,22 @@ func Connect() {
 	db.AutoMigrate(&account.Subscription{})
 	db.AutoMigrate(&account.Rank{})
 
+	db.AutoMigrate(&properties.Friend{})
+	db.AutoMigrate(&properties.AccountSetting{})
+
 	// Migrate node related tables
 	db.AutoMigrate(&node.Node{})
+
+	// Migrate app related tables
+	db.AutoMigrate(&app.App{})
+	db.AutoMigrate(&app.AppNode{})
+	db.AutoMigrate(&app.AppSetting{})
+
+	// Migrate project related tables
+	db.AutoMigrate(&projects.Project{})
+	db.AutoMigrate(&projects.Container{})
+	db.AutoMigrate(&projects.Event{})
+	db.AutoMigrate(&projects.Member{})
 
 	// Assign the database to the global variable
 	DBConn = db
