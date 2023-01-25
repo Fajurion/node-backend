@@ -4,34 +4,29 @@ import (
 	"node-backend/database"
 	"node-backend/entities/account"
 	"node-backend/util/auth"
+	"node-backend/util/requests"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 // LoginRequest is the request body for the login request
-type LoginRequest struct {
+type loginRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
 // login handles the login request
 func login(c *fiber.Ctx) error {
-	var req LoginRequest
+	var req loginRequest
 
 	// Parse request body
 	if err := c.BodyParser(&req); err != nil {
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"success": false,
-			"message": "invalid",
-		})
+		return requests.FailedRequest(c, "invalid", err)
 	}
 
 	// Check if request is valid
 	if req.Email == "" || req.Password == "" {
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"success": false,
-			"message": "invalid",
-		})
+		return requests.FailedRequest(c, "invalid", nil)
 	}
 
 	// Get user from database
@@ -60,10 +55,7 @@ func login(c *fiber.Ctx) error {
 	}).Error
 
 	if err != nil {
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"success": false,
-			"message": "server.error",
-		})
+		requests.FailedRequest(c, "server.error", err)
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
@@ -75,20 +67,14 @@ func login(c *fiber.Ctx) error {
 }
 
 // checkAccountDetails checks if the account details are valid
-func checkAccountDetails(c *fiber.Ctx, acc account.Account, req LoginRequest) error {
+func checkAccountDetails(c *fiber.Ctx, acc account.Account, req loginRequest) error {
 
 	if acc.ID == 0 {
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"success": false,
-			"message": "invalid.password",
-		})
+		return requests.FailedRequest(c, "invalid.password", nil)
 	}
 
 	if !acc.CheckPassword(acc.Password) {
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"success": false,
-			"message": "invalid.password",
-		})
+		return requests.FailedRequest(c, "invalid.password", nil)
 	}
 
 	return nil
@@ -103,10 +89,7 @@ func checkSessions(c *fiber.Ctx, acc account.Account) error {
 
 	// TODO: Max sessions in application properties
 	if len(sessions) > 10 {
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"success": false,
-			"message": "too.many.sessions",
-		})
+		return requests.FailedRequest(c, "too.many.sessions", nil)
 	}
 
 	connected := 0
@@ -118,10 +101,7 @@ func checkSessions(c *fiber.Ctx, acc account.Account) error {
 
 	// TODO: Max connected sessions in application properties
 	if connected > 3 {
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"success": false,
-			"message": "too.many.connected",
-		})
+		return requests.FailedRequest(c, "too.many.connected", nil)
 	}
 
 	return nil

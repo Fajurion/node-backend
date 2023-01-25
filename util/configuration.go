@@ -1,10 +1,8 @@
-package configuration
+package util
 
-var permissions map[string]int16 = map[string]int16 {
-	"use.services": 10,
-	"services.unlimited": 20,
-	"view.settings": 50,
-	"manage.nodes": 55,
-	"change.settings": 60,
-}
-
+const PermissionUseServices = 10
+const PermissionServicesUnlimited = 20
+const PermissionViewSettings = 50
+const PermissionManageNodes = 55
+const PermissionChangeSettings = 60
+const PermissionAdmin = 100

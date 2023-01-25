@@ -4,11 +4,12 @@ import (
 	"node-backend/database"
 	"node-backend/entities/account"
 	"node-backend/util/auth"
+	"node-backend/util/requests"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-type RegisterRequest struct {
+type registerRequest struct {
 	Username string `json:"username"`
 	Tag      string `json:"tag"`
 	Password string `json:"password"`
@@ -19,12 +20,9 @@ type RegisterRequest struct {
 func register_test(c *fiber.Ctx) error {
 
 	// Parse body to register request
-	var registerRequest RegisterRequest
+	var registerRequest registerRequest
 	if err := c.BodyParser(&registerRequest); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false,
-			"message": "invalid",
-		})
+		return requests.FailedRequest(c, "invalid", err)
 	}
 
 	err := database.DBConn.Create(&account.Account{
