@@ -8,11 +8,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func Setup(router fiber.Router) {
-	router.Post("/login", login)
-	router.Post("/register", register_test)
-}
-
 // LoginRequest is the request body for the login request
 type LoginRequest struct {
 	Email    string `json:"email"`
@@ -74,6 +69,7 @@ func login(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success": true,
 		"token":   token,
+		"level":   acc.Rank.Level,
 		"message": "success",
 	})
 }

@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"node-backend/routes/auth"
+	"node-backend/routes/account/auth"
 
 	"github.com/gofiber/fiber/v2"
 )

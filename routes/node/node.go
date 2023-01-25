@@ -5,5 +5,5 @@ import (
 )
 
 func Setup(router fiber.Router) {
-
+	
 }

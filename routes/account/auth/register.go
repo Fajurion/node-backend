@@ -15,6 +15,7 @@ type RegisterRequest struct {
 	Email    string `json:"email"`
 }
 
+// When Redis is implemented, this will be replaced with a proper register function.
 func register_test(c *fiber.Ctx) error {
 
 	// Parse body to register request
@@ -31,7 +32,7 @@ func register_test(c *fiber.Ctx) error {
 		Tag:      registerRequest.Tag,
 		Password: auth.HashPassword(registerRequest.Password),
 		Email:    registerRequest.Email,
-		RankID:     1, // Default rank
+		RankID:   1, // Default rank
 	}).Error
 
 	if err != nil {
