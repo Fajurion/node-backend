@@ -11,7 +11,7 @@ type Node struct {
 	// started: 0, stopped: 1, starting: 2, stopping: 3, error: 4
 	Status uint `json:"status"`
 
-	Cluster Cluster `gorm:"foreignKey:Cluster"`
+	Cluster Cluster // This is an association (may still be broken)
 }
 
 func (n *Node) IsStarted() bool {

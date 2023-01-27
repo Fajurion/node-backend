@@ -11,5 +11,5 @@ type AppNode struct {
 	PerformanceLevel float64 `json:"performance_level"`
 	Cluster          uint    `json:"cluster"`
 
-	Node node.Node `gorm:"foreignKey:Node"`
+	Node node.Node `gorm:"foreignKey:NodeID"`
 }

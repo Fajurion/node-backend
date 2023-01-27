@@ -9,6 +9,10 @@ import (
 	"gorm.io/gorm/logger"
 
 	"node-backend/entities/account"
+	"node-backend/entities/account/properties"
+	"node-backend/entities/app"
+	"node-backend/entities/app/projects"
+	"node-backend/entities/node"
 )
 
 var DBConn *gorm.DB
@@ -17,7 +21,7 @@ func Connect() {
 	url := "host=localhost user=postgres password=deinemutter123 dbname=chat port=5432"
 
 	db, err := gorm.Open(postgres.Open(url), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
+		Logger: logger.Default.LogMode(logger.Error),
 	})
 
 	if err != nil {
@@ -25,7 +29,7 @@ func Connect() {
 	}
 
 	log.Println("Successfully connected to the database.")
-	db.Logger = logger.Default.LogMode(logger.Info)
+	db.Logger = logger.Default.LogMode(logger.Error)
 
 	// Configure the database driver
 	driver, _ := db.DB()
@@ -38,31 +42,27 @@ func Connect() {
 
 	// Migrate account related tables
 	db.AutoMigrate(&account.Account{})
-	/*
-		db.AutoMigrate(&account.Authentication{})
-		db.AutoMigrate(&account.Session{})
-		db.AutoMigrate(&account.Subscription{})
-	*/
+	db.AutoMigrate(&account.Authentication{})
+	db.AutoMigrate(&account.Session{})
+	db.AutoMigrate(&account.Subscription{})
 	db.AutoMigrate(&account.Rank{})
+	db.AutoMigrate(&properties.Friend{})
+	db.AutoMigrate(&properties.AccountSetting{})
 
-	/*
-		db.AutoMigrate(&properties.Friend{})
-		db.AutoMigrate(&properties.AccountSetting{})
+	// Migrate node related tables
+	db.AutoMigrate(&node.Cluster{})
+	db.AutoMigrate(&node.Node{})
 
-		// Migrate node related tables
-		db.AutoMigrate(&node.Cluster{})
-		db.AutoMigrate(&node.Node{})
+	// Migrate app related tables
+	db.AutoMigrate(&app.App{})
+	db.AutoMigrate(&app.AppNode{})
+	db.AutoMigrate(&app.AppSetting{})
 
-		// Migrate app related tables
-		db.AutoMigrate(&app.App{})
-		db.AutoMigrate(&app.AppNode{})
-		db.AutoMigrate(&app.AppSetting{})
-
-		// Migrate project related tables
-		db.AutoMigrate(&projects.Project{})
-		db.AutoMigrate(&projects.Container{})
-		db.AutoMigrate(&projects.Event{})
-		db.AutoMigrate(&projects.Member{}) */
+	// Migrate project related tables
+	db.AutoMigrate(&projects.Project{})
+	db.AutoMigrate(&projects.Container{})
+	db.AutoMigrate(&projects.Event{})
+	db.AutoMigrate(&projects.Member{})
 
 	// Assign the database to the global variable
 	DBConn = db
