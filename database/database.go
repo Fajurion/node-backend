@@ -9,10 +9,6 @@ import (
 	"gorm.io/gorm/logger"
 
 	"node-backend/entities/account"
-	"node-backend/entities/account/properties"
-	"node-backend/entities/app"
-	"node-backend/entities/app/projects"
-	"node-backend/entities/node"
 )
 
 var DBConn *gorm.DB
@@ -42,28 +38,31 @@ func Connect() {
 
 	// Migrate account related tables
 	db.AutoMigrate(&account.Account{})
-	db.AutoMigrate(&account.Authentication{})
-	db.AutoMigrate(&account.Session{})
-	db.AutoMigrate(&account.Subscription{})
+	/*
+		db.AutoMigrate(&account.Authentication{})
+		db.AutoMigrate(&account.Session{})
+		db.AutoMigrate(&account.Subscription{})
+	*/
 	db.AutoMigrate(&account.Rank{})
 
-	db.AutoMigrate(&properties.Friend{})
-	db.AutoMigrate(&properties.AccountSetting{})
+	/*
+		db.AutoMigrate(&properties.Friend{})
+		db.AutoMigrate(&properties.AccountSetting{})
 
-	// Migrate node related tables
-	db.AutoMigrate(&node.Node{})
-	db.AutoMigrate(&node.Cluster{})
+		// Migrate node related tables
+		db.AutoMigrate(&node.Cluster{})
+		db.AutoMigrate(&node.Node{})
 
-	// Migrate app related tables
-	db.AutoMigrate(&app.App{})
-	db.AutoMigrate(&app.AppNode{})
-	db.AutoMigrate(&app.AppSetting{})
+		// Migrate app related tables
+		db.AutoMigrate(&app.App{})
+		db.AutoMigrate(&app.AppNode{})
+		db.AutoMigrate(&app.AppSetting{})
 
-	// Migrate project related tables
-	db.AutoMigrate(&projects.Project{})
-	db.AutoMigrate(&projects.Container{})
-	db.AutoMigrate(&projects.Event{})
-	db.AutoMigrate(&projects.Member{})
+		// Migrate project related tables
+		db.AutoMigrate(&projects.Project{})
+		db.AutoMigrate(&projects.Container{})
+		db.AutoMigrate(&projects.Event{})
+		db.AutoMigrate(&projects.Member{}) */
 
 	// Assign the database to the global variable
 	DBConn = db

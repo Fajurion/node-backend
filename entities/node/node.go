@@ -14,22 +14,29 @@ type Node struct {
 	Cluster Cluster `gorm:"foreignKey:Cluster"`
 }
 
-func (n *Node) isStarted() bool {
+func (n *Node) IsStarted() bool {
 	return n.Status == 0
 }
 
-func (n *Node) isStopped() bool {
+func (n *Node) IsStopped() bool {
 	return n.Status == 1
 }
 
-func (n *Node) isStarting() bool {
+func (n *Node) IsStarting() bool {
 	return n.Status == 2
 }
 
-func (n *Node) isStopping() bool {
+func (n *Node) IsStopping() bool {
 	return n.Status == 3
 }
 
-func (n *Node) hadError() bool {
+func (n *Node) HadError() bool {
 	return n.Status == 4
+}
+
+func (n *Node) SendAdoption() error {
+
+	// Send adoption request
+
+	return nil
 }

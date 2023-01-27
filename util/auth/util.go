@@ -1,19 +1,23 @@
 package auth
 
 import (
+	"crypto/rand"
 	"crypto/sha256"
-	"math/rand"
+	"math/big"
 )
 
 var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 
-func GenerateToken() string {
+func GenerateToken(tkLength int32) string {
 
-	// Generate a 200 characters long random string
-	s := make([]rune, 200)
+	s := make([]rune, tkLength)
+
+	length := big.NewInt(int64(len(letters)))
 
 	for i := range s {
-		s[i] = letters[rand.Intn(len(letters))]
+
+		number, _ := rand.Int(rand.Reader, length)
+		s[i] = letters[number.Int64()]
 	}
 
 	return string(s)

@@ -22,7 +22,7 @@ func addCluster(c *fiber.Ctx) error {
 	var req addRequest
 
 	if err := c.BodyParser(&req); err != nil {
-		return requests.FailedRequest(c, "invalid", err)
+		return requests.InvalidRequest(c)
 	}
 
 	// Check if session is valid

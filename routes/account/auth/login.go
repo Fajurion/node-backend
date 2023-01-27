@@ -3,8 +3,10 @@ package auth
 import (
 	"node-backend/database"
 	"node-backend/entities/account"
+	"node-backend/util"
 	"node-backend/util/auth"
 	"node-backend/util/requests"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -21,7 +23,7 @@ func login(c *fiber.Ctx) error {
 
 	// Parse request body
 	if err := c.BodyParser(&req); err != nil {
-		return requests.FailedRequest(c, "invalid", err)
+		return requests.InvalidRequest(c)
 	}
 
 	// Check if request is valid
@@ -44,10 +46,10 @@ func login(c *fiber.Ctx) error {
 	}
 
 	// Create session
-	token := auth.GenerateToken()
+	tk := auth.GenerateToken(100)
 
 	err := database.DBConn.Create(&account.Session{
-		Token:           token,
+		Token:           tk,
 		Account:         acc.ID,
 		PermissionLevel: acc.Rank.Level,
 		Device:          "web", // TODO: Get device from request
@@ -58,11 +60,19 @@ func login(c *fiber.Ctx) error {
 		requests.FailedRequest(c, "server.error", err)
 	}
 
+	// Generate jwt token
+	tk, err = util.Token(tk, time.Now().Add(time.Hour*24), fiber.Map{
+		"acc": acc.ID,
+		"lvl": acc.Rank.Level,
+	})
+
+	if err != nil {
+		return requests.FailedRequest(c, "server.error", err)
+	}
+
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success": true,
-		"token":   token,
-		"level":   acc.Rank.Level,
-		"message": "success",
+		"token":   tk,
 	})
 }
 

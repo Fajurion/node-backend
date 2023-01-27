@@ -6,5 +6,5 @@ type Rank struct {
 	Name  string `json:"name"`
 	Level uint   `json:"level"`
 
-	Accounts []Account `gorm:"foreignKey:Rank"`
+	Accounts []Account `gorm:"foreignKey:RankID"`
 }

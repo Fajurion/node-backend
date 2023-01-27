@@ -21,7 +21,7 @@ func removeNode(c *fiber.Ctx) error {
 	// Parse body to remove request
 	var req removeRequest
 	if err := c.BodyParser(&req); err != nil {
-		return requests.FailedRequest(c, "invalid", err)
+		return requests.InvalidRequest(c)
 	}
 
 	// Check if request is valid

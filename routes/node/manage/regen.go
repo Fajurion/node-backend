@@ -22,7 +22,7 @@ func regenToken(c *fiber.Ctx) error {
 	// Parse body to remove request
 	var req regenRequest
 	if err := c.BodyParser(&req); err != nil {
-		return requests.FailedRequest(c, "invalid", err)
+		return requests.InvalidRequest(c)
 	}
 
 	if req.Token == "" || req.Node == 0 {
@@ -40,7 +40,7 @@ func regenToken(c *fiber.Ctx) error {
 		return requests.FailedRequest(c, "invalid", err)
 	}
 
-	node.Token = auth.GenerateToken()
+	node.Token = auth.GenerateToken(300)
 
 	if err := database.DBConn.Save(&node).Error; err != nil {
 		return requests.FailedRequest(c, "invalid", err)

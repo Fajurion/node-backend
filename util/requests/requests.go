@@ -20,6 +20,10 @@ func FailedRequest(c *fiber.Ctx, error string, err error) error {
 	})
 }
 
+func InvalidRequest(c *fiber.Ctx) error {
+	return c.SendStatus(fiber.StatusBadRequest)
+}
+
 // CheckSession checks if the session is valid (returns true if it isn't)
 func CheckSession(c *fiber.Ctx, token string, session account.Session) bool {
 

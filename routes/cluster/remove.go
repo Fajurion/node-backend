@@ -21,7 +21,7 @@ func removeCluster(c *fiber.Ctx) error {
 	var req removeRequest
 
 	if err := c.BodyParser(&req); err != nil {
-		return requests.FailedRequest(c, "invalid", err)
+		return requests.InvalidRequest(c)
 	}
 
 	// Check if session is valid
