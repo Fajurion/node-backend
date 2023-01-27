@@ -13,3 +13,15 @@ type Session struct {
 	App             uint      `json:"app"`
 	Node            uint      `json:"node"`
 }
+
+func (s *Session) IsDesktop() bool {
+	return s.Device == "desktop"
+}
+
+func (s *Session) IsWeb() bool {
+	return s.Device == "web"
+}
+
+func (s *Session) Upgrade() {
+	s.Device = "desktop"
+}

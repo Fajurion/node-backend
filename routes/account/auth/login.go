@@ -52,7 +52,7 @@ func login(c *fiber.Ctx) error {
 		Token:           tk,
 		Account:         acc.ID,
 		PermissionLevel: acc.Rank.Level,
-		Device:          "web", // TODO: Get device from request
+		Device:          "web",
 		Connected:       false,
 	}).Error
 

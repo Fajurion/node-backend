@@ -40,3 +40,10 @@ func (n *Node) SendAdoption() error {
 
 	return nil
 }
+
+func (n *Node) GetConnection(token string) error {
+
+	// Get new token
+
+	return nil
+}

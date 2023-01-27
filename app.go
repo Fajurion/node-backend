@@ -1,8 +1,10 @@
 package main
 
 import (
+	"log"
 	"node-backend/database"
 	"node-backend/routes"
+	"node-backend/util/auth"
 
 	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v2"
@@ -26,6 +28,8 @@ func main() {
 
 	// Handle routing
 	app.Route("/", routes.Router)
+
+	log.Println(auth.GenerateToken(300))
 
 	// Listen on port 3000
 	app.Listen(":3000")

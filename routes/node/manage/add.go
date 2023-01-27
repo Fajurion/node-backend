@@ -2,7 +2,6 @@ package manage
 
 import (
 	"node-backend/database"
-	"node-backend/entities/account"
 	"node-backend/entities/node"
 	"node-backend/util"
 	"node-backend/util/auth"
@@ -13,8 +12,6 @@ import (
 )
 
 type addRequest struct {
-	Token string `json:"token"`
-
 	Cluster         uint    `json:"cluster"` // Cluster ID
 	IP              string  `json:"ip"`
 	Port            uint    `json:"port"`
@@ -29,29 +26,24 @@ func addNode(c *fiber.Ctx) error {
 		return requests.InvalidRequest(c)
 	}
 
-	// Check if request is valid
-	if req.Token == "" || req.Cluster == 0 || req.IP == "" || req.Port == 0 {
+	if !util.Permission(c, util.PermissionAdmin) {
+		return requests.InvalidRequest(c)
+	}
+
+	if req.Cluster == 0 || req.IP == "" || req.Port == 0 {
 		return requests.FailedRequest(c, "invalid", nil)
 	}
 
-	// Check if IP is valid
-	if len(req.IP) < 7 || len(req.IP) > 15 {
-		return requests.FailedRequest(c, "invalid", nil)
+	if len(req.IP) < 3 {
+		return requests.FailedRequest(c, "invalid.ip", nil)
 	}
 
-	// Check if port is valid
 	if req.Port < 1 || req.Port > 65535 {
-		return requests.FailedRequest(c, "invalid", nil)
-	}
-
-	// Check session and permission
-	var session account.Session
-	if !requests.CheckSessionPermission(c, req.Token, util.PermissionAdmin, &session) {
-		return requests.FailedRequest(c, "no.permission", nil)
+		return requests.FailedRequest(c, "invalid.port", nil)
 	}
 
 	var cluster node.Cluster
-	err := database.DBConn.First(&cluster, req.Cluster).Error
+	err := database.DBConn.Take(&cluster, req.Cluster).Error
 
 	if err != nil {
 		return requests.FailedRequest(c, "invalid", err)

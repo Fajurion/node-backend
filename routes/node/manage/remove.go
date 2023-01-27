@@ -2,7 +2,6 @@ package manage
 
 import (
 	"node-backend/database"
-	"node-backend/entities/account"
 	"node-backend/entities/node"
 	"node-backend/util"
 	"node-backend/util/requests"
@@ -11,8 +10,6 @@ import (
 )
 
 type removeRequest struct {
-	Token string `json:"token"`
-
 	Node uint `json:"node"` // Node ID
 }
 
@@ -24,15 +21,13 @@ func removeNode(c *fiber.Ctx) error {
 		return requests.InvalidRequest(c)
 	}
 
-	// Check if request is valid
-	if req.Token == "" || req.Node == 0 {
-		return requests.FailedRequest(c, "invalid", nil)
+	// Check permission
+	if !util.Permission(c, util.PermissionAdmin) {
+		return requests.InvalidRequest(c)
 	}
 
-	// Check session and permission
-	var session account.Session
-	if !requests.CheckSessionPermission(c, req.Token, util.PermissionAdmin, &session) {
-		return requests.FailedRequest(c, "no.permission", nil)
+	if req.Node == 0 {
+		return requests.FailedRequest(c, "invalid", nil)
 	}
 
 	// Delete node

@@ -7,5 +7,5 @@ import (
 )
 
 func Setup(router fiber.Router) {
-	router.Route("/init", manage.Setup)
+	router.Route("/management", manage.Setup)
 }
