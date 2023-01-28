@@ -1,6 +1,7 @@
 package connect
 
 import (
+	"fmt"
 	"node-backend/database"
 	"node-backend/entities/account"
 	"node-backend/entities/node"
@@ -60,23 +61,19 @@ func Connect(c *fiber.Ctx) error {
 		return requests.FailedRequest(c, "too.many.connections", nil)
 	}
 
-	// Check if session is upgraded
-	if current.IsWeb() {
-		return requests.FailedRequest(c, "not.upgraded", nil)
-	}
-
-	// TODO: IMPLEMENT APPS
-
 	// Get lowest load node
 	var lowest node.Node
-	if err := database.DBConn.Model(&node.Node{}).Where(&node.Node{ClusterID: req.Cluster}).Order("load DESC").Take(&lowest).Error; err != nil {
-		return requests.FailedRequest(c, "too.much.load", nil)
+	if err := database.DBConn.Model(&node.Node{}).Where(&node.Node{
+		ClusterID: req.Cluster,
+		AppID:     req.App,
+	}).Order("load DESC").Take(&lowest).Error; err != nil {
+		return requests.FailedRequest(c, "not.setup", nil)
 	}
 
 	lowest.GetConnection(tk)
 
 	current.Connected = true
-	current.Device = "desktop"
+	current.Device = fmt.Sprintf("app:%d", req.App)
 	if err := database.DBConn.Save(&current).Error; err != nil {
 		return requests.FailedRequest(c, "server.error", err)
 	}

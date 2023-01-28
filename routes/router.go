@@ -2,6 +2,7 @@ package routes
 
 import (
 	"node-backend/routes/account/auth"
+	"node-backend/routes/app"
 	"node-backend/routes/cluster"
 	"node-backend/routes/node"
 	"node-backend/util"
@@ -32,5 +33,6 @@ func Router(router fiber.Router) {
 
 	// Authorized routes
 	router.Route("/node", node.Setup)
+	router.Route("/app", app.Setup)
 	router.Route("/cluster", cluster.Setup)
 }
