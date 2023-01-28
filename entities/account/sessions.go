@@ -22,6 +22,10 @@ func (s *Session) IsWeb() bool {
 	return s.Device == "web"
 }
 
+func (s *Session) IsExpired() bool {
+	return time.Since(s.End) > 0
+}
+
 func (s *Session) Upgrade() {
 	s.Device = "desktop"
 }

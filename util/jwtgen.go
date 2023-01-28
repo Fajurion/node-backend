@@ -31,7 +31,9 @@ func Token(token string, exp time.Time, data map[string]interface{}) (string, er
 func IsExpired(c *fiber.Ctx) bool {
 	user := c.Locals("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
-	exp := claims["exp"].(int64)
+
+	num := claims["exp"].(float64)
+	exp := int64(num)
 
 	return time.Now().Unix() > exp
 }
@@ -42,7 +44,10 @@ func Permission(c *fiber.Ctx, perm int16) bool {
 	claims := user.Claims.(jwt.MapClaims)
 	data := claims["data"].(map[string]interface{})
 
-	return data["lvl"].(int16) >= perm
+	num := data["lvl"].(float64)
+	lvl := int16(num)
+
+	return lvl >= perm
 }
 
 func GetData(c *fiber.Ctx) map[string]interface{} {

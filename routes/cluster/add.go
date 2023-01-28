@@ -2,7 +2,6 @@ package cluster
 
 import (
 	"node-backend/database"
-	"node-backend/entities/account"
 	"node-backend/entities/node"
 	"node-backend/util"
 	"node-backend/util/requests"
@@ -11,7 +10,6 @@ import (
 )
 
 type addRequest struct {
-	Token   string `json:"token"`
 	Name    string `json:"name"`
 	Country string `json:"country"`
 }
@@ -20,15 +18,12 @@ func addCluster(c *fiber.Ctx) error {
 
 	// Parse request
 	var req addRequest
-
 	if err := c.BodyParser(&req); err != nil {
 		return requests.InvalidRequest(c)
 	}
 
-	// Check if session is valid
-	var session account.Session
-	if requests.CheckSessionPermission(c, req.Token, util.PermissionAdmin, &session) {
-		return requests.FailedRequest(c, "invalid", nil)
+	if !util.Permission(c, util.PermissionAdmin) {
+		return requests.InvalidRequest(c)
 	}
 
 	// Check if cluster name is valid

@@ -3,6 +3,7 @@ package auth
 import (
 	"crypto/rand"
 	"crypto/sha256"
+	"encoding/base64"
 	"math/big"
 )
 
@@ -30,5 +31,5 @@ func HashPassword(password string) string {
 	hash := sha256.Sum256([]byte(password))
 
 	// Convert byte[] to string
-	return string(hash[:])
+	return base64.StdEncoding.EncodeToString(hash[:])
 }

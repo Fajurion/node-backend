@@ -28,7 +28,7 @@ func newNode(c *fiber.Ctx) error {
 
 	// Check if token is valid
 	var ct node.NodeCreation
-	if err := database.DBConn.Take(&ct, req.Token).Error; err != nil {
+	if err := database.DBConn.Where("token = ?", req.Token).Take(&ct).Error; err != nil {
 		return requests.FailedRequest(c, "invalid", nil)
 	}
 
@@ -41,7 +41,7 @@ func newNode(c *fiber.Ctx) error {
 	}
 
 	var cluster node.Cluster
-	if err := database.DBConn.Take(&cluster, req.Cluster).Error; err != nil {
+	if err := database.DBConn.Where("id = ?", req.Cluster).Take(&cluster).Error; err != nil {
 		return requests.FailedRequest(c, "invalid", nil)
 	}
 
@@ -77,5 +77,6 @@ func newNode(c *fiber.Ctx) error {
 		"token":   created.Token,
 		"cluster": cluster.Country,
 		"app":     app.Name,
+		"id":      created.ID,
 	})
 }

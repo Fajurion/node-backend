@@ -8,6 +8,7 @@ import (
 )
 
 func Setup(router fiber.Router) {
-	router.Route("/management", manage.Setup)
+	router.Route("/manage", manage.Setup)
 	router.Post("/connect", connect.Connect)
+	router.Post("/token", generateToken)
 }

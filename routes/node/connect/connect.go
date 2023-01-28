@@ -24,6 +24,10 @@ func Connect(c *fiber.Ctx) error {
 		return requests.InvalidRequest(c)
 	}
 
+	if !util.Permission(c, util.PermissionUseServices) {
+		return requests.FailedRequest(c, "no.permission", nil)
+	}
+
 	// Get account
 	data := util.GetData(c)
 	tk := data["tk"].(string)
@@ -57,7 +61,7 @@ func Connect(c *fiber.Ctx) error {
 		return requests.FailedRequest(c, "already.connected", nil)
 	}
 
-	if connected >= 3 {
+	if connected >= 3 && !util.Permission(c, util.PermissionServicesUnlimited) {
 		return requests.FailedRequest(c, "too.many.connections", nil)
 	}
 

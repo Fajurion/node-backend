@@ -24,6 +24,10 @@ func addApp(c *fiber.Ctx) error {
 		return requests.InvalidRequest(c)
 	}
 
+	if len(req.Name) < 3 || len(req.Description) < 3 || len(req.Version) < 3 {
+		return requests.InvalidRequest(c)
+	}
+
 	if !util.Permission(c, util.PermissionAdmin) {
 		return requests.InvalidRequest(c)
 	}

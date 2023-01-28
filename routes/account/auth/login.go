@@ -54,6 +54,7 @@ func login(c *fiber.Ctx) error {
 		PermissionLevel: acc.Rank.Level,
 		Device:          "web",
 		Connected:       false,
+		End:             time.Now().Add(time.Hour * 24 * 3),
 	}).Error
 
 	if err != nil {
