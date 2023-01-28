@@ -12,9 +12,10 @@ import (
 
 type connectRequest struct {
 	Cluster uint `json:"cluster"`
+	App     uint `json:"app"`
 }
 
-func connect(c *fiber.Ctx) error {
+func Connect(c *fiber.Ctx) error {
 
 	// Parse request
 	var req connectRequest
@@ -64,6 +65,8 @@ func connect(c *fiber.Ctx) error {
 		return requests.FailedRequest(c, "not.upgraded", nil)
 	}
 
+	// TODO: IMPLEMENT APPS
+
 	// Get lowest load node
 	var lowest node.Node
 	if err := database.DBConn.Model(&node.Node{}).Where(&node.Node{ClusterID: req.Cluster}).Order("load DESC").Take(&lowest).Error; err != nil {
@@ -82,5 +85,4 @@ func connect(c *fiber.Ctx) error {
 		"success": true,
 		"domain":  lowest.Domain,
 	})
-
 }

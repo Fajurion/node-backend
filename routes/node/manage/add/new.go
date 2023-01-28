@@ -1,4 +1,4 @@
-package manage
+package add
 
 import (
 	"node-backend/database"
@@ -18,7 +18,7 @@ type addRequest struct {
 	PeformanceLevel float32 `json:"performance_level"`
 }
 
-func addNode(c *fiber.Ctx) error {
+func newNode(c *fiber.Ctx) error {
 
 	// Parse body to add request
 	var req addRequest
