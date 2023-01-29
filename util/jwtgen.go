@@ -50,6 +50,13 @@ func Permission(c *fiber.Ctx, perm int16) bool {
 	return lvl >= perm
 }
 
+func GetToken(c *fiber.Ctx) string {
+	user := c.Locals("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+
+	return claims["tk"].(string)
+}
+
 func GetData(c *fiber.Ctx) map[string]interface{} {
 	user := c.Locals("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)

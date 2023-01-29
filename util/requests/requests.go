@@ -14,7 +14,7 @@ func SuccessfulRequest(c *fiber.Ctx) error {
 }
 
 func FailedRequest(c *fiber.Ctx, error string, err error) error {
-	return c.Status(400).JSON(fiber.Map{
+	return c.Status(200).JSON(fiber.Map{
 		"success": false,
 		"error":   error,
 	})
@@ -25,14 +25,14 @@ func InvalidRequest(c *fiber.Ctx) error {
 }
 
 // CheckSession checks if the session is valid (returns true if it isn't)
-func CheckSession(c *fiber.Ctx, token string, session *account.Session) bool {
+func CheckSession(token string, session *account.Session) bool {
 
 	err := database.DBConn.Take(session, token).Error
 	return err != nil
 }
 
 // CheckSessionPermission checks if the session has the required permission level (returns true if it doesn't)
-func CheckSessionPermission(c *fiber.Ctx, token string, permission uint, session *account.Session) bool {
+func CheckSessionPermission(token string, permission uint, session *account.Session) bool {
 
 	err := database.DBConn.Take(session, token).Error
 

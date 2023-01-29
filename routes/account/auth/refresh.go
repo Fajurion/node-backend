@@ -17,7 +17,7 @@ func refreshSession(c *fiber.Ctx) error {
 	tk := data["tk"].(string)
 
 	var session account.Session
-	if requests.CheckSession(c, tk, &session) {
+	if requests.CheckSession(tk, &session) {
 		return requests.InvalidRequest(c)
 	}
 

@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"log"
 	"node-backend/database"
 	"node-backend/entities/account"
 	"node-backend/util"
@@ -23,6 +24,7 @@ func login(c *fiber.Ctx) error {
 
 	// Parse request body
 	if err := c.BodyParser(&req); err != nil {
+		log.Println(err)
 		return requests.InvalidRequest(c)
 	}
 
@@ -33,7 +35,9 @@ func login(c *fiber.Ctx) error {
 
 	// Get user from database
 	var acc account.Account
-	database.DBConn.Model(&account.Account{}).Where("email = ?", req.Email).Preload("Rank").First(&acc)
+	if err := database.DBConn.Where("email = ?", req.Email).Preload("Rank").First(&acc).Error; err != nil {
+		return requests.FailedRequest(c, "invalid.password", nil)
+	}
 
 	// Check account details
 	if err := checkAccountDetails(c, acc, req); err != nil {

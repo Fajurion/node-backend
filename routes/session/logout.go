@@ -15,7 +15,7 @@ func logOut(c *fiber.Ctx) error {
 	token := util.GetData(c)
 
 	var session account.Session
-	if requests.CheckSession(c, token["tk"].(string), &session) {
+	if requests.CheckSession(token["tk"].(string), &session) {
 		return requests.InvalidRequest(c)
 	}
 

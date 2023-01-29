@@ -1,8 +1,10 @@
 package account
 
 import (
+	"log"
 	"node-backend/entities/account/properties"
 	"node-backend/util/auth"
+	"strings"
 	"time"
 )
 
@@ -29,5 +31,7 @@ type Account struct {
 func (a *Account) CheckPassword(password string) bool {
 
 	// Check if password is correct
-	return a.Password == auth.HashPassword(password)
+
+	log.Println(auth.HashPassword(password), " | ", a.Password)
+	return strings.Compare(a.Password, auth.HashPassword(password)) == 0
 }

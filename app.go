@@ -39,5 +39,5 @@ func main() {
 	log.Println("Test token: " + token)
 
 	// Listen on port 3000
-	app.Listen(":3000")
+	app.Listen("127.0.0.1:3000")
 }

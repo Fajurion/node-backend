@@ -30,7 +30,7 @@ func Connect(c *fiber.Ctx) error {
 
 	// Get account
 	data := util.GetData(c)
-	tk := data["tk"].(string)
+	tk := util.GetToken(c)
 
 	var acc account.Account
 	var current account.Session = account.Session{
@@ -74,10 +74,14 @@ func Connect(c *fiber.Ctx) error {
 		return requests.FailedRequest(c, "not.setup", nil)
 	}
 
-	lowest.GetConnection(tk)
+	connectionTk, err := lowest.GetConnection(tk, uint(data["acc"].(float64)))
+	if err != nil {
+		return requests.FailedRequest(c, "server.error", err)
+	}
 
 	current.Connected = true
 	current.Device = fmt.Sprintf("app:%d", req.App)
+	current.Node = lowest.ID
 	if err := database.DBConn.Save(&current).Error; err != nil {
 		return requests.FailedRequest(c, "server.error", err)
 	}
@@ -85,5 +89,7 @@ func Connect(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success": true,
 		"domain":  lowest.Domain,
+		"id":      lowest.ID,
+		"token":   connectionTk,
 	})
 }

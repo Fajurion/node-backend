@@ -1,6 +1,14 @@
 package node
 
-import "node-backend/entities/app"
+import (
+	"io"
+	"net/http"
+	"node-backend/entities/app"
+	"strings"
+
+	"github.com/bytedance/sonic"
+	"github.com/gofiber/fiber/v2"
+)
 
 type Node struct {
 	ID uint `json:"id" gorm:"primaryKey"`
@@ -46,9 +54,33 @@ func (n *Node) SendAdoption(domain string, token string) error {
 	return nil
 }
 
-func (n *Node) GetConnection(token string) error {
+func (n *Node) GetConnection(token string, user uint) (string, error) {
 
-	// Get new token
+	req, _ := sonic.Marshal(fiber.Map{
+		"node_token": n.Token,
+		"session":    token,
+		"user_id":    user,
+	})
 
-	return nil
+	reader := strings.NewReader(string(req))
+
+	res, err := http.Post("http://"+n.Domain+"/auth/initialize", "application/json", reader)
+	if err != nil {
+		return "", err
+	}
+
+	buf := new(strings.Builder)
+	_, err = io.Copy(buf, res.Body)
+
+	if err != nil {
+		return "", err
+	}
+
+	var data map[string]string
+	err = sonic.Unmarshal([]byte(buf.String()), &data)
+	if err != nil {
+		return "", err
+	}
+
+	return data["token"], nil
 }

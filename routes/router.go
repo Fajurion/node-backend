@@ -16,6 +16,7 @@ func Router(router fiber.Router) {
 
 	// Unauthorized routes
 	router.Route("/auth", auth.Setup)
+	router.Route("/node", node.Unauthorized)
 
 	router.Use(jwtware.New(jwtware.Config{
 		SigningKey: []byte(util.JWT_SECRET),
@@ -32,7 +33,7 @@ func Router(router fiber.Router) {
 	}))
 
 	// Authorized routes
-	router.Route("/node", node.Setup)
+	router.Route("/node", node.Authorized)
 	router.Route("/app", app.Setup)
 	router.Route("/cluster", cluster.Setup)
 }
