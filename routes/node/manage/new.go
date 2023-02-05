@@ -67,7 +67,7 @@ func newNode(c *fiber.Ctx) error {
 	database.DBConn.Model(&node.Node{}).Where("cluster_id = ?", req.Cluster).Find(&nodes)
 
 	for _, n := range nodes {
-		if n.IsStarted() && n.ID != created.ID {
+		if n.Status == node.StatusStarted && n.ID != created.ID {
 			n.SendAdoption(created.Domain, created.Token)
 		}
 	}

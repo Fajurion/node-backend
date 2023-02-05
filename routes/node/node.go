@@ -3,12 +3,15 @@ package node
 import (
 	"node-backend/routes/node/connect"
 	"node-backend/routes/node/manage"
+	"node-backend/routes/node/status"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 func Unauthorized(router fiber.Router) {
 	router.Post("/disconnect", connect.Disconnect)
+	router.Post("/list", listNodes)
+	router.Route("/status", status.Setup)
 }
 
 func Authorized(router fiber.Router) {

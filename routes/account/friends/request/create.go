@@ -41,6 +41,10 @@ func createRequest(c *fiber.Ctx) error {
 		return requests.InvalidRequest(c)
 	}
 
+	if friend.ID == session.Account {
+		return requests.FailedRequest(c, "cannot.add.self", nil)
+	}
+
 	// Check if the friend is already a friend
 	var friendCheck properties.Friend
 	if err := database.DBConn.Where(&properties.Friend{Account: friend.ID, Friend: session.Account}).Take(&friendCheck).Error; err == nil && !friendCheck.Request {

@@ -20,31 +20,11 @@ type Node struct {
 	Load            float64 `json:"load"`
 	PeformanceLevel float32 `json:"performance_level"`
 
-	// started: 0, stopped: 1, starting: 2, stopping: 3, error: 4
+	// 0 - Started, 1 - Stopped, 2 - Error
 	Status uint `json:"status"`
 
 	Cluster Cluster // This is an association (may still be broken)
 	App     app.App // This is an association (may still be broken)
-}
-
-func (n *Node) IsStarted() bool {
-	return n.Status == 0
-}
-
-func (n *Node) IsStopped() bool {
-	return n.Status == 1
-}
-
-func (n *Node) IsStarting() bool {
-	return n.Status == 2
-}
-
-func (n *Node) IsStopping() bool {
-	return n.Status == 3
-}
-
-func (n *Node) HadError() bool {
-	return n.Status == 4
 }
 
 func (n *Node) SendAdoption(domain string, token string) error {
@@ -84,3 +64,7 @@ func (n *Node) GetConnection(token string, user uint) (string, error) {
 
 	return data["token"], nil
 }
+
+const StatusStarted = 0
+const StatusStopped = 1
+const StatusError = 2
