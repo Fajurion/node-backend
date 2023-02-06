@@ -12,6 +12,13 @@ type listRequest struct {
 	Token string `json:"token"`
 }
 
+type nodeEntity struct {
+	ID     uint   `json:"id"`
+	Token  string `json:"token"`
+	App    uint   `json:"app"`
+	Domain string `json:"domain"`
+}
+
 func listNodes(c *fiber.Ctx) error {
 
 	// Get app
@@ -29,14 +36,22 @@ func listNodes(c *fiber.Ctx) error {
 
 	// Get started nodes
 	var nodes []node.Node
-	database.DBConn.Where("app = ?", requested.App).Find(&nodes)
+	database.DBConn.Where("app_id = ?", requested.AppID).Find(&nodes)
 
-	var startedNodes []node.Node
+	var startedNodes []nodeEntity
 	for _, n := range nodes {
-		if n.Status == node.StatusStarted {
-			startedNodes = append(startedNodes, n)
+		if n.Status == node.StatusStarted && n.ID != requested.ID {
+			startedNodes = append(startedNodes, nodeEntity{
+				ID:     n.ID,
+				Token:  n.Token,
+				App:    n.AppID,
+				Domain: n.Domain,
+			})
 		}
 	}
 
-	return c.JSON(startedNodes)
+	return c.JSON(fiber.Map{
+		"success": true,
+		"nodes":   startedNodes,
+	})
 }
