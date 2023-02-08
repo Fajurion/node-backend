@@ -60,7 +60,10 @@ func newNode(c *fiber.Ctx) error {
 		PeformanceLevel: req.PeformanceLevel,
 		Status:          1,
 	}
-	database.DBConn.Create(&created)
+
+	if err := database.DBConn.Create(&created).Error; err != nil {
+		return requests.FailedRequest(c, "invalid.domain", nil)
+	}
 
 	// Adopt new node
 	var nodes []node.Node

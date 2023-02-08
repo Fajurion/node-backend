@@ -36,7 +36,10 @@ func listNodes(c *fiber.Ctx) error {
 
 	// Get started nodes
 	var nodes []node.Node
-	database.DBConn.Where("app_id = ?", requested.AppID).Find(&nodes)
+	database.DBConn.Where(&node.Node{
+		AppID:  requested.AppID,
+		Status: node.StatusStarted,
+	}).Find(&nodes)
 
 	var startedNodes []nodeEntity
 	for _, n := range nodes {
