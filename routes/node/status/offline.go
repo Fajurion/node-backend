@@ -8,47 +8,31 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type onlineRequest struct {
+type offlineRequest struct {
 	Token string `json:"token"`
 }
 
-func online(c *fiber.Ctx) error {
+func offline(c *fiber.Ctx) error {
 
 	// Parse request
-	var req onlineRequest
+	var req offlineRequest
 	if err := c.BodyParser(&req); err != nil {
 		return requests.InvalidRequest(c)
 	}
 
 	// Get node
 	var requested node.Node
-	database.DBConn.Where("token = ?", req.Token).Take(&requested)
-
-	if requested.ID == 0 {
+	if err := database.DBConn.Where("token = ?", req.Token).Take(&requested).Error; err != nil {
 		return requests.InvalidRequest(c)
 	}
 
 	// Update status
-	requested.Status = node.StatusStarted
+	requested.Status = node.StatusStopped
 	requested.Load = 0
 
 	if err := database.DBConn.Save(&requested).Error; err != nil {
 		return requests.InvalidRequest(c)
 	}
 
-	// Send adoption
-	var nodes []node.Node
-	database.DBConn.Where(&node.Node{
-		AppID:  requested.AppID,
-		Status: node.StatusStarted,
-	}).Find(&nodes)
-
-	for _, n := range nodes {
-		if n.ID != requested.ID {
-			n.SendAdoption(requested)
-		}
-	}
-
-	return requests.SuccessfulRequest(c)
-
+	return nil
 }

@@ -79,6 +79,7 @@ func Connect(c *fiber.Ctx) error {
 
 		// Set the node to error
 		lowest.Status = node.StatusError
+		lowest.Load = 0
 		if err := database.DBConn.Save(&lowest).Error; err != nil {
 			return requests.FailedRequest(c, "server.error", err)
 		}

@@ -12,13 +12,6 @@ type listRequest struct {
 	Token string `json:"token"`
 }
 
-type nodeEntity struct {
-	ID     uint   `json:"id"`
-	Token  string `json:"token"`
-	App    uint   `json:"app"`
-	Domain string `json:"domain"`
-}
-
 func listNodes(c *fiber.Ctx) error {
 
 	// Get app
@@ -41,10 +34,10 @@ func listNodes(c *fiber.Ctx) error {
 		Status: node.StatusStarted,
 	}).Find(&nodes)
 
-	var startedNodes []nodeEntity
+	var startedNodes []node.NodeEntity
 	for _, n := range nodes {
 		if n.Status == node.StatusStarted && n.ID != requested.ID {
-			startedNodes = append(startedNodes, nodeEntity{
+			startedNodes = append(startedNodes, node.NodeEntity{
 				ID:     n.ID,
 				Token:  n.Token,
 				App:    n.AppID,

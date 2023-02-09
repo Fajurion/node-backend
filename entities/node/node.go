@@ -27,7 +27,16 @@ type Node struct {
 	App     app.App // This is an association (may still be broken)
 }
 
-func (n *Node) SendAdoption(domain string, token string) error {
+func (n *Node) toEntity() NodeEntity {
+	return NodeEntity{
+		ID:     n.ID,
+		Token:  n.Token,
+		App:    n.AppID,
+		Domain: n.Domain,
+	}
+}
+
+func (n *Node) SendAdoption(node Node) error {
 
 	// Send adoption request
 
@@ -68,3 +77,10 @@ func (n *Node) GetConnection(token string, user uint) (string, error) {
 const StatusStarted = 0
 const StatusStopped = 1
 const StatusError = 2
+
+type NodeEntity struct {
+	ID     uint   `json:"id"`
+	Token  string `json:"token"`
+	App    uint   `json:"app"`
+	Domain string `json:"domain"`
+}

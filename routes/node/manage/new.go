@@ -71,7 +71,7 @@ func newNode(c *fiber.Ctx) error {
 
 	for _, n := range nodes {
 		if n.Status == node.StatusStarted && n.ID != created.ID {
-			n.SendAdoption(created.Domain, created.Token)
+			n.SendAdoption(created)
 		}
 	}
 
