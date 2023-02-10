@@ -1,6 +1,7 @@
 package status
 
 import (
+	"log"
 	"node-backend/database"
 	"node-backend/entities/node"
 	"node-backend/util/requests"
@@ -38,14 +39,17 @@ func online(c *fiber.Ctx) error {
 
 	// Send adoption
 	var nodes []node.Node
-	database.DBConn.Where(&node.Node{
-		AppID:  requested.AppID,
-		Status: node.StatusStarted,
-	}).Find(&nodes)
+	database.DBConn.Model(&node.Node{}).Where("app_id = ?", requested.AppID).Where("status = ?", node.StatusStarted).Find(&nodes)
 
 	for _, n := range nodes {
 		if n.ID != requested.ID {
-			n.SendAdoption(requested)
+			if err := n.SendAdoption(requested); err != nil {
+
+				log.Println("Found offline node: " + n.Domain + "! Shutting down..")
+
+				n.Status = node.StatusError
+				database.DBConn.Save(&n)
+			}
 		}
 	}
 

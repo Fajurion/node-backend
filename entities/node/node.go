@@ -1,12 +1,9 @@
 package node
 
 import (
-	"io"
-	"net/http"
 	"node-backend/entities/app"
-	"strings"
+	"node-backend/util"
 
-	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -27,7 +24,7 @@ type Node struct {
 	App     app.App // This is an association (may still be broken)
 }
 
-func (n *Node) toEntity() NodeEntity {
+func (n *Node) ToEntity() NodeEntity {
 	return NodeEntity{
 		ID:     n.ID,
 		Token:  n.Token,
@@ -38,13 +35,35 @@ func (n *Node) toEntity() NodeEntity {
 
 func (n *Node) SendAdoption(node Node) error {
 
-	// Send adoption request
+	_, err := util.PostRequest("http://"+n.Domain+"/adoption/initialize", fiber.Map{
+		"token": n.Token,
+		"node":  node.ToEntity(),
+	})
+
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
 
 func (n *Node) GetConnection(token string, user uint) (string, error) {
 
+	res, err := util.PostRequest("http://"+n.Domain+"/auth/initialize", fiber.Map{
+		"node_token": n.Token,
+		"session":    token,
+		"user_id":    user,
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	n.Load = res["load"].(float64)
+
+	return res["token"].(string), nil
+
+	/* PREVIOUS CODE
 	req, _ := sonic.Marshal(fiber.Map{
 		"node_token": n.Token,
 		"session":    token,
@@ -65,13 +84,16 @@ func (n *Node) GetConnection(token string, user uint) (string, error) {
 		return "", err
 	}
 
-	var data map[string]string
+	var data map[string]interface{}
 	err = sonic.Unmarshal([]byte(buf.String()), &data)
 	if err != nil {
 		return "", err
 	}
 
-	return data["token"], nil
+	n.Load = data["load"].(float64)
+
+	return data["token"].(string), nil
+	*/
 }
 
 const StatusStarted = 0

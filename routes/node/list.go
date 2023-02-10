@@ -37,12 +37,7 @@ func listNodes(c *fiber.Ctx) error {
 	var startedNodes []node.NodeEntity
 	for _, n := range nodes {
 		if n.Status == node.StatusStarted && n.ID != requested.ID {
-			startedNodes = append(startedNodes, node.NodeEntity{
-				ID:     n.ID,
-				Token:  n.Token,
-				App:    n.AppID,
-				Domain: n.Domain,
-			})
+			startedNodes = append(startedNodes, n.ToEntity())
 		}
 	}
 

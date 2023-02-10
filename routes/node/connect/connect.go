@@ -94,6 +94,11 @@ func Connect(c *fiber.Ctx) error {
 		return requests.FailedRequest(c, "server.error", err)
 	}
 
+	// Save node
+	if err := database.DBConn.Save(&lowest).Error; err != nil {
+		return requests.FailedRequest(c, "server.error", err)
+	}
+
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success": true,
 		"domain":  lowest.Domain,

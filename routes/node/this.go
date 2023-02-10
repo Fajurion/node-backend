@@ -1,4 +1,4 @@
-package status
+package node
 
 import (
 	"node-backend/database"
@@ -8,14 +8,14 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type offlineRequest struct {
+type thisRequest struct {
 	Token string `json:"token"`
 }
 
-func offline(c *fiber.Ctx) error {
+func this(c *fiber.Ctx) error {
 
 	// Parse request
-	var req offlineRequest
+	var req thisRequest
 	if err := c.BodyParser(&req); err != nil {
 		return requests.InvalidRequest(c)
 	}
@@ -26,13 +26,9 @@ func offline(c *fiber.Ctx) error {
 		return requests.InvalidRequest(c)
 	}
 
-	// Update status
-	requested.Status = node.StatusStopped
-	requested.Load = 0
+	return c.JSON(fiber.Map{
+		"success": true,
+		"node":    requested.ToEntity(),
+	})
 
-	if err := database.DBConn.Save(&requested).Error; err != nil {
-		return requests.FailedRequest(c, "server.error", err)
-	}
-
-	return requests.SuccessfulRequest(c)
 }
