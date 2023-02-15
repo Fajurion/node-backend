@@ -11,3 +11,15 @@ type Project struct {
 	Containers []Container `json:"containers" gorm:"foreignKey:Project"`
 	Members    []Member    `json:"members" gorm:"foreignKey:Project"`
 }
+
+func (p Project) ToEntity() ProjectEntity {
+	return ProjectEntity{
+		ID:   p.ID,
+		Data: p.Data,
+	}
+}
+
+type ProjectEntity struct {
+	ID   uint   `json:"id"`
+	Data string `json:"data"`
+}

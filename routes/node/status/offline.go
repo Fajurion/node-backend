@@ -3,6 +3,7 @@ package status
 import (
 	"node-backend/database"
 	"node-backend/entities/node"
+	"node-backend/util/nodes"
 	"node-backend/util/requests"
 
 	"github.com/gofiber/fiber/v2"
@@ -27,8 +28,7 @@ func offline(c *fiber.Ctx) error {
 	}
 
 	// Update status
-	requested.Status = node.StatusStopped
-	requested.Load = 0
+	nodes.TurnOff(requested, node.StatusStopped)
 
 	if err := database.DBConn.Save(&requested).Error; err != nil {
 		return requests.FailedRequest(c, "server.error", err)

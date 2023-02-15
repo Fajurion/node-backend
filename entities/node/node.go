@@ -59,7 +59,9 @@ func (n *Node) GetConnection(token string, user uint) (string, error) {
 		return "", err
 	}
 
-	n.Load = res["load"].(float64)
+	if res["load"] != nil {
+		n.Load = res["load"].(float64)
+	}
 
 	return res["token"].(string), nil
 

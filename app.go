@@ -8,6 +8,7 @@ import (
 	"node-backend/routes"
 	"node-backend/util"
 	"node-backend/util/auth"
+	"node-backend/util/nodes"
 	"os"
 	"time"
 
@@ -62,15 +63,14 @@ func testMode() {
 
 	log.Println("Test token: " + token)
 
-	var nodes []node.Node
-	database.DBConn.Find(&nodes)
+	var foundNodes []node.Node
+	database.DBConn.Find(&foundNodes)
 
-	for _, n := range nodes {
+	for _, n := range foundNodes {
 		if n.Status == node.StatusStarted {
 			log.Println("Stopping node", n.Domain)
-			n.Status = node.StatusStopped
 
-			database.DBConn.Save(&n)
+			nodes.TurnOff(n, node.StatusStopped)
 		}
 	}
 }

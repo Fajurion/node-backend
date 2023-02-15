@@ -4,6 +4,7 @@ import (
 	"log"
 	"node-backend/database"
 	"node-backend/entities/node"
+	"node-backend/util/nodes"
 	"node-backend/util/requests"
 
 	"github.com/gofiber/fiber/v2"
@@ -30,29 +31,22 @@ func online(c *fiber.Ctx) error {
 	}
 
 	// Update status
-	requested.Status = node.StatusStarted
-	requested.Load = 0
-
-	if err := database.DBConn.Save(&requested).Error; err != nil {
-		return requests.InvalidRequest(c)
-	}
+	nodes.TurnOff(requested, node.StatusStarted)
 
 	// Send adoption
-	var nodes []node.Node
-	database.DBConn.Model(&node.Node{}).Where("app_id = ?", requested.AppID).Where("status = ?", node.StatusStarted).Find(&nodes)
+	var foundNodes []node.Node
+	database.DBConn.Model(&node.Node{}).Where("app_id = ?", requested.AppID).Where("status = ?", node.StatusStarted).Find(&foundNodes)
 
-	for _, n := range nodes {
+	for _, n := range foundNodes {
 		if n.ID != requested.ID {
 			if err := n.SendAdoption(requested); err != nil {
 
 				log.Println("Found offline node: " + n.Domain + "! Shutting down..")
 
-				n.Status = node.StatusError
-				database.DBConn.Save(&n)
+				nodes.TurnOff(requested, node.StatusStopped)
 			}
 		}
 	}
 
 	return requests.SuccessfulRequest(c)
-
 }

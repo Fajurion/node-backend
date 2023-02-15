@@ -1,7 +1,15 @@
 package friends
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"node-backend/routes/account/friends/request"
 
-func Setup(router fiber.Router) {
+	"github.com/gofiber/fiber/v2"
+)
 
+func Unauthorized(router fiber.Router) {
+	router.Route("/request", request.Setup)
+}
+
+func Authorized(router fiber.Router) {
+	router.Post("/remove", removeFriend)
 }

@@ -6,7 +6,11 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func Setup(router fiber.Router) {
-	router.Route("/friends", friends.Setup)
+func Unauthorized(router fiber.Router) {
+	router.Route("/friends", friends.Unauthorized)
+}
+
+func Authorized(router fiber.Router) {
 	router.Post("/me", me)
+	router.Route("/friends", friends.Authorized)
 }

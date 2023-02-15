@@ -1,7 +1,6 @@
 package request
 
 import (
-	"fmt"
 	"node-backend/database"
 	"node-backend/entities/account"
 	"node-backend/entities/account/properties"
@@ -13,7 +12,7 @@ import (
 )
 
 type addFriendRequest struct {
-	NodeToken string `json:"node_token"`
+	NodeToken string `json:"token"`
 	Session   string `json:"session"`
 	Username  string `json:"username"`
 	Tag       string `json:"tag"`
@@ -85,7 +84,7 @@ func ExecuteAction(c *fiber.Ctx, action string, nodeID uint, app uint, friend ac
 
 	var session account.Session
 	for _, s := range friend.Sessions {
-		if s.Connected && s.Device == fmt.Sprintf("app:%d", app) {
+		if s.Connected && s.App == app {
 			session = s
 			break
 		}

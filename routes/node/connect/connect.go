@@ -90,6 +90,7 @@ func Connect(c *fiber.Ctx) error {
 	current.Connected = true
 	current.Device = fmt.Sprintf("app:%d", req.App)
 	current.Node = lowest.ID
+	current.App = req.App
 	if err := database.DBConn.Save(&current).Error; err != nil {
 		return requests.FailedRequest(c, "server.error", err)
 	}

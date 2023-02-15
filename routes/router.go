@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"node-backend/routes/account"
 	"node-backend/routes/account/auth"
 	"node-backend/routes/app"
 	"node-backend/routes/cluster"
@@ -18,6 +19,7 @@ func Router(router fiber.Router) {
 	router.Route("/auth", auth.Setup)
 	router.Route("/node", node.Unauthorized)
 	router.Route("/app", app.Unauthorized)
+	router.Route("/account", account.Unauthorized)
 
 	router.Use(jwtware.New(jwtware.Config{
 		SigningKey: []byte(util.JWT_SECRET),
@@ -34,6 +36,7 @@ func Router(router fiber.Router) {
 	}))
 
 	// Authorized routes
+	router.Route("/account", account.Authorized)
 	router.Route("/node", node.Authorized)
 	router.Route("/app", app.Authorized)
 	router.Route("/cluster", cluster.Setup)
