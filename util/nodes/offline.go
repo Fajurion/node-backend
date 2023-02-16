@@ -14,7 +14,7 @@ func TurnOff(node node.Node, status uint) {
 	database.DBConn.Save(&node)
 
 	// Disconnect all sessions
-	DisconnectAll(node)
+	go DisconnectAll(node)
 }
 
 func DisconnectAll(node node.Node) {

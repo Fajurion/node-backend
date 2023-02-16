@@ -29,7 +29,7 @@ func Connect() {
 	}
 
 	log.Println("Successfully connected to the database.")
-	db.Logger = logger.Default.LogMode(logger.Error)
+	db.Logger = logger.Default.LogMode(logger.Info)
 
 	// Configure the database driver
 	driver, _ := db.DB()

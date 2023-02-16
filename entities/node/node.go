@@ -1,6 +1,7 @@
 package node
 
 import (
+	"log"
 	"node-backend/entities/app"
 	"node-backend/util"
 
@@ -17,7 +18,7 @@ type Node struct {
 	Load            float64 `json:"load"`
 	PeformanceLevel float32 `json:"performance_level"`
 
-	// 0 - Started, 1 - Stopped, 2 - Error
+	// 1 - Started, 2 - Stopped, 3 - Error
 	Status uint `json:"status"`
 
 	Cluster Cluster // This is an association (may still be broken)
@@ -49,6 +50,8 @@ func (n *Node) SendAdoption(node Node) error {
 
 func (n *Node) GetConnection(token string, user uint) (string, error) {
 
+	log.Println("Getting connection from node " + n.Domain)
+
 	res, err := util.PostRequest("http://"+n.Domain+"/auth/initialize", fiber.Map{
 		"node_token": n.Token,
 		"session":    token,
@@ -56,6 +59,7 @@ func (n *Node) GetConnection(token string, user uint) (string, error) {
 	})
 
 	if err != nil {
+		log.Println(err)
 		return "", err
 	}
 
@@ -98,9 +102,9 @@ func (n *Node) GetConnection(token string, user uint) (string, error) {
 	*/
 }
 
-const StatusStarted = 0
-const StatusStopped = 1
-const StatusError = 2
+const StatusStarted = 1
+const StatusStopped = 2
+const StatusError = 3
 
 type NodeEntity struct {
 	ID     uint   `json:"id"`

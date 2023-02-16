@@ -2,10 +2,12 @@ package connect
 
 import (
 	"fmt"
+	"log"
 	"node-backend/database"
 	"node-backend/entities/account"
 	"node-backend/entities/node"
 	"node-backend/util"
+	"node-backend/util/nodes"
 	"node-backend/util/requests"
 
 	"github.com/gofiber/fiber/v2"
@@ -42,6 +44,7 @@ func Connect(c *fiber.Ctx) error {
 
 	// Check for too many connections
 	connected := 0
+	var connectedNode uint
 	for _, session := range acc.Sessions {
 
 		if session.Token == tk {
@@ -49,6 +52,7 @@ func Connect(c *fiber.Ctx) error {
 		}
 
 		if session.Connected {
+			connectedNode = session.Node
 			connected++
 		}
 	}
@@ -67,10 +71,19 @@ func Connect(c *fiber.Ctx) error {
 
 	// Get lowest load node
 	var lowest node.Node
-	if err := database.DBConn.Model(&node.Node{}).Where(&node.Node{
+	var search node.Node = node.Node{
 		ClusterID: req.Cluster,
 		AppID:     req.App,
-	}).Order("load DESC").Take(&lowest).Error; err != nil {
+		Status:    node.StatusStarted,
+	}
+
+	// Connect to the same node if possible
+	if connected > 0 {
+		log.Println("Found existing connection!")
+		search.ID = connectedNode
+	}
+
+	if err := database.DBConn.Model(&node.Node{}).Where(&search).Order("load DESC").Take(&lowest).Error; err != nil {
 		return requests.FailedRequest(c, "not.setup", nil)
 	}
 
@@ -78,11 +91,7 @@ func Connect(c *fiber.Ctx) error {
 	if err != nil {
 
 		// Set the node to error
-		lowest.Status = node.StatusError
-		lowest.Load = 0
-		if err := database.DBConn.Save(&lowest).Error; err != nil {
-			return requests.FailedRequest(c, "server.error", err)
-		}
+		nodes.TurnOff(lowest, node.StatusError)
 
 		return requests.FailedRequest(c, "node.error", err)
 	}
