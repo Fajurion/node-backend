@@ -13,6 +13,7 @@ type removeRequest struct {
 	Account uint `json:"account"`
 }
 
+// Route: /account/friends/remove
 func removeFriend(c *fiber.Ctx) error {
 
 	// Parse request

@@ -18,6 +18,7 @@ type addFriendRequest struct {
 	Tag       string `json:"tag"`
 }
 
+// Route: /account/friends/request/create
 func createRequest(c *fiber.Ctx) error {
 
 	var req addFriendRequest
@@ -62,7 +63,7 @@ func createRequest(c *fiber.Ctx) error {
 			return requests.FailedRequest(c, "server.error", err)
 		}
 
-		database.DBConn.Create(&properties.Friend{
+		database.DBConn.Create(properties.Friend{
 			Account: session.Account,
 			Friend:  friend.ID,
 			Request: false,
@@ -103,7 +104,7 @@ func ExecuteAction(c *fiber.Ctx, action string, nodeID uint, app uint, friend ac
 		"success": true,
 		"action":  action,
 		"friend":  friend.ID,
-		"node":    nodeInfo,
+		"node":    nodeInfo.ToEntity(),
 	})
 
 }

@@ -1,9 +1,12 @@
 package account
 
-import "time"
+import (
+	"time"
+)
 
 type Session struct {
-	Token string `json:"token" gorm:"primaryKey"`
+	ID    uint   `json:"id" gorm:"primaryKey"` // ID is the primary key of the table
+	Token string `json:"token" gorm:"unique"`
 
 	Account         uint      `json:"account"`
 	PermissionLevel uint      `json:"level"`
@@ -14,18 +17,6 @@ type Session struct {
 	Node            uint      `json:"node"`
 }
 
-func (s *Session) IsDesktop() bool {
-	return s.Device == "desktop"
-}
-
-func (s *Session) IsWeb() bool {
-	return s.Device == "web"
-}
-
 func (s *Session) IsExpired() bool {
 	return time.Since(s.End) > 0
-}
-
-func (s *Session) Upgrade() {
-	s.Device = "desktop"
 }

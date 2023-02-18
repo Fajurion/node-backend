@@ -11,14 +11,13 @@ import (
 	"node-backend/entities/account"
 	"node-backend/entities/account/properties"
 	"node-backend/entities/app"
-	"node-backend/entities/app/projects"
 	"node-backend/entities/node"
 )
 
 var DBConn *gorm.DB
 
 func Connect() {
-	url := "host=localhost user=postgres password=deinemutter123 dbname=chat port=5432"
+	url := "host=localhost user=postgres password=deinemutter123 dbname=node_backend port=5432"
 
 	db, err := gorm.Open(postgres.Open(url), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Error),
@@ -57,12 +56,6 @@ func Connect() {
 	// Migrate app related tables
 	db.AutoMigrate(&app.App{})
 	db.AutoMigrate(&app.AppSetting{})
-
-	// Migrate project related tables
-	db.AutoMigrate(&projects.Project{})
-	db.AutoMigrate(&projects.Container{})
-	db.AutoMigrate(&projects.Event{})
-	db.AutoMigrate(&projects.Member{})
 
 	// Assign the database to the global variable
 	DBConn = db

@@ -16,6 +16,7 @@ type denyFriendRequest struct {
 	Account   uint   `json:"username"`
 }
 
+// Route: /account/friends/request/deny
 func denyRequest(c *fiber.Ctx) error {
 
 	// Parse request

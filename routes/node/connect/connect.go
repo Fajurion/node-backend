@@ -1,7 +1,6 @@
 package connect
 
 import (
-	"fmt"
 	"log"
 	"node-backend/database"
 	"node-backend/entities/account"
@@ -97,7 +96,6 @@ func Connect(c *fiber.Ctx) error {
 	}
 
 	current.Connected = true
-	current.Device = fmt.Sprintf("app:%d", req.App)
 	current.Node = lowest.ID
 	current.App = req.App
 	if err := database.DBConn.Save(&current).Error; err != nil {
