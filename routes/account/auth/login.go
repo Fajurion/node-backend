@@ -56,9 +56,9 @@ func login(c *fiber.Ctx) error {
 		Token:           tk,
 		Account:         acc.ID,
 		PermissionLevel: acc.Rank.Level,
-		Device:          "web",
-		Connected:       false,
+		Device:          "ph", // TODO: Give the user the option to choose the device
 		End:             time.Now().Add(time.Hour * 24 * 7),
+		LastConnection:  time.UnixMilli(0),
 	}
 
 	if err := database.DBConn.Create(&createdSession).Error; err != nil {
@@ -100,24 +100,14 @@ func checkAccountDetails(c *fiber.Ctx, acc account.Account, req loginRequest) er
 func checkSessions(c *fiber.Ctx, acc account.Account) error {
 
 	// Check if user has too many sessions
-	var sessions []account.Session
-	database.DBConn.Where("account = ?", acc.ID).Find(&sessions)
+	var sessions int64
+	if err := database.DBConn.Where(&account.Session{Account: acc.ID}).Count(&sessions).Error; err != nil {
+		return requests.FailedRequest(c, "server.error", err)
+	}
 
 	// TODO: Max sessions in application properties
-	if len(sessions) > 10 {
+	if sessions > 10 {
 		return requests.FailedRequest(c, "too.many.sessions", nil)
-	}
-
-	connected := 0
-	for _, session := range sessions {
-		if session.Connected {
-			connected++
-		}
-	}
-
-	// TODO: Max connected sessions in application properties
-	if connected > 3 {
-		return requests.FailedRequest(c, "too.many.connected", nil)
 	}
 
 	return nil

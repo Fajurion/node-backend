@@ -9,7 +9,6 @@ import (
 )
 
 func Unauthorized(router fiber.Router) {
-	router.Post("/disconnect", connect.Disconnect)
 	router.Post("/list", listNodes)
 	router.Route("/status", status.Setup)
 	router.Route("/manage", manage.Unauthorized)

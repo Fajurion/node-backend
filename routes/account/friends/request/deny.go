@@ -11,6 +11,7 @@ import (
 )
 
 type denyFriendRequest struct {
+	Node      uint   `json:"node"`
 	NodeToken string `json:"node_token"`
 	Session   string `json:"session"`
 	Account   uint   `json:"username"`
@@ -25,7 +26,7 @@ func denyRequest(c *fiber.Ctx) error {
 		return requests.InvalidRequest(c)
 	}
 
-	node, err := nodes.Node(req.NodeToken)
+	node, err := nodes.Node(req.Node, req.NodeToken)
 	if err != nil {
 		return requests.InvalidRequest(c)
 	}

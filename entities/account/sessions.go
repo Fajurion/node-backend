@@ -11,10 +11,10 @@ type Session struct {
 	Account         uint      `json:"account"`
 	PermissionLevel uint      `json:"level"`
 	Device          string    `json:"device"`
-	Connected       bool      `json:"connected"`
 	End             time.Time `json:"end"`
 	App             uint      `json:"app"`
 	Node            uint      `json:"node"`
+	LastConnection  time.Time `json:"last_connection"` // LastConnection is the last time a new connection was established
 }
 
 func (s *Session) IsExpired() bool {

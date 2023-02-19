@@ -1,14 +1,14 @@
 package node
 
 import (
-	"node-backend/database"
-	"node-backend/entities/node"
+	"node-backend/util/nodes"
 	"node-backend/util/requests"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 type thisRequest struct {
+	Node  uint   `json:"node"`
 	Token string `json:"token"`
 }
 
@@ -21,14 +21,14 @@ func this(c *fiber.Ctx) error {
 	}
 
 	// Get node
-	var requested node.Node
-	if err := database.DBConn.Where("token = ?", req.Token).Take(&requested).Error; err != nil {
+	node, err := nodes.Node(req.Node, req.Token)
+	if err != nil {
 		return requests.InvalidRequest(c)
 	}
 
 	return c.JSON(fiber.Map{
 		"success": true,
-		"node":    requested.ToEntity(),
+		"node":    node.ToEntity(),
 	})
 
 }

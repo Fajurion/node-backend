@@ -12,6 +12,7 @@ import (
 )
 
 type addFriendRequest struct {
+	Node      uint   `json:"node"`
 	NodeToken string `json:"token"`
 	Session   string `json:"session"`
 	Username  string `json:"username"`
@@ -26,7 +27,7 @@ func createRequest(c *fiber.Ctx) error {
 		return requests.InvalidRequest(c)
 	}
 
-	node, err := nodes.Node(req.NodeToken)
+	node, err := nodes.Node(req.Node, req.NodeToken)
 	if err != nil {
 		return requests.InvalidRequest(c)
 	}
@@ -85,7 +86,7 @@ func ExecuteAction(c *fiber.Ctx, action string, nodeID uint, app uint, friend ac
 
 	var session account.Session
 	for _, s := range friend.Sessions {
-		if s.Connected && s.App == app {
+		if /* s.Connected && */ s.App == app {
 			session = s
 			break
 		}

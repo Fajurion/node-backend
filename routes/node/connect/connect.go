@@ -1,13 +1,13 @@
 package connect
 
 import (
-	"log"
 	"node-backend/database"
 	"node-backend/entities/account"
 	"node-backend/entities/node"
 	"node-backend/util"
 	"node-backend/util/nodes"
 	"node-backend/util/requests"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -32,41 +32,33 @@ func Connect(c *fiber.Ctx) error {
 
 	// Get account
 	data := util.GetData(c)
+	currentSessionId := util.GetSession(c)
 	tk := req.Token
 
 	var acc account.Account
-	var current account.Session = account.Session{
-		Token: "-1",
-	}
-	if err := database.DBConn.Preload("Sessions").Take(&acc, data["acc"]).Error; err != nil {
+	if err := database.DBConn.Take(&acc, data["acc"]).Error; err != nil {
 		return requests.FailedRequest(c, "not.found", nil)
 	}
 
-	// Check for too many connections
-	connected := 0
-	var connectedNode uint
-	for _, session := range acc.Sessions {
-
-		if session.Token == tk {
-			current = session
-		}
-
-		if session.Connected {
-			connectedNode = session.Node
-			connected++
+	// Get the most recent session
+	var mostRecent account.Session
+	if err := database.DBConn.Where("account = ?", acc.ID).Order("last_connection DESC").Take(&mostRecent).Error; err != nil {
+		mostRecent = account.Session{
+			Token: "-1",
 		}
 	}
 
-	if current.Token == "-1" {
+	var currentSession account.Session
+	if err := database.DBConn.Where("id = ?", currentSessionId).Take(&currentSession).Error; err != nil {
 		return requests.FailedRequest(c, "not.found", nil)
 	}
 
-	if current.Connected {
-		return requests.FailedRequest(c, "already.connected", nil)
+	if currentSession.Token != tk {
+		return requests.FailedRequest(c, "invalid.token", nil)
 	}
 
-	if connected >= 3 && !util.Permission(c, util.PermissionServicesUnlimited) {
-		return requests.FailedRequest(c, "too.many.connections", nil)
+	if mostRecent.Token == "-1" {
+		return requests.FailedRequest(c, "not.found", nil)
 	}
 
 	// Get lowest load node
@@ -78,9 +70,8 @@ func Connect(c *fiber.Ctx) error {
 	}
 
 	// Connect to the same node if possible
-	if connected > 0 {
-		log.Println("Found existing connection!")
-		search.ID = connectedNode
+	if mostRecent.Token != "-1" {
+		search.ID = mostRecent.Node
 	}
 
 	if err := database.DBConn.Model(&node.Node{}).Where(&search).Order("load DESC").Take(&lowest).Error; err != nil {
@@ -96,10 +87,10 @@ func Connect(c *fiber.Ctx) error {
 		return requests.FailedRequest(c, "node.error", err)
 	}
 
-	current.Connected = true
-	current.Node = lowest.ID
-	current.App = req.App
-	if err := database.DBConn.Save(&current).Error; err != nil {
+	currentSession.LastConnection = time.Now()
+	currentSession.Node = lowest.ID
+	currentSession.App = req.App
+	if err := database.DBConn.Save(&currentSession).Error; err != nil {
 		return requests.FailedRequest(c, "server.error", err)
 	}
 

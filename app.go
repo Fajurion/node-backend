@@ -7,7 +7,6 @@ import (
 	"node-backend/entities/node"
 	"node-backend/routes"
 	"node-backend/util"
-	"node-backend/util/auth"
 	"node-backend/util/nodes"
 	"os"
 	"time"
@@ -56,7 +55,7 @@ func testMode() {
 		return
 	}
 
-	token, _ := util.Token(auth.GenerateToken(300), time.Now().Add(time.Hour*24), map[string]interface{}{
+	token, _ := util.Token(123, time.Now().Add(time.Hour*24), map[string]interface{}{
 		"acc": 123,
 		"lvl": 100,
 	})

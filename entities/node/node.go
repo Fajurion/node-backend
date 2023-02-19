@@ -21,8 +21,8 @@ type Node struct {
 	// 1 - Started, 2 - Stopped, 3 - Error
 	Status uint `json:"status"`
 
-	Cluster Cluster // This is an association (may still be broken)
-	App     app.App // This is an association (may still be broken)
+	Cluster Cluster `gorm:"foreignKey:ClusterID"`
+	App     app.App `gorm:"foreignKey:AppID"`
 }
 
 func (n *Node) ToEntity() NodeEntity {
