@@ -48,13 +48,13 @@ func (n *Node) SendAdoption(node Node) error {
 	return nil
 }
 
-func (n *Node) GetConnection(token string, user uint) (string, error) {
+func (n *Node) GetConnection(session uint, user uint) (string, error) {
 
 	log.Println("Getting connection from node " + n.Domain)
 
 	res, err := util.PostRequest("http://"+n.Domain+"/auth/initialize", fiber.Map{
 		"node_token": n.Token,
-		"session":    token,
+		"session":    session,
 		"user_id":    user,
 	})
 

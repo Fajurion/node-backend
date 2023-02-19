@@ -52,21 +52,21 @@ func login(c *fiber.Ctx) error {
 	// Create session
 	tk := auth.GenerateToken(100)
 
-	err := database.DBConn.Create(&account.Session{
+	var createdSession account.Session = account.Session{
 		Token:           tk,
 		Account:         acc.ID,
 		PermissionLevel: acc.Rank.Level,
 		Device:          "web",
 		Connected:       false,
-		End:             time.Now().Add(time.Hour * 24 * 3),
-	}).Error
+		End:             time.Now().Add(time.Hour * 24 * 7),
+	}
 
-	if err != nil {
+	if err := database.DBConn.Create(&createdSession).Error; err != nil {
 		requests.FailedRequest(c, "server.error", err)
 	}
 
 	// Generate jwt token
-	tk, err = util.Token(tk, time.Now().Add(time.Hour*24), fiber.Map{
+	jwtToken, err := util.Token(createdSession.ID, time.Now().Add(time.Hour*24), fiber.Map{
 		"acc": acc.ID,
 		"lvl": acc.Rank.Level,
 	})
@@ -76,8 +76,9 @@ func login(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"success": true,
-		"token":   tk,
+		"success":       true,
+		"token":         jwtToken,
+		"refresh_token": tk,
 	})
 }
 

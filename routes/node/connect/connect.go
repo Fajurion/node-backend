@@ -13,8 +13,9 @@ import (
 )
 
 type connectRequest struct {
-	Cluster uint `json:"cluster"`
-	App     uint `json:"app"`
+	Cluster uint   `json:"cluster"`
+	App     uint   `json:"app"`
+	Token   string `json:"token"`
 }
 
 func Connect(c *fiber.Ctx) error {
@@ -31,7 +32,7 @@ func Connect(c *fiber.Ctx) error {
 
 	// Get account
 	data := util.GetData(c)
-	tk := util.GetToken(c)
+	tk := req.Token
 
 	var acc account.Account
 	var current account.Session = account.Session{
@@ -86,7 +87,7 @@ func Connect(c *fiber.Ctx) error {
 		return requests.FailedRequest(c, "not.setup", nil)
 	}
 
-	connectionTk, err := lowest.GetConnection(tk, uint(data["acc"].(float64)))
+	connectionTk, err := lowest.GetConnection(util.GetSession(c), uint(data["acc"].(float64)))
 	if err != nil {
 
 		// Set the node to error

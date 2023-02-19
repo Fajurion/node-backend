@@ -10,14 +10,23 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+type refreshRequest struct {
+	Token string `json:"token"`
+}
+
 func refreshSession(c *fiber.Ctx) error {
+
+	// Parse request
+	var req refreshRequest
+	if err := c.BodyParser(&req); err != nil {
+		return requests.InvalidRequest(c)
+	}
 
 	// Check if session is valid
 	data := util.GetData(c)
-	tk := data["tk"].(string)
 
 	var session account.Session
-	if requests.CheckSession(tk, &session) {
+	if requests.CheckSession(req.Token, &session) {
 		return requests.InvalidRequest(c)
 	}
 
@@ -31,21 +40,22 @@ func refreshSession(c *fiber.Ctx) error {
 	}
 
 	// Check session duration
-	if time.Until(session.End) > time.Hour*16*3 {
+	if time.Until(session.End) > time.Hour*20*7 {
 		return requests.FailedRequest(c, "session.duration", nil)
 	}
 
 	// Refresh session
-	session.End = time.Now().Add(time.Hour * 24 * 3)
+	session.End = time.Now().Add(time.Hour * 24 * 7)
 	database.DBConn.Save(&session)
 
-	jwtToken, err := util.Token(tk, time.Now().Add(time.Hour*24), data)
+	jwtToken, err := util.Token(session.ID, time.Now().Add(time.Hour*24), data)
 	if err != nil {
 		return requests.FailedRequest(c, "server.error", err)
 	}
 
 	return c.JSON(fiber.Map{
-		"success": true,
-		"token":   jwtToken,
+		"success":       true,
+		"token":         jwtToken,
+		"refresh_token": session.Token,
 	})
 }
