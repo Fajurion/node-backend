@@ -69,7 +69,7 @@ func testMode() {
 		if n.Status == node.StatusStarted {
 			log.Println("Stopping node", n.Domain)
 
-			nodes.TurnOff(n, node.StatusStopped)
+			nodes.TurnOff(&n, node.StatusStopped)
 		}
 	}
 }

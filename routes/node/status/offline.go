@@ -28,7 +28,7 @@ func offline(c *fiber.Ctx) error {
 	}
 
 	// Update status
-	nodes.TurnOff(requested, node.StatusStopped)
+	nodes.TurnOff(&requested, node.StatusStopped)
 
 	if err := database.DBConn.Save(&requested).Error; err != nil {
 		return requests.FailedRequest(c, "server.error", err)

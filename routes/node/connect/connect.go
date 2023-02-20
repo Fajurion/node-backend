@@ -86,7 +86,7 @@ func Connect(c *fiber.Ctx) error {
 		}
 
 		// Set the node to error
-		nodes.TurnOff(lowest, node.StatusError)
+		nodes.TurnOff(&lowest, node.StatusError)
 
 		return requests.FailedRequest(c, "node.error", err)
 	}

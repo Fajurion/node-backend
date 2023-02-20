@@ -20,7 +20,7 @@ func Connect() {
 	url := "host=localhost user=postgres password=deinemutter123 dbname=node_backend port=5432"
 
 	db, err := gorm.Open(postgres.Open(url), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Error),
+		Logger: logger.Default.LogMode(logger.Warn),
 	})
 
 	if err != nil {
@@ -28,7 +28,6 @@ func Connect() {
 	}
 
 	log.Println("Successfully connected to the database.")
-	db.Logger = logger.Default.LogMode(logger.Error)
 
 	// Configure the database driver
 	driver, _ := db.DB()

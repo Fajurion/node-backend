@@ -30,20 +30,25 @@ func online(c *fiber.Ctx) error {
 	}
 
 	// Update status
-	nodes.TurnOff(requested, node.StatusStarted)
+	nodes.TurnOff(&requested, node.StatusStarted)
 
 	// Send adoption
 	var foundNodes []node.Node
 	var startedNodes []node.NodeEntity
-	database.DBConn.Model(&node.Node{}).Where("app_id = ?", requested.AppID).Where("status = ?", node.StatusStarted).Find(&foundNodes)
+	if err := database.DBConn.Where(&node.Node{
+		AppID:  requested.AppID,
+		Status: node.StatusStarted,
+	}).Find(&foundNodes).Error; err != nil {
+		return requests.FailedRequest(c, "server.error", err)
+	}
 
 	for _, n := range foundNodes {
 		if n.ID != requested.ID {
-			if err := n.SendPing(requested); err != nil {
+			if err := n.SendPing(n); err != nil {
 
 				log.Println("Found offline node: " + n.Domain + "! Shutting down..")
 
-				nodes.TurnOff(requested, node.StatusStopped)
+				nodes.TurnOff(&n, node.StatusStopped)
 			} else {
 				startedNodes = append(startedNodes, n.ToEntity())
 			}
