@@ -20,8 +20,7 @@ func Connect() {
 	url := "host=localhost user=postgres password=deinemutter123 dbname=node_backend port=5432"
 
 	db, err := gorm.Open(postgres.Open(url), &gorm.Config{
-		Logger:                 logger.Default.LogMode(logger.Error),
-		SkipDefaultTransaction: true,
+		Logger: logger.Default.LogMode(logger.Error),
 	})
 
 	if err != nil {

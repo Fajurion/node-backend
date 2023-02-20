@@ -1,7 +1,7 @@
 package node
 
 import (
-	"log"
+	"errors"
 	"node-backend/entities/app"
 	"node-backend/util"
 
@@ -34,23 +34,14 @@ func (n *Node) ToEntity() NodeEntity {
 	}
 }
 
-func (n *Node) SendAdoption(node Node) error {
+func (n *Node) SendPing(node Node) error {
 
-	_, err := util.PostRequest("http://"+n.Domain+"/adoption/initialize", fiber.Map{
-		"token": n.Token,
-		"node":  node.ToEntity(),
-	})
+	_, err := util.PostRequest("http://"+n.Domain+"/ping", fiber.Map{})
 
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
-func (n *Node) GetConnection(session uint, user uint) (string, error) {
-
-	log.Println("Getting connection from node " + n.Domain)
+func (n *Node) GetConnection(session uint, user uint) (string, bool, error) {
 
 	res, err := util.PostRequest("http://"+n.Domain+"/auth/initialize", fiber.Map{
 		"node_token": n.Token,
@@ -59,15 +50,18 @@ func (n *Node) GetConnection(session uint, user uint) (string, error) {
 	})
 
 	if err != nil {
-		log.Println(err)
-		return "", err
+		return "", false, err
 	}
 
 	if res["load"] != nil {
 		n.Load = res["load"].(float64)
 	}
 
-	return res["token"].(string), nil
+	if !res["success"].(bool) {
+		return "", true, errors.New(res["message"].(string))
+	}
+
+	return res["token"].(string), true, nil
 
 	/* PREVIOUS CODE
 	req, _ := sonic.Marshal(fiber.Map{

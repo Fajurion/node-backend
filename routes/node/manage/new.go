@@ -65,16 +65,6 @@ func newNode(c *fiber.Ctx) error {
 		return requests.FailedRequest(c, "invalid.domain", nil)
 	}
 
-	// Adopt new node
-	var nodes []node.Node
-	database.DBConn.Model(&node.Node{}).Where("cluster_id = ?", req.Cluster).Find(&nodes)
-
-	for _, n := range nodes {
-		if n.Status == node.StatusStarted && n.ID != created.ID {
-			n.SendAdoption(created)
-		}
-	}
-
 	return c.JSON(fiber.Map{
 		"success": true,
 		"token":   created.Token,

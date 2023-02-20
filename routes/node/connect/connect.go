@@ -78,8 +78,12 @@ func Connect(c *fiber.Ctx) error {
 		return requests.FailedRequest(c, "not.setup", nil)
 	}
 
-	connectionTk, err := lowest.GetConnection(util.GetSession(c), uint(data["acc"].(float64)))
+	connectionTk, success, err := lowest.GetConnection(util.GetSession(c), uint(data["acc"].(float64)))
 	if err != nil {
+
+		if success {
+			return requests.FailedRequest(c, err.Error(), nil)
+		}
 
 		// Set the node to error
 		nodes.TurnOff(lowest, node.StatusError)

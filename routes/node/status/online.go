@@ -11,6 +11,7 @@ import (
 )
 
 type onlineRequest struct {
+	ID    uint   `json:"id"`
 	Token string `json:"token"`
 }
 
@@ -23,10 +24,8 @@ func online(c *fiber.Ctx) error {
 	}
 
 	// Get node
-	var requested node.Node
-	database.DBConn.Where("token = ?", req.Token).Take(&requested)
-
-	if requested.ID == 0 {
+	requested, err := nodes.Node(req.ID, req.Token)
+	if err != nil {
 		return requests.InvalidRequest(c)
 	}
 
@@ -35,18 +34,24 @@ func online(c *fiber.Ctx) error {
 
 	// Send adoption
 	var foundNodes []node.Node
+	var startedNodes []node.NodeEntity
 	database.DBConn.Model(&node.Node{}).Where("app_id = ?", requested.AppID).Where("status = ?", node.StatusStarted).Find(&foundNodes)
 
 	for _, n := range foundNodes {
 		if n.ID != requested.ID {
-			if err := n.SendAdoption(requested); err != nil {
+			if err := n.SendPing(requested); err != nil {
 
 				log.Println("Found offline node: " + n.Domain + "! Shutting down..")
 
 				nodes.TurnOff(requested, node.StatusStopped)
+			} else {
+				startedNodes = append(startedNodes, n.ToEntity())
 			}
 		}
 	}
 
-	return requests.SuccessfulRequest(c)
+	return c.JSON(fiber.Map{
+		"success": true,
+		"nodes":   startedNodes,
+	})
 }
