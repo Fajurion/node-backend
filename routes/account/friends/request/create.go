@@ -12,11 +12,18 @@ import (
 )
 
 type addFriendRequest struct {
-	Node      uint   `json:"node"`
+	Node      uint   `json:"id"`
 	NodeToken string `json:"token"`
-	Session   string `json:"session"`
+	Session   uint   `json:"session"`
 	Username  string `json:"username"`
 	Tag       string `json:"tag"`
+}
+
+type addFriendResponse struct {
+	Success bool            `json:"success"`
+	Action  string          `json:"action"`
+	Friend  uint            `json:"friend"`
+	Node    node.NodeEntity `json:"node"`
 }
 
 // Route: /account/friends/request/create
@@ -33,12 +40,12 @@ func createRequest(c *fiber.Ctx) error {
 	}
 
 	var session account.Session
-	if requests.CheckSession(req.Session, &session) {
+	if !requests.GetSession(req.Session, &session) {
 		return requests.InvalidRequest(c)
 	}
 
 	var friend account.Account
-	if err := database.DBConn.Where(&account.Account{Username: req.Username, Tag: req.Tag}).Preload("Sessions").Take(&friend).Error; err != nil {
+	if err := database.DBConn.Where(&account.Account{Username: req.Username, Tag: req.Tag}).Take(&friend).Error; err != nil {
 		return requests.InvalidRequest(c)
 	}
 
@@ -56,11 +63,14 @@ func createRequest(c *fiber.Ctx) error {
 		return requests.FailedRequest(c, "already.requested", nil)
 	}
 
+	var friendSession account.Session
+	database.DBConn.Where(&account.Session{Account: friend.ID}).Not("node = ?", 0).Take(&friendSession) // Doesn't matter if the session is connected or not
+
 	if friendCheck.Request {
 
 		// Accept friend request
 		friendCheck.Request = false
-		if err := database.DBConn.Save(&friendCheck).Error; err != nil {
+		if err := database.DBConn.Omit("Friend").Save(&friendCheck).Error; err != nil {
 			return requests.FailedRequest(c, "server.error", err)
 		}
 
@@ -70,30 +80,32 @@ func createRequest(c *fiber.Ctx) error {
 			Request: false,
 		})
 
-		return ExecuteAction(c, "accept", node.ID, node.AppID, friend)
+		return ExecuteAction(c, "accept", node.ID, node.AppID, friend, friendSession)
 	}
 
 	// Send friend request
-	if err := database.DBConn.Create(&properties.Friend{Account: session.Account, Friend: friend.ID, Request: true}).Error; err != nil {
+	if err := database.DBConn.Create(&properties.Friend{
+		Account: session.Account,
+		Friend:  friend.ID,
+		Request: true,
+	}).Error; err != nil {
 		return requests.FailedRequest(c, "server.error", err)
 	}
 
 	// Send notification to friend
-	return ExecuteAction(c, "send", node.ID, node.AppID, friend)
+	return ExecuteAction(c, "send", node.ID, node.AppID, friend, friendSession)
 }
 
-func ExecuteAction(c *fiber.Ctx, action string, nodeID uint, app uint, friend account.Account) error {
-
-	var session account.Session
-	for _, s := range friend.Sessions {
-		if /* s.Connected && */ s.App == app {
-			session = s
-			break
-		}
-	}
+// ExecuteAction returns the action to the node
+func ExecuteAction(c *fiber.Ctx, action string, nodeID uint, app uint, friend account.Account, session account.Session) error {
 
 	if session.Token == "" {
-		return requests.SuccessfulRequest(c)
+		return c.JSON(addFriendResponse{
+			Success: true,
+			Action:  action,
+			Friend:  friend.ID,
+			Node:    node.NodeEntity{},
+		})
 	}
 
 	var nodeInfo node.Node
@@ -101,11 +113,11 @@ func ExecuteAction(c *fiber.Ctx, action string, nodeID uint, app uint, friend ac
 		return requests.FailedRequest(c, "server.error", err)
 	}
 
-	return c.JSON(fiber.Map{
-		"success": true,
-		"action":  action,
-		"friend":  friend.ID,
-		"node":    nodeInfo.ToEntity(),
+	return c.JSON(addFriendResponse{
+		Success: true,
+		Action:  action,
+		Friend:  friend.ID,
+		Node:    nodeInfo.ToEntity(),
 	})
 
 }

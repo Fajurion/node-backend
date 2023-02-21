@@ -2,6 +2,7 @@ package node
 
 import (
 	"errors"
+	"log"
 	"node-backend/entities/account"
 	"node-backend/entities/app"
 	"node-backend/util"
@@ -44,6 +45,7 @@ func (n *Node) SendPing(node Node) error {
 
 func (n *Node) GetConnection(acc account.Account, session uint) (string, bool, error) {
 
+	log.Println("Account: ", acc.ID, acc.Username, acc.Tag)
 	res, err := util.PostRequest("http://"+n.Domain+"/auth/initialize", fiber.Map{
 		"node_token": n.Token,
 		"session":    session,

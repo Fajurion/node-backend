@@ -31,6 +31,21 @@ func CheckSession(token string, session *account.Session) bool {
 	return err != nil
 }
 
+// GetSession gets the session from the database (returns false if it doesn't exist)
+func GetSession(id uint, session *account.Session) bool {
+
+	if err := database.DBConn.Take(session, id).Error; err != nil {
+		return false
+	}
+
+	if session.IsExpired() {
+		database.DBConn.Where(&account.Session{ID: id}).Delete(&account.Session{})
+		return false
+	}
+
+	return true
+}
+
 // CheckSessionPermission checks if the session has the required permission level (returns true if it doesn't)
 func CheckSessionPermission(token string, permission uint, session *account.Session) bool {
 
