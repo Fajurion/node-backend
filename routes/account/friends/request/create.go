@@ -1,6 +1,7 @@
 package request
 
 import (
+	"log"
 	"node-backend/database"
 	"node-backend/entities/account"
 	"node-backend/entities/account/properties"
@@ -34,7 +35,7 @@ func createRequest(c *fiber.Ctx) error {
 		return requests.InvalidRequest(c)
 	}
 
-	node, err := nodes.Node(req.Node, req.NodeToken)
+	_, err := nodes.Node(req.Node, req.NodeToken)
 	if err != nil {
 		return requests.InvalidRequest(c)
 	}
@@ -43,6 +44,8 @@ func createRequest(c *fiber.Ctx) error {
 	if !requests.GetSession(req.Session, &session) {
 		return requests.InvalidRequest(c)
 	}
+
+	log.Println(session.Account)
 
 	var friend account.Account
 	if err := database.DBConn.Where(&account.Account{Username: req.Username, Tag: req.Tag}).Take(&friend).Error; err != nil {
@@ -74,13 +77,13 @@ func createRequest(c *fiber.Ctx) error {
 			return requests.FailedRequest(c, "server.error", err)
 		}
 
-		database.DBConn.Create(properties.Friend{
+		database.DBConn.Create(&properties.Friend{
 			Account: session.Account,
 			Friend:  friend.ID,
 			Request: false,
 		})
 
-		return ExecuteAction(c, "accept", node.ID, node.AppID, friend, friendSession)
+		return ExecuteAction(c, "accept", friend.ID, friendSession)
 	}
 
 	// Send friend request
@@ -93,30 +96,30 @@ func createRequest(c *fiber.Ctx) error {
 	}
 
 	// Send notification to friend
-	return ExecuteAction(c, "send", node.ID, node.AppID, friend, friendSession)
+	return ExecuteAction(c, "send", friend.ID, friendSession)
 }
 
 // ExecuteAction returns the action to the node
-func ExecuteAction(c *fiber.Ctx, action string, nodeID uint, app uint, friend account.Account, session account.Session) error {
+func ExecuteAction(c *fiber.Ctx, action string, friend uint, session account.Session) error {
 
 	if session.Token == "" {
 		return c.JSON(addFriendResponse{
 			Success: true,
 			Action:  action,
-			Friend:  friend.ID,
+			Friend:  friend,
 			Node:    node.NodeEntity{},
 		})
 	}
 
 	var nodeInfo node.Node
-	if err := database.DBConn.Where(&node.Node{ID: nodeID}).Take(&nodeInfo).Error; err != nil {
+	if err := database.DBConn.Where(&node.Node{ID: session.Node}).Take(&nodeInfo).Error; err != nil {
 		return requests.FailedRequest(c, "server.error", err)
 	}
 
 	return c.JSON(addFriendResponse{
 		Success: true,
 		Action:  action,
-		Friend:  friend.ID,
+		Friend:  friend,
 		Node:    nodeInfo.ToEntity(),
 	})
 

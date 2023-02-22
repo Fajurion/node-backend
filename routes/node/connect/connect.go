@@ -42,7 +42,7 @@ func Connect(c *fiber.Ctx) error {
 
 	// Get the most recent session
 	var mostRecent account.Session
-	if err := database.DBConn.Where("account = ?", acc.ID).Order("last_connection DESC").Take(&mostRecent).Error; err != nil {
+	if err := database.DBConn.Where(&account.Session{Account: acc.ID}).Order("last_connection DESC").Take(&mostRecent).Error; err != nil {
 		mostRecent = account.Session{
 			Token: "-1",
 		}
@@ -78,7 +78,7 @@ func Connect(c *fiber.Ctx) error {
 		return requests.FailedRequest(c, "not.setup", nil)
 	}
 
-	connectionTk, success, err := lowest.GetConnection(acc, uint(data["acc"].(float64)))
+	connectionTk, success, err := lowest.GetConnection(acc, currentSessionId)
 	if err != nil {
 
 		if success {

@@ -12,7 +12,7 @@ type Account struct {
 	ID uint `json:"id" gorm:"primaryKey"`
 
 	Username  string    `json:"username"`
-	Tag       string    `json:"tag" gorm:"unique"`
+	Tag       string    `json:"tag"`
 	Password  string    `json:"password"`
 	Email     string    `json:"email" gorm:"unique"`
 	RankID    uint      `json:"rank"`
