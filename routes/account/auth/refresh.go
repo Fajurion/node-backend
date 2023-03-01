@@ -14,6 +14,7 @@ type refreshRequest struct {
 	Token string `json:"token"`
 }
 
+// Route: /auth/refresh
 func refreshSession(c *fiber.Ctx) error {
 
 	// Parse request
@@ -39,16 +40,16 @@ func refreshSession(c *fiber.Ctx) error {
 		return requests.FailedRequest(c, "session.expired", nil)
 	}
 
+	// Refresh session
+	session.End = time.Now().Add(time.Hour * 24 * 7)
+	database.DBConn.Save(&session)
+
 	// Check session duration
 	if time.Until(session.End) > time.Hour*20*7 {
 		return requests.FailedRequest(c, "session.duration", nil)
 	}
 
-	// Refresh session
-	session.End = time.Now().Add(time.Hour * 24 * 7)
-	database.DBConn.Save(&session)
-
-	jwtToken, err := util.Token(session.ID, time.Now().Add(time.Hour*24), data)
+	jwtToken, err := util.Token(session.ID, time.Now().Add(time.Hour*24*3), data)
 	if err != nil {
 		return requests.FailedRequest(c, "server.error", err)
 	}

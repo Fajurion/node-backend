@@ -57,10 +57,6 @@ func Connect(c *fiber.Ctx) error {
 		return requests.FailedRequest(c, "invalid.token", nil)
 	}
 
-	if mostRecent.Token == "-1" {
-		return requests.FailedRequest(c, "not.found", nil)
-	}
-
 	// Get lowest load node
 	var lowest node.Node
 	var search node.Node = node.Node{

@@ -8,6 +8,7 @@ import (
 
 func Unauthorized(router fiber.Router) {
 	router.Route("/request", request.Setup)
+	router.Post("/check", checkFriendships)
 }
 
 func Authorized(router fiber.Router) {
