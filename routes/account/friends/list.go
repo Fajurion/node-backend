@@ -15,7 +15,7 @@ type friendListRequest struct {
 }
 
 type friendEntity struct {
-	Account uint   `json:"account"`
+	Account uint   `json:"id"`
 	Name    string `json:"name"`
 	Tag     string `json:"tag"`
 }
@@ -38,9 +38,19 @@ func listFriends(c *fiber.Ctx) error {
 		return requests.FailedRequest(c, "not.found", nil)
 	}
 
+	// Turn into entities
+	var friendsEntities []friendEntity
+	for _, friend := range friends {
+		friendsEntities = append(friendsEntities, friendEntity{
+			Account: friend.AccountData.ID,
+			Name:    friend.AccountData.Username,
+			Tag:     friend.AccountData.Tag,
+		})
+	}
+
 	// Return friends
 	return c.JSON(fiber.Map{
 		"success": true,
-		"friends": friends,
+		"friends": friendsEntities,
 	})
 }
