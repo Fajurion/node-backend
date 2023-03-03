@@ -1,6 +1,7 @@
 package connect
 
 import (
+	"log"
 	"node-backend/database"
 	"node-backend/entities/account"
 	"node-backend/entities/node"
@@ -36,15 +37,22 @@ func Connect(c *fiber.Ctx) error {
 	tk := req.Token
 
 	var acc account.Account
-	if err := database.DBConn.Take(&acc, data["acc"]).Error; err != nil {
+	if err := database.DBConn.Preload("Sessions").Take(&acc, data["acc"]).Error; err != nil {
 		return requests.FailedRequest(c, "not.found", nil)
 	}
 
 	// Get the most recent session
-	var mostRecent account.Session
-	if err := database.DBConn.Where(&account.Session{Account: acc.ID}).Order("last_connection DESC").Take(&mostRecent).Error; err != nil {
-		mostRecent = account.Session{
-			Token: "-1",
+	var mostRecent account.Session = account.Session{
+		Token:          "-1",
+		LastConnection: time.Unix(0, 10),
+	}
+	var sessionIds []uint
+	for _, session := range acc.Sessions {
+		log.Println(session.ID)
+		sessionIds = append(sessionIds, session.ID)
+
+		if session.LastConnection.After(mostRecent.LastConnection) {
+			mostRecent = session
 		}
 	}
 
@@ -74,7 +82,7 @@ func Connect(c *fiber.Ctx) error {
 		return requests.FailedRequest(c, "not.setup", nil)
 	}
 
-	connectionTk, success, err := lowest.GetConnection(acc, currentSessionId)
+	connectionTk, success, err := lowest.GetConnection(acc, currentSessionId, sessionIds)
 	if err != nil {
 
 		if success {

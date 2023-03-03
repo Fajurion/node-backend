@@ -43,15 +43,16 @@ func (n *Node) SendPing(node Node) error {
 	return err
 }
 
-func (n *Node) GetConnection(acc account.Account, session uint) (string, bool, error) {
+func (n *Node) GetConnection(acc account.Account, session uint, sessionIds []uint) (string, bool, error) {
 
 	log.Println("Account: ", acc.ID, acc.Username, acc.Tag)
 	res, err := util.PostRequest("http://"+n.Domain+"/auth/initialize", fiber.Map{
-		"node_token": n.Token,
-		"session":    session,
-		"user_id":    acc.ID,
-		"username":   acc.Username,
-		"tag":        acc.Tag,
+		"node_token":  n.Token,
+		"session":     session,
+		"user_id":     acc.ID,
+		"username":    acc.Username,
+		"tag":         acc.Tag,
+		"session_ids": sessionIds,
 	})
 
 	if err != nil {

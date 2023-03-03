@@ -12,10 +12,10 @@ import (
 func logOut(c *fiber.Ctx) error {
 
 	// Get token
-	token := util.GetData(c)
+	sessionId := util.GetSession(c)
 
 	var session account.Session
-	if requests.CheckSession(token["tk"].(string), &session) {
+	if !requests.GetSession(sessionId, &session) {
 		return requests.InvalidRequest(c)
 	}
 

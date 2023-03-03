@@ -1,4 +1,4 @@
-package properties
+package settings
 
 type AccountSetting struct {
 	Account uint   `json:"account" gorm:"primaryKey"`

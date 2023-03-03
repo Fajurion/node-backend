@@ -10,6 +10,7 @@ import (
 
 	"node-backend/entities/account"
 	"node-backend/entities/account/properties"
+	"node-backend/entities/account/settings"
 	"node-backend/entities/app"
 	"node-backend/entities/node"
 )
@@ -45,7 +46,7 @@ func Connect() {
 	db.AutoMigrate(&account.Subscription{})
 	db.AutoMigrate(&account.Rank{})
 	db.AutoMigrate(&properties.Friend{})
-	db.AutoMigrate(&properties.AccountSetting{})
+	db.AutoMigrate(&settings.AccountSetting{})
 
 	// Migrate node related tables
 	db.AutoMigrate(&node.Cluster{})

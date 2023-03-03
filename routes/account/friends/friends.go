@@ -13,4 +13,6 @@ func Unauthorized(router fiber.Router) {
 
 func Authorized(router fiber.Router) {
 	router.Post("/remove", removeFriend)
+	router.Post("/list", listFriends)
+	router.Post("/online", onlineFriends)
 }

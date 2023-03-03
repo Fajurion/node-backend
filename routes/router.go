@@ -16,7 +16,7 @@ import (
 func Router(router fiber.Router) {
 
 	// Unauthorized routes
-	router.Route("/auth", auth.Setup)
+	router.Route("/auth", auth.Unauthorized)
 	router.Route("/node", node.Unauthorized)
 	router.Route("/app", app.Unauthorized)
 	router.Route("/account", account.Unauthorized)
@@ -36,6 +36,7 @@ func Router(router fiber.Router) {
 	}))
 
 	// Authorized routes
+	router.Route("/auth", auth.Authorized)
 	router.Route("/account", account.Authorized)
 	router.Route("/node", node.Authorized)
 	router.Route("/app", app.Authorized)

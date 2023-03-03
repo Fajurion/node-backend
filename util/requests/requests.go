@@ -24,17 +24,10 @@ func InvalidRequest(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusBadRequest)
 }
 
-// CheckSession checks if the session is valid (returns true if it isn't)
-func CheckSession(token string, session *account.Session) bool {
-
-	err := database.DBConn.Take(session, token).Error
-	return err != nil
-}
-
 // GetSession gets the session from the database (returns false if it doesn't exist)
 func GetSession(id uint, session *account.Session) bool {
 
-	if err := database.DBConn.Take(session, id).Error; err != nil {
+	if err := database.DBConn.Take(&session, id).Error; err != nil {
 		return false
 	}
 

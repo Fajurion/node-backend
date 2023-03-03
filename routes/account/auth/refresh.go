@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"log"
 	"node-backend/database"
 	"node-backend/entities/account"
 	"node-backend/util"
@@ -25,17 +26,21 @@ func refreshSession(c *fiber.Ctx) error {
 
 	// Check if session is valid
 	data := util.GetData(c)
+	sessionId := util.GetSession(c)
 
 	var session account.Session
-	if requests.CheckSession(req.Token, &session) {
+	if !requests.GetSession(sessionId, &session) {
+		log.Println("Invalid session")
 		return requests.InvalidRequest(c)
 	}
 
-	if session.Account != data["acc"] {
+	if session.Account != uint(data["acc"].(float64)) {
+		log.Println("Invalid account")
 		return requests.InvalidRequest(c)
 	}
 
 	if session.IsExpired() {
+		log.Println("Expired session")
 		database.DBConn.Delete(&session)
 		return requests.FailedRequest(c, "session.expired", nil)
 	}
