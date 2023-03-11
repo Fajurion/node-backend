@@ -3,14 +3,17 @@ package friends
 import (
 	"node-backend/database"
 	"node-backend/entities/account/properties"
-	"node-backend/util"
+	"node-backend/util/nodes"
 	"node-backend/util/requests"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 type removeRequest struct {
-	Account uint `json:"account"`
+	Node      uint   `json:"node"`
+	NodeToken string `json:"token"`
+	Account   uint   `json:"account"`
+	Friend    uint   `json:"friend"`
 }
 
 // Route: /account/friends/remove
@@ -22,20 +25,31 @@ func removeFriend(c *fiber.Ctx) error {
 		return requests.InvalidRequest(c)
 	}
 
-	// Check friend status
-	data := util.GetData(c)
-	acc := data["acc"].(uint)
+	// Check node
+	_, err := nodes.Node(req.Node, req.NodeToken)
+	if err != nil {
+		return requests.InvalidRequest(c)
+	}
 
+	// Check friend status
 	var friendCheck properties.Friend
-	if err := database.DBConn.Where(&properties.Friend{Account: acc, Friend: req.Account}).Take(&friendCheck).Error; err != nil {
+	if err := database.DBConn.Where(&properties.Friend{Account: req.Account, Friend: req.Friend}).Take(&friendCheck).Error; err != nil {
+		return requests.FailedRequest(c, "not.friends", nil)
+	}
+
+	if friendCheck.Request {
 		return requests.FailedRequest(c, "not.friends", nil)
 	}
 
 	// Remove friend
-	if err := database.DBConn.Delete(&friendCheck).Error; err != nil {
+	if database.DBConn.Delete(&friendCheck).Error != nil {
 		return requests.FailedRequest(c, "server.error", nil)
 	}
 
-	return nil
+	// Remove friend from other side
+	if database.DBConn.Delete(&properties.Friend{Account: req.Friend, Friend: req.Account}).Error != nil {
+		return requests.FailedRequest(c, "server.error", nil)
+	}
 
+	return requests.SuccessfulRequest(c)
 }

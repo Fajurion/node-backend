@@ -9,4 +9,5 @@ type Friend struct {
 	Request bool  `json:"request"`
 
 	AccountData account.Account `json:"-" gorm:"foreignKey:Friend"`
+	FriendData  account.Account `json:"-" gorm:"foreignKey:Account"`
 }

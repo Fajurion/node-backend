@@ -9,10 +9,10 @@ import (
 func Unauthorized(router fiber.Router) {
 	router.Route("/request", request.Setup)
 	router.Post("/check", checkFriendships)
+	router.Post("/remove", removeFriend)
 }
 
 func Authorized(router fiber.Router) {
-	router.Post("/remove", removeFriend)
 	router.Post("/list", listFriends)
 	router.Post("/online", onlineFriends)
 }

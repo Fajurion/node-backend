@@ -34,13 +34,28 @@ func listFriends(c *fiber.Ctx) error {
 
 	// Get friends
 	var friends []properties.Friend
-	if err := database.DBConn.Where(&properties.Friend{Account: acc, Request: req.Request}).Where("updated > ?", req.Since).Preload("AccountData").Find(&friends).Error; err != nil {
-		return requests.FailedRequest(c, "not.found", nil)
+	if req.Request {
+
+		// Get requests
+		if err := database.DBConn.Where(&properties.Friend{Friend: acc, Request: true}).Where("updated > ?", req.Since).Preload("FriendData").Find(&friends).Error; err != nil {
+			return requests.FailedRequest(c, "not.found", nil)
+		}
+	} else {
+
+		// Get friends
+		if err := database.DBConn.Where("updated > ? AND request = ? AND account = ?", req.Since, false, acc).Preload("AccountData").Find(&friends).Error; err != nil {
+			return requests.FailedRequest(c, "not.found", nil)
+		}
 	}
 
 	// Turn into entities
 	var friendsEntities []friendEntity
 	for _, friend := range friends {
+
+		if req.Request {
+			friend.AccountData = friend.FriendData
+		}
+
 		friendsEntities = append(friendsEntities, friendEntity{
 			Account: friend.AccountData.ID,
 			Name:    friend.AccountData.Username,
