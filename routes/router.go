@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"log"
 	"node-backend/routes/account"
 	"node-backend/routes/account/auth"
 	"node-backend/routes/app"
@@ -32,6 +33,15 @@ func Router(router fiber.Router) {
 			}
 
 			return c.Next()
+		},
+
+		// Error handler
+		ErrorHandler: func(c *fiber.Ctx, err error) error {
+
+			log.Println(err.Error())
+
+			// Return error message
+			return c.SendStatus(401)
 		},
 	}))
 

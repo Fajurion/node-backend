@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"log"
 	"node-backend/database"
 	"node-backend/entities/account"
 	"node-backend/util"
@@ -24,7 +23,6 @@ func login(c *fiber.Ctx) error {
 
 	// Parse request body
 	if err := c.BodyParser(&req); err != nil {
-		log.Println(err)
 		return requests.InvalidRequest(c)
 	}
 
@@ -66,7 +64,7 @@ func login(c *fiber.Ctx) error {
 	}
 
 	// Generate jwt token
-	jwtToken, err := util.Token(createdSession.ID, time.Now().Add(time.Hour*24), fiber.Map{
+	jwtToken, err := util.Token(createdSession.ID, time.Now().Add(time.Hour*24*3), fiber.Map{
 		"acc": acc.ID,
 		"lvl": acc.Rank.Level,
 	})

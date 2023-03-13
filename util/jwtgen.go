@@ -13,7 +13,7 @@ func Token(session uint, exp time.Time, data map[string]interface{}) (string, er
 	// Create jwt token
 	tk := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"ses":  session,
-		"exp":  exp.Unix(),
+		"e_u":  exp.Unix(), // Expiration unix
 		"data": data,
 	})
 
@@ -32,7 +32,7 @@ func IsExpired(c *fiber.Ctx) bool {
 	user := c.Locals("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
 
-	num := claims["exp"].(float64)
+	num := claims["e_u"].(float64)
 	exp := int64(num)
 
 	return time.Now().Unix() > exp
