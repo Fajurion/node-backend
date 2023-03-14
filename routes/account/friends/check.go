@@ -1,6 +1,7 @@
 package friends
 
 import (
+	"log"
 	"node-backend/database"
 	"node-backend/entities/account/properties"
 	"node-backend/util/nodes"
@@ -32,7 +33,8 @@ func checkFriendships(c *fiber.Ctx) error {
 
 	// Check friendships
 	var count int64
-	if database.DBConn.Where(&properties.Friend{Account: req.Account}).Where("friend IN ?", req.UserIDs).Count(&count).Error != nil {
+	if err := database.DBConn.Model(&properties.Friend{}).Where(&properties.Friend{Account: req.Account}).Where("friend IN ?", req.UserIDs).Count(&count).Error; err != nil {
+		log.Println(err.Error())
 		return requests.FailedRequest(c, "server.error", err)
 	}
 
