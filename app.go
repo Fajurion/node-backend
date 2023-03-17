@@ -38,7 +38,7 @@ func main() {
 	testMode()
 
 	// Listen on port 3000
-	app.Listen("127.0.0.1:3000")
+	app.Listen("localhost:3000")
 }
 
 func testMode() {

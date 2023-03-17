@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"errors"
 	"node-backend/database"
 	"node-backend/entities/account"
 	"node-backend/util"
@@ -38,13 +39,13 @@ func login(c *fiber.Ctx) error {
 	}
 
 	// Check account details
-	if err := checkAccountDetails(c, acc, req); err != nil {
-		return err
+	if !checkAccountDetails(c, acc, req) {
+		return requests.FailedRequest(c, "invalid.password", nil)
 	}
 
 	// Check if user has too many sessions
-	if err := checkSessions(c, acc); err != nil {
-		return err
+	if valid, err := checkSessions(c, acc); err != nil || !valid {
+		return requests.FailedRequest(c, "too.many.sessions", nil)
 	}
 
 	// Create session
@@ -81,32 +82,31 @@ func login(c *fiber.Ctx) error {
 }
 
 // checkAccountDetails checks if the account details are valid
-func checkAccountDetails(c *fiber.Ctx, acc account.Account, req loginRequest) error {
+func checkAccountDetails(c *fiber.Ctx, acc account.Account, req loginRequest) bool {
 
 	if acc.ID == 0 {
-		return requests.FailedRequest(c, "invalid.password", nil)
+		return false
 	}
 
-	if !acc.CheckPassword(acc.Password) {
-		return requests.FailedRequest(c, "invalid.password", nil)
+	if !acc.CheckPassword(req.Password) {
+		return false
 	}
 
-	return nil
+	return true
 }
 
 // checkSessions checks if the user has too many sessions
-func checkSessions(c *fiber.Ctx, acc account.Account) error {
+func checkSessions(c *fiber.Ctx, acc account.Account) (bool, error) {
 
 	// Check if user has too many sessions
 	var sessions int64
 	if err := database.DBConn.Where(&account.Session{Account: acc.ID}).Count(&sessions).Error; err != nil {
-		return requests.FailedRequest(c, "server.error", err)
+		return false, errors.New("server.error")
 	}
 
-	// TODO: Max sessions in application properties
 	if sessions > 10 {
-		return requests.FailedRequest(c, "too.many.sessions", nil)
+		return false, nil
 	}
 
-	return nil
+	return true, nil
 }
