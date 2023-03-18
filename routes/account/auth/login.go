@@ -2,6 +2,7 @@ package auth
 
 import (
 	"errors"
+	"log"
 	"node-backend/database"
 	"node-backend/entities/account"
 	"node-backend/util"
@@ -45,6 +46,7 @@ func login(c *fiber.Ctx) error {
 
 	// Check if user has too many sessions
 	if valid, err := checkSessions(c, acc); err != nil || !valid {
+		log.Println(err)
 		return requests.FailedRequest(c, "too.many.sessions", nil)
 	}
 
@@ -100,7 +102,7 @@ func checkSessions(c *fiber.Ctx, acc account.Account) (bool, error) {
 
 	// Check if user has too many sessions
 	var sessions int64
-	if err := database.DBConn.Where(&account.Session{Account: acc.ID}).Count(&sessions).Error; err != nil {
+	if err := database.DBConn.Model(&account.Session{}).Where("account = ?", acc.ID).Count(&sessions).Error; err != nil {
 		return false, errors.New("server.error")
 	}
 

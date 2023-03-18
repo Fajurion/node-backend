@@ -45,6 +45,7 @@ func Connect() {
 	db.AutoMigrate(&account.Session{})
 	db.AutoMigrate(&account.Subscription{})
 	db.AutoMigrate(&account.Rank{})
+	db.AutoMigrate(&account.PublicKey{})
 	db.AutoMigrate(&properties.Friend{})
 	db.AutoMigrate(&settings.AccountSetting{})
 

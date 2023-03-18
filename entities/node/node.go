@@ -2,7 +2,6 @@ package node
 
 import (
 	"errors"
-	"log"
 	"node-backend/entities/account"
 	"node-backend/entities/app"
 	"node-backend/util"
@@ -45,7 +44,12 @@ func (n *Node) SendPing(node Node) error {
 
 func (n *Node) GetConnection(acc account.Account, session uint, sessionIds []uint) (string, bool, error) {
 
-	log.Println("Account: ", acc.ID, acc.Username, acc.Tag)
+	// Check for key
+	if acc.Key.Key == "" {
+		return "", false, errors.New("no.key")
+	}
+
+	// Send request to node
 	res, err := util.PostRequest("http://"+n.Domain+"/auth/initialize", fiber.Map{
 		"node_token":  n.Token,
 		"session":     session,

@@ -8,6 +8,7 @@ type Friend struct {
 	Updated int64 `gorm:"autoUpdateTime:milli"`
 	Request bool  `json:"request"`
 
-	AccountData account.Account `json:"-" gorm:"foreignKey:Friend"`
-	FriendData  account.Account `json:"-" gorm:"foreignKey:Account"`
+	AccountData account.Account   `json:"-" gorm:"foreignKey:Friend"`
+	FriendData  account.Account   `json:"-" gorm:"foreignKey:Account"`
+	KeyData     account.PublicKey `json:"key" gorm:"foreignKey:Friend"`
 }
