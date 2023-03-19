@@ -5,4 +5,7 @@ type PublicKey struct {
 	Key string `json:"key"`
 }
 
-// TODO: Private key?
+type PrivateKey struct {
+	ID  uint   `json:"id" gorm:"primaryKey"`
+	Key string `json:"key"`
+}

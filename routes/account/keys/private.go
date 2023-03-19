@@ -9,20 +9,16 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// Route: /account/keys/public/get
-func getPublicKey(c *fiber.Ctx) error {
+// Route: /account/keys/private/get
+func getPrivateKey(c *fiber.Ctx) error {
 
 	// Get account
 	data := util.GetData(c)
 	accId := uint(data["acc"].(float64))
 
-	// Get public key
-	var key account.PublicKey
+	// Get private key
+	var key account.PrivateKey
 	if database.DBConn.Find(&key, accId).Error != nil {
-		return requests.InvalidRequest(c)
-	}
-
-	if key.Key == "" {
 		return requests.FailedRequest(c, "not.found", nil)
 	}
 
@@ -32,15 +28,16 @@ func getPublicKey(c *fiber.Ctx) error {
 	})
 }
 
-type setRequest struct {
+type setPrivateKeyRequest struct {
 	Password string `json:"password"`
 	Key      string `json:"key"`
 }
 
-// Route: /account/keys/public/set
-func setPublicKey(c *fiber.Ctx) error {
+// Route: /account/keys/private/set
+func setPrivateKey(c *fiber.Ctx) error {
 
-	var req setRequest
+	// Parse request
+	var req setPrivateKeyRequest
 	if err := c.BodyParser(&req); err != nil {
 		return err
 	}
@@ -59,9 +56,9 @@ func setPublicKey(c *fiber.Ctx) error {
 		return requests.FailedRequest(c, "invalid.password", nil)
 	}
 
-	// Set public key
-	database.DBConn.Delete(&account.PublicKey{}, accId)
-	if database.DBConn.Create(&account.PublicKey{
+	// Set private key
+	database.DBConn.Delete(&account.PrivateKey{}, accId)
+	if database.DBConn.Create(&account.PrivateKey{
 		ID:  accId,
 		Key: req.Key,
 	}).Error != nil {

@@ -46,7 +46,7 @@ func (n *Node) GetConnection(acc account.Account, session uint, sessionIds []uin
 
 	// Check for key
 	if acc.Key.Key == "" {
-		return "", false, errors.New("no.key")
+		return "", true, errors.New("no.key")
 	}
 
 	// Send request to node
