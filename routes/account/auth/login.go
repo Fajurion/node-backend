@@ -58,7 +58,6 @@ func login(c *fiber.Ctx) error {
 		Account:         acc.ID,
 		PermissionLevel: acc.Rank.Level,
 		Device:          "ph", // TODO: Give the user the option to choose the device
-		End:             time.Now().Add(time.Hour * 24 * 7),
 		LastConnection:  time.UnixMilli(0),
 	}
 

@@ -46,7 +46,6 @@ func Router(router fiber.Router) {
 	}))
 
 	// Authorized routes
-	router.Route("/auth", auth.Authorized)
 	router.Route("/account", account.Authorized)
 	router.Route("/node", node.Authorized)
 	router.Route("/app", app.Authorized)

@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"log"
 	"node-backend/database"
 	"node-backend/entities/account"
 	"node-backend/util"
@@ -12,7 +11,8 @@ import (
 )
 
 type refreshRequest struct {
-	Token string `json:"token"`
+	Session uint   `json:"session"`
+	Token   string `json:"token"`
 }
 
 // Route: /auth/refresh
@@ -25,36 +25,25 @@ func refreshSession(c *fiber.Ctx) error {
 	}
 
 	// Check if session is valid
-	data := util.GetData(c)
-	sessionId := util.GetSession(c)
-
 	var session account.Session
-	if !requests.GetSession(sessionId, &session) {
-		log.Println("Invalid session")
+	if !requests.GetSession(req.Session, &session) {
 		return requests.InvalidRequest(c)
 	}
 
-	if session.Account != uint(data["acc"].(float64)) {
-		log.Println("Invalid account")
+	if session.Token != req.Token {
 		return requests.InvalidRequest(c)
-	}
-
-	if session.IsExpired() {
-		log.Println("Expired session")
-		database.DBConn.Delete(&session)
-		return requests.FailedRequest(c, "session.expired", nil)
 	}
 
 	// Refresh session
-	session.End = time.Now().Add(time.Hour * 24 * 7)
+	session.LastUsage = time.Now().Add(time.Hour * 24 * 7)
 	database.DBConn.Save(&session)
 
-	// Check session duration
-	if time.Until(session.End) > time.Hour*20*7 {
-		return requests.FailedRequest(c, "session.duration", nil)
-	}
+	// Create new token
+	jwtToken, err := util.Token(session.ID, time.Now().Add(time.Hour*24*3), fiber.Map{
+		"acc": session.Account,
+		"lvl": session.PermissionLevel,
+	})
 
-	jwtToken, err := util.Token(session.ID, time.Now().Add(time.Hour*24*3), data)
 	if err != nil {
 		return requests.FailedRequest(c, "server.error", err)
 	}

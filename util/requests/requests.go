@@ -31,11 +31,6 @@ func GetSession(id uint, session *account.Session) bool {
 		return false
 	}
 
-	if session.IsExpired() {
-		database.DBConn.Where(&account.Session{ID: id}).Delete(&account.Session{})
-		return false
-	}
-
 	return true
 }
 

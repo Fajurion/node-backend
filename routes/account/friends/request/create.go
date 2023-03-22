@@ -25,6 +25,7 @@ type addFriendResponse struct {
 	Action  string          `json:"action"`
 	Friend  uint            `json:"friend"`
 	Node    node.NodeEntity `json:"node"`
+	Key     string          `json:"key"`
 }
 
 // Route: /account/friends/request/create
@@ -108,6 +109,7 @@ func ExecuteAction(c *fiber.Ctx, action string, friend uint, session account.Ses
 			Action:  action,
 			Friend:  friend,
 			Node:    node.NodeEntity{},
+			Key:     "",
 		})
 	}
 
