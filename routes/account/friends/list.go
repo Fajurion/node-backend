@@ -18,6 +18,7 @@ type friendEntity struct {
 	Account uint   `json:"id"`
 	Name    string `json:"name"`
 	Tag     string `json:"tag"`
+	Key     string `json:"key"`
 }
 
 func listFriends(c *fiber.Ctx) error {
@@ -37,13 +38,13 @@ func listFriends(c *fiber.Ctx) error {
 	if req.Request {
 
 		// Get requests
-		if err := database.DBConn.Where(&properties.Friend{Friend: acc, Request: true}).Where("updated > ?", req.Since).Preload("FriendData").Find(&friends).Error; err != nil {
+		if err := database.DBConn.Where(&properties.Friend{Friend: acc, Request: true}).Where("updated > ?", req.Since).Preload("FriendData").Preload("FriendKey").Find(&friends).Error; err != nil {
 			return requests.FailedRequest(c, "not.found", nil)
 		}
 	} else {
 
 		// Get friends
-		if err := database.DBConn.Where("updated > ? AND request = ? AND account = ?", req.Since, false, acc).Preload("AccountData").Find(&friends).Error; err != nil {
+		if err := database.DBConn.Where("updated > ? AND request = ? AND account = ?", req.Since, false, acc).Preload("AccountData").Preload("AccountKey").Find(&friends).Error; err != nil {
 			return requests.FailedRequest(c, "not.found", nil)
 		}
 	}
@@ -54,12 +55,14 @@ func listFriends(c *fiber.Ctx) error {
 
 		if req.Request {
 			friend.AccountData = friend.FriendData
+			friend.AccountKey = friend.FriendKey
 		}
 
 		friendsEntities = append(friendsEntities, friendEntity{
 			Account: friend.AccountData.ID,
 			Name:    friend.AccountData.Username,
 			Tag:     friend.AccountData.Tag,
+			Key:     friend.AccountKey.Key,
 		})
 	}
 

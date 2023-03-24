@@ -1,7 +1,6 @@
 package request
 
 import (
-	"log"
 	"node-backend/database"
 	"node-backend/entities/account"
 	"node-backend/entities/account/properties"
@@ -18,14 +17,16 @@ type addFriendRequest struct {
 	Session   uint   `json:"session"`
 	Username  string `json:"username"`
 	Tag       string `json:"tag"`
+	Signature string `json:"signature"`
 }
 
 type addFriendResponse struct {
-	Success bool            `json:"success"`
-	Action  string          `json:"action"`
-	Friend  uint            `json:"friend"`
-	Node    node.NodeEntity `json:"node"`
-	Key     string          `json:"key"`
+	Success   bool            `json:"success"`
+	Action    string          `json:"action"`
+	Friend    uint            `json:"friend"`
+	Signature string          `json:"signature"`
+	Node      node.NodeEntity `json:"node"`
+	Key       string          `json:"key"`
 }
 
 // Route: /account/friends/request/create
@@ -45,8 +46,6 @@ func createRequest(c *fiber.Ctx) error {
 	if !requests.GetSession(req.Session, &session) {
 		return requests.InvalidRequest(c)
 	}
-
-	log.Println(session.Account)
 
 	var friend account.Account
 	if err := database.DBConn.Where(&account.Account{Username: req.Username, Tag: req.Tag}).Take(&friend).Error; err != nil {
@@ -74,42 +73,57 @@ func createRequest(c *fiber.Ctx) error {
 
 		// Accept friend request
 		friendCheck.Request = false
-		if err := database.DBConn.Omit("Friend").Save(&friendCheck).Error; err != nil {
+		if err := database.DBConn.Omit("Friend", "Signature").Save(&friendCheck).Error; err != nil {
 			return requests.FailedRequest(c, "server.error", err)
 		}
 
 		database.DBConn.Create(&properties.Friend{
-			Account: session.Account,
-			Friend:  friend.ID,
-			Request: false,
+			Account:   session.Account,
+			Friend:    friend.ID,
+			Signature: req.Signature,
+			Request:   false,
 		})
 
-		return ExecuteAction(c, "accept", friend.ID, friendSession)
+		// Grab key from account owner
+		var ownerKey account.PublicKey
+		if err := database.DBConn.Where(&account.PublicKey{ID: session.Account}).Take(&ownerKey).Error; err != nil {
+			return requests.FailedRequest(c, "server.error", err)
+		}
+
+		return ExecuteAction(c, "accept", friend.ID, friendSession, req.Signature, ownerKey.Key)
 	}
 
 	// Send friend request
 	if err := database.DBConn.Create(&properties.Friend{
-		Account: session.Account,
-		Friend:  friend.ID,
-		Request: true,
+		Account:   session.Account,
+		Friend:    friend.ID,
+		Signature: req.Signature,
+		Request:   true,
 	}).Error; err != nil {
 		return requests.FailedRequest(c, "server.error", err)
 	}
 
+	// Grab key from account owner
+	var ownerKey account.PublicKey
+	if err := database.DBConn.Where(&account.PublicKey{ID: session.Account}).Take(&ownerKey).Error; err != nil {
+		return requests.FailedRequest(c, "server.error", err)
+	}
+
 	// Send notification to friend
-	return ExecuteAction(c, "send", friend.ID, friendSession)
+	return ExecuteAction(c, "send", friend.ID, friendSession, req.Signature, ownerKey.Key)
 }
 
 // ExecuteAction returns the action to the node
-func ExecuteAction(c *fiber.Ctx, action string, friend uint, session account.Session) error {
+func ExecuteAction(c *fiber.Ctx, action string, friend uint, session account.Session, signature string, key string) error {
 
 	if session.Token == "" {
 		return c.JSON(addFriendResponse{
-			Success: true,
-			Action:  action,
-			Friend:  friend,
-			Node:    node.NodeEntity{},
-			Key:     "",
+			Success:   true,
+			Action:    action,
+			Friend:    friend,
+			Node:      node.NodeEntity{},
+			Key:       key,
+			Signature: signature,
 		})
 	}
 
@@ -119,10 +133,12 @@ func ExecuteAction(c *fiber.Ctx, action string, friend uint, session account.Ses
 	}
 
 	return c.JSON(addFriendResponse{
-		Success: true,
-		Action:  action,
-		Friend:  friend,
-		Node:    nodeInfo.ToEntity(),
+		Success:   true,
+		Action:    action,
+		Friend:    friend,
+		Node:      nodeInfo.ToEntity(),
+		Signature: signature,
+		Key:       key,
 	})
 
 }

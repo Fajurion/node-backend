@@ -48,5 +48,5 @@ func denyRequest(c *fiber.Ctx) error {
 	// Delete the friend request
 	database.DBConn.Delete(&friendRequest)
 
-	return ExecuteAction(c, "deny", req.Account, friendSession)
+	return ExecuteAction(c, "deny", req.Account, friendSession, "", "")
 }
