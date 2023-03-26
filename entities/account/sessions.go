@@ -15,6 +15,4 @@ type Session struct {
 	Node            uint      `json:"node"`
 	LastUsage       time.Time `json:"last_usage"`
 	LastConnection  time.Time `json:"last_connection"` // LastConnection is the last time a new connection was established
-
-	Key PublicKey `json:"-" gorm:"foreignKey:Account"`
 }

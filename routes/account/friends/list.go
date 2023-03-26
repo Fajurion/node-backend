@@ -2,7 +2,6 @@ package friends
 
 import (
 	"node-backend/database"
-	"node-backend/entities/account/properties"
 	"node-backend/util"
 	"node-backend/util/requests"
 
@@ -15,10 +14,11 @@ type friendListRequest struct {
 }
 
 type friendEntity struct {
-	Account uint   `json:"id"`
-	Name    string `json:"name"`
-	Tag     string `json:"tag"`
-	Key     string `json:"key"`
+	ID        uint   `json:"id"`
+	Username  string `json:"name"`
+	Tag       string `json:"tag"`
+	Signature string `json:"signature"`
+	Key       string `json:"key"`
 }
 
 func listFriends(c *fiber.Ctx) error {
@@ -34,41 +34,21 @@ func listFriends(c *fiber.Ctx) error {
 	acc := uint(data["acc"].(float64))
 
 	// Get friends
-	var friends []properties.Friend
-	if req.Request {
+	var friends []friendEntity
 
-		// Get requests
-		if err := database.DBConn.Where(&properties.Friend{Friend: acc, Request: true}).Where("updated > ?", req.Since).Preload("FriendData").Preload("FriendKey").Find(&friends).Error; err != nil {
-			return requests.FailedRequest(c, "not.found", nil)
-		}
-	} else {
+	// Get requests
+	if err := database.DBConn.Table("friends").
+		Select("friends.signature, account.id, account.username, account.tag, key.key").
+		Where("updated > ? AND account = ? AND request = ?", req.Since, acc, req.Request).
+		Joins("join accounts account on account.id = friend").
+		Joins("join public_keys key on key.id = friend").Find(&friends).Error; err != nil {
 
-		// Get friends
-		if err := database.DBConn.Where("updated > ? AND request = ? AND account = ?", req.Since, false, acc).Preload("AccountData").Preload("AccountKey").Find(&friends).Error; err != nil {
-			return requests.FailedRequest(c, "not.found", nil)
-		}
-	}
-
-	// Turn into entities
-	var friendsEntities []friendEntity
-	for _, friend := range friends {
-
-		if req.Request {
-			friend.AccountData = friend.FriendData
-			friend.AccountKey = friend.FriendKey
-		}
-
-		friendsEntities = append(friendsEntities, friendEntity{
-			Account: friend.AccountData.ID,
-			Name:    friend.AccountData.Username,
-			Tag:     friend.AccountData.Tag,
-			Key:     friend.AccountKey.Key,
-		})
+		return requests.FailedRequest(c, "not.found", nil)
 	}
 
 	// Return friends
 	return c.JSON(fiber.Map{
 		"success": true,
-		"friends": friendsEntities,
+		"friends": friends,
 	})
 }

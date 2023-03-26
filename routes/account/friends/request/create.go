@@ -58,11 +58,11 @@ func createRequest(c *fiber.Ctx) error {
 
 	// Check if the friend is already a friend
 	var friendCheck properties.Friend
-	if err := database.DBConn.Where(&properties.Friend{Account: friend.ID, Friend: session.Account}).Take(&friendCheck).Error; err == nil && !friendCheck.Request {
+	if err := database.DBConn.Where(&properties.Friend{Account: session.Account, Friend: friend.ID}).Take(&friendCheck).Error; err == nil && !friendCheck.Request {
 		return requests.FailedRequest(c, "already.friends", nil)
 	}
 
-	if err := database.DBConn.Where(&properties.Friend{Account: session.Account, Friend: friend.ID}).Take(&properties.Friend{}).Error; err == nil {
+	if err := database.DBConn.Where(&properties.Friend{Account: friend.ID, Friend: session.Account}).Take(&properties.Friend{}).Error; err == nil {
 		return requests.FailedRequest(c, "already.requested", nil)
 	}
 
@@ -78,8 +78,8 @@ func createRequest(c *fiber.Ctx) error {
 		}
 
 		database.DBConn.Create(&properties.Friend{
-			Account:   session.Account,
-			Friend:    friend.ID,
+			Account:   friend.ID,
+			Friend:    session.Account,
 			Signature: req.Signature,
 			Request:   false,
 		})
@@ -95,8 +95,8 @@ func createRequest(c *fiber.Ctx) error {
 
 	// Send friend request
 	if err := database.DBConn.Create(&properties.Friend{
-		Account:   session.Account,
-		Friend:    friend.ID,
+		Account:   friend.ID,
+		Friend:    session.Account,
 		Signature: req.Signature,
 		Request:   true,
 	}).Error; err != nil {
