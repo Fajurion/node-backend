@@ -12,6 +12,7 @@ func Unauthorized(router fiber.Router) {
 	router.Route("/status", status.Setup)
 	router.Route("/manage", manage.Unauthorized)
 	router.Post("/this", this)
+	router.Post("/disconnect", connect.Disconnect)
 }
 
 func Authorized(router fiber.Router) {
