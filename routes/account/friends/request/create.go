@@ -5,6 +5,7 @@ import (
 	"node-backend/entities/account"
 	"node-backend/entities/account/properties"
 	"node-backend/entities/node"
+	"node-backend/util/auth"
 	"node-backend/util/nodes"
 	"node-backend/util/requests"
 
@@ -78,6 +79,7 @@ func createRequest(c *fiber.Ctx) error {
 		}
 
 		database.DBConn.Create(&properties.Friend{
+			ID:        auth.GenerateToken(32),
 			Account:   friend.ID,
 			Friend:    session.Account,
 			Signature: req.Signature,
@@ -95,6 +97,7 @@ func createRequest(c *fiber.Ctx) error {
 
 	// Send friend request
 	if err := database.DBConn.Create(&properties.Friend{
+		ID:        auth.GenerateToken(32),
 		Account:   friend.ID,
 		Friend:    session.Account,
 		Signature: req.Signature,

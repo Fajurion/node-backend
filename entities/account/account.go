@@ -20,7 +20,6 @@ type Account struct {
 	Authentication []Authentication `json:"-" gorm:"foreignKey:Account"`
 	Sessions       []Session        `json:"-" gorm:"foreignKey:Account"`
 	Subscription   Subscription     `json:"-" gorm:"foreignKey:Account"`
-	Key            PublicKey        `json:"key" gorm:"foreignKey:ID"`
 }
 
 func (a *Account) CheckPassword(password string) bool {

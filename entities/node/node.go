@@ -44,11 +44,6 @@ func (n *Node) SendPing(node Node) error {
 
 func (n *Node) GetConnection(acc account.Account, session uint, sessionIds []uint) (string, bool, error) {
 
-	// Check for key
-	if acc.Key.Key == "" {
-		return "", true, errors.New("no.key")
-	}
-
 	// Send request to node
 	res, err := util.PostRequest("http://"+n.Domain+"/auth/initialize", fiber.Map{
 		"node_token":  n.Token,
