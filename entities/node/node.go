@@ -3,7 +3,6 @@ package node
 import (
 	"errors"
 	"node-backend/entities/account"
-	"node-backend/entities/app"
 	"node-backend/util"
 
 	"github.com/gofiber/fiber/v2"
@@ -21,9 +20,6 @@ type Node struct {
 
 	// 1 - Started, 2 - Stopped, 3 - Error
 	Status uint `json:"status"`
-
-	Cluster Cluster `gorm:"foreignKey:ClusterID"`
-	App     app.App `gorm:"foreignKey:AppID"`
 }
 
 func (n *Node) ToEntity() NodeEntity {
