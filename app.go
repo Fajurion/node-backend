@@ -57,7 +57,7 @@ func testMode() {
 		return
 	}
 
-	token, _ := util.Token(123, time.Now().Add(time.Hour*24), map[string]interface{}{
+	token, _ := util.Token("123", time.Now().Add(time.Hour*24), map[string]interface{}{
 		"acc": 123,
 		"lvl": 100,
 	})

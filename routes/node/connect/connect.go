@@ -51,7 +51,7 @@ func Connect(c *fiber.Ctx) error {
 		Token:          "-1",
 		LastConnection: time.Unix(0, 10),
 	}
-	var sessionIds []uint
+	var sessionIds []string
 	for _, session := range acc.Sessions {
 		log.Println(session.ID)
 		sessionIds = append(sessionIds, session.ID)

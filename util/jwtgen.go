@@ -8,7 +8,7 @@ import (
 )
 
 // JWT_SECRET is the secret used to sign the jwt token
-func Token(session uint, exp time.Time, data map[string]interface{}) (string, error) {
+func Token(session string, exp time.Time, data map[string]interface{}) (string, error) {
 
 	// Create jwt token
 	tk := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
@@ -50,11 +50,11 @@ func Permission(c *fiber.Ctx, perm int16) bool {
 	return lvl >= perm
 }
 
-func GetSession(c *fiber.Ctx) uint {
+func GetSession(c *fiber.Ctx) string {
 	user := c.Locals("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
 
-	return uint(claims["ses"].(float64))
+	return claims["ses"].(string)
 }
 
 func GetData(c *fiber.Ctx) map[string]interface{} {

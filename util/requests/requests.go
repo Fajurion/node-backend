@@ -25,7 +25,7 @@ func InvalidRequest(c *fiber.Ctx) error {
 }
 
 // GetSession gets the session from the database (returns false if it doesn't exist)
-func GetSession(id uint, session *account.Session) bool {
+func GetSession(id string, session *account.Session) bool {
 
 	if err := database.DBConn.Take(&session, id).Error; err != nil {
 		return false

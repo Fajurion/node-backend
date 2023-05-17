@@ -5,7 +5,7 @@ import "time"
 type Subscription struct {
 	ID uint `json:"id" gorm:"primaryKey"`
 
-	Account   uint      `json:"account"`
+	Account   string    `json:"account"`
 	Rank      uint      `json:"rank"`
 	End       time.Time `json:"end"`
 	Price     float32   `json:"price"`

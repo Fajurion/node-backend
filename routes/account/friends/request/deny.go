@@ -13,8 +13,8 @@ import (
 type denyFriendRequest struct {
 	Node      uint   `json:"id"`
 	NodeToken string `json:"token"`
-	Session   uint   `json:"session"`
-	Account   uint   `json:"account"`
+	Session   string `json:"session"`
+	Account   string `json:"account"`
 }
 
 // Route: /account/friends/request/deny

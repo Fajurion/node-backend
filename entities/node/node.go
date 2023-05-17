@@ -14,7 +14,7 @@ type Node struct {
 	AppID           uint    `json:"app"` // App ID
 	ClusterID       uint    `json:"cluster"`
 	Token           string  `json:"token"`
-	Domain          string  `json:"domain" gorm:"unique"`
+	Domain          string  `json:"domain"`
 	Load            float64 `json:"load"`
 	PeformanceLevel float32 `json:"performance_level"`
 
@@ -38,7 +38,7 @@ func (n *Node) SendPing(node Node) error {
 	return err
 }
 
-func (n *Node) GetConnection(acc account.Account, session uint, sessionIds []uint) (string, bool, error) {
+func (n *Node) GetConnection(acc account.Account, session string, sessionIds []string) (string, bool, error) {
 
 	// Send request to node
 	res, err := util.PostRequest("http://"+n.Domain+"/auth/initialize", fiber.Map{

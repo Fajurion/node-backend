@@ -11,7 +11,7 @@ import (
 )
 
 type refreshRequest struct {
-	Session uint   `json:"session"`
+	Session string `json:"session"`
 	Token   string `json:"token"`
 }
 

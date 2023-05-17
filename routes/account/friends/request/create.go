@@ -15,7 +15,7 @@ import (
 type addFriendRequest struct {
 	Node      uint   `json:"id"`
 	NodeToken string `json:"token"`
-	Session   uint   `json:"session"`
+	Session   string `json:"session"`
 	Username  string `json:"username"`
 	Tag       string `json:"tag"`
 	Signature string `json:"signature"`
@@ -24,7 +24,7 @@ type addFriendRequest struct {
 type addFriendResponse struct {
 	Success   bool            `json:"success"`
 	Action    string          `json:"action"`
-	Friend    uint            `json:"friend"`
+	Friend    string          `json:"friend"`
 	Signature string          `json:"signature"`
 	Node      node.NodeEntity `json:"node"`
 	Key       string          `json:"key"`
@@ -117,7 +117,7 @@ func createRequest(c *fiber.Ctx) error {
 }
 
 // ExecuteAction returns the action to the node
-func ExecuteAction(c *fiber.Ctx, action string, friend uint, session account.Session, signature string, key string) error {
+func ExecuteAction(c *fiber.Ctx, action string, friend string, session account.Session, signature string, key string) error {
 
 	if session.Token == "" {
 		return c.JSON(addFriendResponse{

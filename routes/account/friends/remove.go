@@ -12,8 +12,8 @@ import (
 type removeRequest struct {
 	Node      uint   `json:"node"`
 	NodeToken string `json:"token"`
-	Account   uint   `json:"account"`
-	Friend    uint   `json:"friend"`
+	Account   string `json:"account"`
+	Friend    string `json:"friend"`
 }
 
 // Route: /account/friends/remove

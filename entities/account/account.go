@@ -7,7 +7,7 @@ import (
 )
 
 type Account struct {
-	ID uint `json:"id" gorm:"primaryKey"`
+	ID string `json:"id" gorm:"primaryKey"` // 8 character-long string
 
 	Username  string    `json:"username"`
 	Tag       string    `json:"tag"`

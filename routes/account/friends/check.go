@@ -13,7 +13,7 @@ import (
 type checkRequest struct {
 	Node      uint   `json:"id"`
 	NodeToken string `json:"token"`
-	Account   uint   `json:"account"`
+	Account   string `json:"account"`
 	UserIDs   []uint `json:"users"`
 }
 

@@ -85,7 +85,7 @@ func login(c *fiber.Ctx) error {
 // checkAccountDetails checks if the account details are valid
 func checkAccountDetails(c *fiber.Ctx, acc account.Account, req loginRequest) bool {
 
-	if acc.ID == 0 {
+	if acc.ID == "" {
 		return false
 	}
 

@@ -47,7 +47,7 @@ func setPublicKey(c *fiber.Ctx) error {
 
 	// Get account
 	data := util.GetData(c)
-	accId := uint(data["acc"].(float64))
+	accId := data["acc"].(string)
 
 	var acc account.Account
 	if database.DBConn.Find(&acc, accId).Error != nil {

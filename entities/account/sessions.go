@@ -5,10 +5,10 @@ import (
 )
 
 type Session struct {
-	ID    uint   `json:"id" gorm:"primaryKey"` // ID is the primary key of the table
+	ID    string `json:"id" gorm:"primaryKey"` //  8 character-long string
 	Token string `json:"token" gorm:"unique"`
 
-	Account         uint      `json:"account"`
+	Account         string    `json:"account"`
 	PermissionLevel uint      `json:"level"`
 	Device          string    `json:"device"`
 	App             uint      `json:"app"`
