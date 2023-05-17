@@ -26,6 +26,7 @@ func register_test(c *fiber.Ctx) error {
 	}
 
 	err := database.DBConn.Create(&account.Account{
+		ID:       auth.GenerateToken(8),
 		Username: registerRequest.Username,
 		Tag:      registerRequest.Tag,
 		Password: auth.HashPassword(registerRequest.Password),

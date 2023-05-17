@@ -54,6 +54,7 @@ func login(c *fiber.Ctx) error {
 	tk := auth.GenerateToken(100)
 
 	var createdSession account.Session = account.Session{
+		ID:              auth.GenerateToken(8),
 		Token:           tk,
 		Account:         acc.ID,
 		PermissionLevel: acc.Rank.Level,
