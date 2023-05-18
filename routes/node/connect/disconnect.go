@@ -13,7 +13,7 @@ import (
 type disconnectRequest struct {
 	Node      uint   `json:"node"`
 	NodeToken string `json:"token"`
-	Session   uint   `json:"session"`
+	Session   string `json:"session"`
 }
 
 // Route: /node/disconnect

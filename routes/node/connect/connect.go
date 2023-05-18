@@ -37,7 +37,7 @@ func Connect(c *fiber.Ctx) error {
 	tk := req.Token
 
 	var acc account.Account
-	if err := database.DBConn.Preload("Sessions").Take(&acc, data["acc"]).Error; err != nil {
+	if err := database.DBConn.Preload("Sessions").Where("id = ?", data["acc"]).Take(&acc).Error; err != nil {
 		return requests.FailedRequest(c, "not.found", nil)
 	}
 

@@ -14,11 +14,11 @@ func getPrivateKey(c *fiber.Ctx) error {
 
 	// Get account
 	data := util.GetData(c)
-	accId := uint(data["acc"].(float64))
+	accId := data["acc"].(string)
 
 	// Get private key
 	var key account.PrivateKey
-	if database.DBConn.Find(&key, accId).Error != nil {
+	if database.DBConn.Where("id = ?", accId).Take(&key).Error != nil {
 		return requests.FailedRequest(c, "not.found", nil)
 	}
 
@@ -47,7 +47,7 @@ func setPrivateKey(c *fiber.Ctx) error {
 	accId := data["acc"].(string)
 
 	var acc account.Account
-	if database.DBConn.Find(&acc, accId).Error != nil {
+	if database.DBConn.Where("id = ?", accId).Take(&acc).Error != nil {
 		return requests.InvalidRequest(c)
 	}
 
@@ -57,7 +57,7 @@ func setPrivateKey(c *fiber.Ctx) error {
 	}
 
 	// Set private key
-	database.DBConn.Delete(&account.PrivateKey{}, accId)
+	database.DBConn.Where("id = ?", accId).Delete(&account.PrivateKey{})
 	if database.DBConn.Create(&account.PrivateKey{
 		ID:  accId,
 		Key: req.Key,

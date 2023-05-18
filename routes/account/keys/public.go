@@ -14,12 +14,12 @@ func getPublicKey(c *fiber.Ctx) error {
 
 	// Get account
 	data := util.GetData(c)
-	accId := uint(data["acc"].(float64))
+	accId := data["acc"].(string)
 
 	// Get public key
 	var key account.PublicKey
-	if database.DBConn.Find(&key, accId).Error != nil {
-		return requests.InvalidRequest(c)
+	if database.DBConn.Where("id = ?", accId).Take(&key).Error != nil {
+		return requests.FailedRequest(c, "not.found", nil)
 	}
 
 	if key.Key == "" {
@@ -50,7 +50,7 @@ func setPublicKey(c *fiber.Ctx) error {
 	accId := data["acc"].(string)
 
 	var acc account.Account
-	if database.DBConn.Find(&acc, accId).Error != nil {
+	if database.DBConn.Where("id = ?", accId).Take(&acc).Error != nil {
 		return requests.InvalidRequest(c)
 	}
 
@@ -60,7 +60,7 @@ func setPublicKey(c *fiber.Ctx) error {
 	}
 
 	// Set public key
-	database.DBConn.Delete(&account.PublicKey{}, accId)
+	database.DBConn.Where("id = ?", accId).Delete(&account.PublicKey{})
 	if database.DBConn.Create(&account.PublicKey{
 		ID:  accId,
 		Key: req.Key,

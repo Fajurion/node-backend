@@ -31,7 +31,7 @@ func listFriends(c *fiber.Ctx) error {
 
 	// Get token details
 	data := util.GetData(c)
-	acc := uint(data["acc"].(float64))
+	acc := data["acc"].(string)
 
 	// Get friends
 	var friends []friendEntity

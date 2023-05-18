@@ -22,7 +22,7 @@ func register_test(c *fiber.Ctx) error {
 	// Parse body to register request
 	var registerRequest registerRequest
 	if err := c.BodyParser(&registerRequest); err != nil {
-		return requests.FailedRequest(c, "invalid", err)
+		return requests.InvalidRequest(c)
 	}
 
 	err := database.DBConn.Create(&account.Account{
@@ -35,10 +35,7 @@ func register_test(c *fiber.Ctx) error {
 	}).Error
 
 	if err != nil {
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"success": false,
-			"message": "invalid",
-		})
+		return requests.InvalidRequest(c)
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{

@@ -12,7 +12,7 @@ import (
 type onlineRequest struct {
 	Node      uint   `json:"node"`
 	NodeToken string `json:"token"`
-	Account   uint   `json:"account"`
+	Account   string `json:"account"`
 }
 
 // Route: /account/friends/online
