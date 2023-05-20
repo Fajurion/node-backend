@@ -11,10 +11,10 @@ import (
 )
 
 type checkRequest struct {
-	Node      uint   `json:"id"`
-	NodeToken string `json:"token"`
-	Account   string `json:"account"`
-	UserIDs   []uint `json:"users"`
+	Node      uint     `json:"id"`
+	NodeToken string   `json:"token"`
+	Account   string   `json:"account"`
+	UserIDs   []string `json:"users"`
 }
 
 // Route: /account/friends/check

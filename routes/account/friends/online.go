@@ -31,7 +31,7 @@ func onlineFriends(c *fiber.Ctx) error {
 	}
 
 	// Get online friends
-	var friends []uint
+	var friends []string
 	if err := database.DBConn.Model(&properties.Friend{}).
 		Where("account = ? AND EXISTS ( SELECT node FROM sessions WHERE account = friends.friend AND node > 0 )",
 			req.Account).

@@ -14,7 +14,7 @@ type friendListRequest struct {
 }
 
 type friendEntity struct {
-	ID        uint   `json:"id"`
+	ID        string `json:"id"`
 	Username  string `json:"name"`
 	Tag       string `json:"tag"`
 	Signature string `json:"signature"`
