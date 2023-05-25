@@ -39,7 +39,7 @@ func setPrivateKey(c *fiber.Ctx) error {
 	// Parse request
 	var req setPrivateKeyRequest
 	if err := c.BodyParser(&req); err != nil {
-		return err
+		return requests.InvalidRequest(c)
 	}
 
 	// Get account

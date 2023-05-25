@@ -42,7 +42,7 @@ func setPublicKey(c *fiber.Ctx) error {
 
 	var req setRequest
 	if err := c.BodyParser(&req); err != nil {
-		return err
+		return requests.InvalidRequest(c)
 	}
 
 	// Get account

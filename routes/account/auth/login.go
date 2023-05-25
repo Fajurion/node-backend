@@ -67,10 +67,7 @@ func login(c *fiber.Ctx) error {
 	}
 
 	// Generate jwt token
-	jwtToken, err := util.Token(createdSession.ID, time.Now().Add(time.Hour*24*3), fiber.Map{
-		"acc": acc.ID,
-		"lvl": acc.Rank.Level,
-	})
+	jwtToken, err := util.Token(createdSession.ID, acc.ID, acc.Rank.Level, time.Now().Add(time.Hour*24*3))
 
 	if err != nil {
 		return requests.FailedRequest(c, "server.error", err)

@@ -23,7 +23,7 @@ func checkFriendships(c *fiber.Ctx) error {
 	// Parse request
 	var req checkRequest
 	if err := c.BodyParser(&req); err != nil {
-		return err
+		return requests.InvalidRequest(c)
 	}
 
 	_, err := nodes.Node(req.Node, req.NodeToken)

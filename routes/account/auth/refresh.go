@@ -39,10 +39,7 @@ func refreshSession(c *fiber.Ctx) error {
 	database.DBConn.Save(&session)
 
 	// Create new token
-	jwtToken, err := util.Token(session.ID, time.Now().Add(time.Hour*24*3), fiber.Map{
-		"acc": session.Account,
-		"lvl": session.PermissionLevel,
-	})
+	jwtToken, err := util.Token(session.ID, session.Account, session.PermissionLevel, time.Now().Add(time.Hour*24*3))
 
 	if err != nil {
 		return requests.FailedRequest(c, "server.error", err)
