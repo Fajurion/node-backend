@@ -13,8 +13,7 @@ import (
 func getPrivateKey(c *fiber.Ctx) error {
 
 	// Get account
-	data := util.GetData(c)
-	accId := data["acc"].(string)
+	accId := util.GetAcc(c)
 
 	// Get private key
 	var key account.PrivateKey
@@ -43,8 +42,7 @@ func setPrivateKey(c *fiber.Ctx) error {
 	}
 
 	// Get account
-	data := util.GetData(c)
-	accId := data["acc"].(string)
+	accId := util.GetAcc(c)
 
 	var acc account.Account
 	if database.DBConn.Where("id = ?", accId).Take(&acc).Error != nil {

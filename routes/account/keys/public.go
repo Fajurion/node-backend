@@ -13,8 +13,7 @@ import (
 func getPublicKey(c *fiber.Ctx) error {
 
 	// Get account
-	data := util.GetData(c)
-	accId := data["acc"].(string)
+	accId := util.GetAcc(c)
 
 	// Get public key
 	var key account.PublicKey
@@ -46,8 +45,7 @@ func setPublicKey(c *fiber.Ctx) error {
 	}
 
 	// Get account
-	data := util.GetData(c)
-	accId := data["acc"].(string)
+	accId := util.GetAcc(c)
 
 	var acc account.Account
 	if database.DBConn.Where("id = ?", accId).Take(&acc).Error != nil {

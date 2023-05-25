@@ -55,14 +55,6 @@ func GetSession(c *fiber.Ctx) string {
 	return claims["ses"].(string)
 }
 
-func GetData(c *fiber.Ctx) map[string]interface{} {
-	user := c.Locals("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	data := claims["data"].(map[string]interface{})
-
-	return data
-}
-
 func GetAcc(c *fiber.Ctx) string {
 	user := c.Locals("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)

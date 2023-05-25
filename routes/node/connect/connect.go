@@ -32,12 +32,12 @@ func Connect(c *fiber.Ctx) error {
 	}
 
 	// Get account
-	data := util.GetData(c)
+	accId := util.GetAcc(c)
 	currentSessionId := util.GetSession(c)
 	tk := req.Token
 
 	var acc account.Account
-	if err := database.DBConn.Preload("Sessions").Where("id = ?", data["acc"]).Take(&acc).Error; err != nil {
+	if err := database.DBConn.Preload("Sessions").Where("id = ?", accId).Take(&acc).Error; err != nil {
 		return requests.FailedRequest(c, "not.found", nil)
 	}
 
