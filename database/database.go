@@ -2,6 +2,7 @@ package database
 
 import (
 	"log"
+	"os"
 	"time"
 
 	"gorm.io/driver/postgres"
@@ -17,7 +18,7 @@ import (
 var DBConn *gorm.DB
 
 func Connect() {
-	url := "host=" + DB_HOST + " user=" + DB_USERNAME + " password=" + DB_PASSWORD + " dbname=" + DB_DATABASE + " port=" + DB_PORT
+	url := "host=" + os.Getenv("DB_HOST") + " user=" + os.Getenv("DB_USER") + " password=" + os.Getenv("DB_PASSWORD") + " dbname=" + os.Getenv("DB_DATABASE") + " port=" + os.Getenv("DB_PORT")
 
 	db, err := gorm.Open(postgres.Open(url), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Warn),

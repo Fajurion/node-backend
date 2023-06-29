@@ -27,9 +27,11 @@ func GenerateToken(tkLength int32) string {
 // HashPassword hashes a password
 func HashPassword(password string) string {
 
-	// Get hash of password
+	// Get hash of password (Should be secure enough)
 	hash := sha256.Sum256([]byte(password))
+	for i := 0; i < 50; i++ {
+		hash = sha256.Sum256(hash[:])
+	}
 
-	// Convert byte[] to string
 	return base64.StdEncoding.EncodeToString(hash[:])
 }

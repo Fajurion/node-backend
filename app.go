@@ -15,6 +15,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/joho/godotenv"
 )
 
 func main() {
@@ -25,6 +26,12 @@ func main() {
 		JSONDecoder: sonic.Unmarshal,
 	})
 
+	// Load environment variables
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	// Connect to the database
 	database.Connect()
 
@@ -34,11 +41,11 @@ func main() {
 	// Handle routing
 	app.Route("/", routes.Router)
 
-	// Comment this out when in production
+	// Ask user for test mode
 	testMode()
 
 	// Listen on port 3000
-	err := app.Listen("localhost:3000")
+	err = app.Listen("localhost:3000")
 
 	log.Println(err.Error())
 }
