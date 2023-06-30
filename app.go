@@ -31,6 +31,7 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
+	util.JWT_SECRET = os.Getenv("JWT_SECRET")
 
 	// Connect to the database
 	database.Connect()

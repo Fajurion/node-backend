@@ -50,4 +50,5 @@ func Router(router fiber.Router) {
 	router.Route("/node", node.Authorized)
 	router.Route("/app", app.Authorized)
 	router.Route("/cluster", cluster.Setup)
+	router.Route("/auth", auth.Authorized)
 }

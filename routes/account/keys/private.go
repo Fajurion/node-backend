@@ -49,10 +49,12 @@ func setPrivateKey(c *fiber.Ctx) error {
 		return requests.InvalidRequest(c)
 	}
 
+	/* TODO: Remimplement this
 	// Check password
 	if !acc.CheckPassword(req.Password) {
 		return requests.FailedRequest(c, "invalid.password", nil)
 	}
+	*/
 
 	// Set private key
 	database.DBConn.Where("id = ?", accId).Delete(&account.PrivateKey{})

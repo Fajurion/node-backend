@@ -1,7 +1,6 @@
 package account
 
 import (
-	"node-backend/util/auth"
 	"strings"
 	"time"
 )
@@ -9,21 +8,41 @@ import (
 type Account struct {
 	ID string `json:"id" gorm:"primaryKey"` // 8 character-long string
 
+	Email     string    `json:"email" gorm:"uniqueIndex"`
 	Username  string    `json:"username"`
 	Tag       string    `json:"tag"`
-	Password  string    `json:"password"`
-	Email     string    `json:"email" gorm:"unique"`
 	RankID    uint      `json:"rank"`
 	CreatedAt time.Time `json:"created_at"`
 
 	Rank           Rank             `json:"-" gorm:"foreignKey:RankID"`
 	Authentication []Authentication `json:"-" gorm:"foreignKey:Account"`
 	Sessions       []Session        `json:"-" gorm:"foreignKey:Account"`
-	Subscription   Subscription     `json:"-" gorm:"foreignKey:Account"`
 }
 
-func (a *Account) CheckPassword(password string) bool {
+func NormalizeEmail(email string) string {
 
-	// Check if password is correct
-	return strings.Compare(a.Password, auth.HashPassword(password)) == 0
+	// Convert email to lowercase
+	email = strings.ToLower(email)
+
+	// Remove leading and trailing whitespaces
+	email = strings.TrimSpace(email)
+
+	// Remove dots (.) from the username part of the email
+	parts := strings.Split(email, "@")
+	username := parts[0]
+	username = strings.ReplaceAll(username, ".", "")
+
+	// Reconstruct the normalized email address
+	normalizedEmail := username + "@" + parts[1]
+
+	return normalizedEmail
+}
+
+func CheckEmail(email string) (bool, string) {
+	email = NormalizeEmail(email)
+	if strings.Contains(email, " ") {
+		return false, ""
+	}
+
+	return true, email
 }

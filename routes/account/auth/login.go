@@ -2,7 +2,6 @@ package auth
 
 import (
 	"errors"
-	"log"
 	"node-backend/database"
 	"node-backend/entities/account"
 	"node-backend/util"
@@ -14,41 +13,52 @@ import (
 )
 
 // LoginRequest is the request body for the login request
-type loginRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+type startLoginRequest struct {
+	Email  string `json:"email"`
+	Device string `json:"device"`
 }
 
-// login handles the login request
-func login(c *fiber.Ctx) error {
-	var req loginRequest
+// startLogin starts the login process
+func startLogin(c *fiber.Ctx) error {
 
-	// Parse request body
+	var req startLoginRequest
 	if err := c.BodyParser(&req); err != nil {
 		return requests.InvalidRequest(c)
 	}
 
-	// Check if request is valid
-	if req.Email == "" || req.Password == "" {
-		return requests.FailedRequest(c, "invalid", nil)
-	}
-
-	// Get user from database
+	// Check if user exists
 	var acc account.Account
-	if err := database.DBConn.Where("email = ?", req.Email).Preload("Rank").First(&acc).Error; err != nil {
-		return requests.FailedRequest(c, "invalid.password", nil)
+	if database.DBConn.Where("email = ?", req.Email).Take(&acc).Error != nil {
+		return requests.InvalidRequest(c)
 	}
 
-	// Check account details
-	if !checkAccountDetails(c, acc, req) {
-		return requests.FailedRequest(c, "invalid.password", nil)
+	// Generate token
+	tk, err := auth.GenerateLoginTokenWithStep(acc.ID, req.Device, 1)
+	if err != nil {
+		return requests.FailedRequest(c, "server.error", err)
 	}
 
-	// Check if user has too many sessions
-	if valid, err := checkSessions(c, acc); err != nil || !valid {
-		log.Println(err)
-		return requests.FailedRequest(c, "too.many.sessions", nil)
+	// Get authentication methods for step
+	var methods []uint
+	if database.DBConn.Where("step = ? AND account = ?", account.StartStep, acc.ID).Select("type").Take(&methods).Error != nil {
+		return requests.FailedRequest(c, "server.error", nil)
 	}
+
+	return c.JSON(fiber.Map{
+		"success": true,
+		"token":   tk,
+		"methods": methods,
+	})
+}
+
+type loginStepRequest struct {
+	Secret string `json:"secret"`
+}
+
+// loginStep runs the login step
+func loginStep(c *fiber.Ctx) error {
+
+	// TODO: Auth stuff
 
 	// Create session
 	tk := auth.GenerateToken(100)
@@ -56,8 +66,8 @@ func login(c *fiber.Ctx) error {
 	var createdSession account.Session = account.Session{
 		ID:              auth.GenerateToken(8),
 		Token:           tk,
-		Account:         acc.ID,
-		PermissionLevel: acc.Rank.Level,
+		Account:         "23",
+		PermissionLevel: 0,
 		Device:          "ph", // TODO: Give the user the option to choose the device
 		LastConnection:  time.UnixMilli(0),
 	}
@@ -67,7 +77,7 @@ func login(c *fiber.Ctx) error {
 	}
 
 	// Generate jwt token
-	jwtToken, err := util.Token(createdSession.ID, acc.ID, acc.Rank.Level, time.Now().Add(time.Hour*24*3))
+	jwtToken, err := util.Token(createdSession.ID, "23", 0, time.Now().Add(time.Hour*24*3))
 
 	if err != nil {
 		return requests.FailedRequest(c, "server.error", err)
@@ -78,20 +88,6 @@ func login(c *fiber.Ctx) error {
 		"token":         jwtToken,
 		"refresh_token": tk,
 	})
-}
-
-// checkAccountDetails checks if the account details are valid
-func checkAccountDetails(c *fiber.Ctx, acc account.Account, req loginRequest) bool {
-
-	if acc.ID == "" {
-		return false
-	}
-
-	if !acc.CheckPassword(req.Password) {
-		return false
-	}
-
-	return true
 }
 
 // checkSessions checks if the user has too many sessions

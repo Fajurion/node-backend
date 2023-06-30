@@ -43,7 +43,6 @@ func Connect() {
 	db.AutoMigrate(&account.Account{})
 	db.AutoMigrate(&account.Authentication{})
 	db.AutoMigrate(&account.Session{})
-	db.AutoMigrate(&account.Subscription{})
 	db.AutoMigrate(&account.Rank{})
 	db.AutoMigrate(&account.PublicKey{})
 	db.AutoMigrate(&account.PrivateKey{})
