@@ -4,6 +4,7 @@ import (
 	"node-backend/util"
 	"time"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
 )
 
@@ -25,4 +26,13 @@ func GenerateLoginTokenWithStep(id string, device string, step uint) (string, er
 	}
 
 	return tokenString, nil
+}
+
+func GetLoginDataFromToken(c *fiber.Ctx) (id string, device string, step uint) {
+
+	// Get token from header
+	token := c.Locals("user").(*jwt.Token)
+	claims := token.Claims.(jwt.MapClaims)
+
+	return claims["acc"].(string), claims["d"].(string), uint(claims["at"].(float64))
 }

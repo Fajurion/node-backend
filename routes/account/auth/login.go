@@ -32,16 +32,97 @@ func startLogin(c *fiber.Ctx) error {
 		return requests.InvalidRequest(c)
 	}
 
+	valid, err := checkSessions(acc.ID)
+	if err != nil {
+		return requests.FailedRequest(c, err.Error(), nil)
+	}
+
+	if !valid {
+		return requests.FailedRequest(c, "too.many.sessions", nil)
+	}
+
 	// Generate token
-	tk, err := auth.GenerateLoginTokenWithStep(acc.ID, req.Device, 1)
+	return runAuthStep(acc.ID, req.Device, account.StartStep, c)
+}
+
+type loginStepRequest struct {
+	Type   uint   `json:"type"`
+	Secret string `json:"secret"`
+}
+
+// loginStep runs the login step
+func loginStep(c *fiber.Ctx) error {
+
+	var req loginStepRequest
+	if err := c.BodyParser(&req); err != nil {
+		return requests.InvalidRequest(c)
+	}
+
+	// Get data
+	id, device, step := auth.GetLoginDataFromToken(c)
+
+	var method account.Authentication
+	if err := database.DBConn.Where("account = ? AND type = ?", id, req.Type).Take(&method).Error; err != nil {
+		return requests.FailedRequest(c, "server.error", err)
+	}
+
+	// Check the provided secret
+	if !method.Verify(req.Type, req.Secret) {
+		return requests.FailedRequest(c, "invalid.method", nil)
+	}
+
+	return runAuthStep(id, device, step+1, c)
+}
+
+func runAuthStep(id string, device string, step uint, c *fiber.Ctx) error {
+
+	// Generate token
+	tk, err := auth.GenerateLoginTokenWithStep(id, device, step)
 	if err != nil {
 		return requests.FailedRequest(c, "server.error", err)
 	}
 
 	// Get authentication methods for step
 	var methods []uint
-	if database.DBConn.Where("step = ? AND account = ?", account.StartStep, acc.ID).Select("type").Take(&methods).Error != nil {
+	if database.DBConn.Where("step = ? AND account = ?", step, id).Select("type").Take(&methods).Error != nil {
 		return requests.FailedRequest(c, "server.error", nil)
+	}
+
+	if len(methods) == 0 && step == account.StartStep {
+		// TODO: SERIOUS SECURITY ISSUE WARNING HERE
+		return requests.FailedRequest(c, "no.methods", nil)
+	}
+
+	if len(methods) == 0 {
+
+		// Create session
+		tk := auth.GenerateToken(100)
+
+		var createdSession account.Session = account.Session{
+			ID:              auth.GenerateToken(8),
+			Token:           tk,
+			Account:         "23",
+			PermissionLevel: 0,
+			Device:          "ph", // TODO: Give the user the option to choose the device
+			LastConnection:  time.UnixMilli(0),
+		}
+
+		if err := database.DBConn.Create(&createdSession).Error; err != nil {
+			requests.FailedRequest(c, "server.error", err)
+		}
+
+		// Generate jwt token
+		jwtToken, err := util.Token(createdSession.ID, "23", 0, time.Now().Add(time.Hour*24*3))
+
+		if err != nil {
+			return requests.FailedRequest(c, "server.error", err)
+		}
+
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"success":       true,
+			"token":         jwtToken,
+			"refresh_token": tk,
+		})
 	}
 
 	return c.JSON(fiber.Map{
@@ -51,51 +132,12 @@ func startLogin(c *fiber.Ctx) error {
 	})
 }
 
-type loginStepRequest struct {
-	Secret string `json:"secret"`
-}
-
-// loginStep runs the login step
-func loginStep(c *fiber.Ctx) error {
-
-	// TODO: Auth stuff
-
-	// Create session
-	tk := auth.GenerateToken(100)
-
-	var createdSession account.Session = account.Session{
-		ID:              auth.GenerateToken(8),
-		Token:           tk,
-		Account:         "23",
-		PermissionLevel: 0,
-		Device:          "ph", // TODO: Give the user the option to choose the device
-		LastConnection:  time.UnixMilli(0),
-	}
-
-	if err := database.DBConn.Create(&createdSession).Error; err != nil {
-		requests.FailedRequest(c, "server.error", err)
-	}
-
-	// Generate jwt token
-	jwtToken, err := util.Token(createdSession.ID, "23", 0, time.Now().Add(time.Hour*24*3))
-
-	if err != nil {
-		return requests.FailedRequest(c, "server.error", err)
-	}
-
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"success":       true,
-		"token":         jwtToken,
-		"refresh_token": tk,
-	})
-}
-
 // checkSessions checks if the user has too many sessions
-func checkSessions(c *fiber.Ctx, acc account.Account) (bool, error) {
+func checkSessions(id string) (bool, error) {
 
 	// Check if user has too many sessions
 	var sessions int64
-	if err := database.DBConn.Model(&account.Session{}).Where("account = ?", acc.ID).Count(&sessions).Error; err != nil {
+	if err := database.DBConn.Model(&account.Session{}).Where("account = ?", id).Count(&sessions).Error; err != nil {
 		return false, errors.New("server.error")
 	}
 
