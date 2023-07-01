@@ -1,6 +1,7 @@
 package account
 
 import (
+	"regexp"
 	"strings"
 	"time"
 )
@@ -18,6 +19,8 @@ type Account struct {
 	Authentication []Authentication `json:"-" gorm:"foreignKey:Account"`
 	Sessions       []Session        `json:"-" gorm:"foreignKey:Account"`
 }
+
+const EmailRegex = "^[a-zA-Z0-9]+(?:\\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+(?:\\.[a-zA-Z0-9]+)*$"
 
 func NormalizeEmail(email string) string {
 
@@ -39,6 +42,13 @@ func NormalizeEmail(email string) string {
 }
 
 func CheckEmail(email string) (bool, string) {
+
+	// Check if email is valid
+	match, err := regexp.Match(EmailRegex, []byte(email))
+	if !match || err != nil {
+		return false, ""
+	}
+
 	email = NormalizeEmail(email)
 	if strings.Contains(email, " ") {
 		return false, ""

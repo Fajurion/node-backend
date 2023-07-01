@@ -83,8 +83,15 @@ func runAuthStep(id string, device string, step uint, c *fiber.Ctx) error {
 	}
 
 	// Get authentication methods for step
+	var availableMethods []uint
+	for method, stepUsed := range account.Order {
+		if stepUsed == step {
+			availableMethods = append(availableMethods, method)
+		}
+	}
+
 	var methods []uint
-	if database.DBConn.Where("step = ? AND account = ?", step, id).Select("type").Take(&methods).Error != nil {
+	if database.DBConn.Where("type IN ? AND account = ?", availableMethods, id).Select("type").Take(&methods).Error != nil {
 		return requests.FailedRequest(c, "server.error", nil)
 	}
 
@@ -95,15 +102,20 @@ func runAuthStep(id string, device string, step uint, c *fiber.Ctx) error {
 
 	if len(methods) == 0 {
 
+		var acc account.Account
+		if err := database.DBConn.Where("id = ?", id).Preload("Rank").Take(&acc).Error; err != nil {
+			return requests.FailedRequest(c, "server.error", err)
+		}
+
 		// Create session
 		tk := auth.GenerateToken(100)
 
 		var createdSession account.Session = account.Session{
 			ID:              auth.GenerateToken(8),
 			Token:           tk,
-			Account:         "23",
-			PermissionLevel: 0,
-			Device:          "ph", // TODO: Give the user the option to choose the device
+			Account:         acc.ID,
+			PermissionLevel: acc.Rank.Level,
+			Device:          device,
 			LastConnection:  time.UnixMilli(0),
 		}
 
@@ -112,7 +124,7 @@ func runAuthStep(id string, device string, step uint, c *fiber.Ctx) error {
 		}
 
 		// Generate jwt token
-		jwtToken, err := util.Token(createdSession.ID, "23", 0, time.Now().Add(time.Hour*24*3))
+		jwtToken, err := util.Token(createdSession.ID, acc.ID, acc.Rank.Level, time.Now().Add(time.Hour*24*3))
 
 		if err != nil {
 			return requests.FailedRequest(c, "server.error", err)

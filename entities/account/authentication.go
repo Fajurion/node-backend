@@ -6,7 +6,7 @@ import (
 )
 
 type Authentication struct {
-	ID uint `json:"id" gorm:"primaryKey"`
+	ID string `json:"id" gorm:"primaryKey"`
 
 	Account string `json:"account"`
 	Type    uint   `json:"type"`

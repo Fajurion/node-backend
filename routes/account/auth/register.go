@@ -28,19 +28,32 @@ func register_test(c *fiber.Ctx) error {
 	// Check if email is already registered
 	valid, normalizedEmail := account.CheckEmail(registerRequest.Email)
 	if !valid {
+		return requests.FailedRequest(c, "email.invalid", nil)
+	}
+
+	if database.DBConn.Where("email = ?", normalizedEmail).Take(&account.Account{}).RowsAffected > 0 {
 		return requests.FailedRequest(c, "email.registered", nil)
 	}
 
-	if database.DBConn.Where("email = ?", normalizedEmail).First(&account.Account{}).RowsAffected > 0 {
-		return requests.FailedRequest(c, "email.registered", nil)
-	}
-
-	err := database.DBConn.Create(&account.Account{
+	var acc account.Account = account.Account{
 		ID:       auth.GenerateToken(8),
 		Email:    normalizedEmail,
 		Username: registerRequest.Username,
 		Tag:      registerRequest.Tag,
 		RankID:   1, // Default rank
+	}
+
+	err := database.DBConn.Create(&acc).Error
+
+	if err != nil {
+		return requests.InvalidRequest(c)
+	}
+
+	err = database.DBConn.Create(&account.Authentication{
+		ID:      auth.GenerateToken(8),
+		Account: acc.ID,
+		Type:    account.TypePassword,
+		Secret:  auth.HashPassword(registerRequest.Password),
 	}).Error
 
 	if err != nil {
