@@ -46,7 +46,7 @@ func main() {
 	testMode()
 
 	// Listen on port 3000
-	err = app.Listen("localhost:3000")
+	err = app.Listen(os.Getenv("LISTEN"))
 
 	log.Println(err.Error())
 }

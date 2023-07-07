@@ -16,6 +16,7 @@ type addRequest struct {
 	AccessLevel uint   `json:"access_level"`
 }
 
+// Route: /app/manage/add
 func addApp(c *fiber.Ctx) error {
 
 	// Parse request
