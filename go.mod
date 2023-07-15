@@ -9,6 +9,7 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.4.3
 	gorm.io/driver/postgres v1.4.7
 	gorm.io/gorm v1.24.5
+	github.com/joho/godotenv v1.5.1
 )
 
 require (
@@ -20,7 +21,6 @@ require (
 	github.com/jackc/pgx/v5 v5.3.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/klauspost/compress v1.16.3 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.3 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
