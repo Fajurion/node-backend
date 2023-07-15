@@ -2,6 +2,7 @@ package routes
 
 import (
 	"log"
+	nb_challenges "node-backend/nbchallenges"
 	"node-backend/routes/account"
 	"node-backend/routes/account/auth"
 	"node-backend/routes/app"
@@ -21,6 +22,10 @@ func Router(router fiber.Router) {
 	router.Route("/node", node.Unauthorized)
 	router.Route("/app", app.Unauthorized)
 	router.Route("/account", account.Unauthorized)
+
+	// Challenge test
+	router.Post("/challenge/generate", nb_challenges.Generate)
+	router.Post("/challenge/solve", nb_challenges.Solve)
 
 	router.Use(jwtware.New(jwtware.Config{
 		SigningKey: []byte(util.JWT_SECRET),
