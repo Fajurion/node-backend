@@ -1,4 +1,4 @@
-package main
+package starter
 
 import (
 	"bufio"
@@ -18,7 +18,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func main() {
+func Startup() {
 
 	// Create a new Fiber instance
 	app := fiber.New(fiber.Config{
