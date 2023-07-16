@@ -28,8 +28,7 @@ func getPrivateKey(c *fiber.Ctx) error {
 }
 
 type setPrivateKeyRequest struct {
-	Password string `json:"password"`
-	Key      string `json:"key"`
+	Key string `json:"key"`
 }
 
 // Route: /account/keys/private/set
@@ -49,12 +48,9 @@ func setPrivateKey(c *fiber.Ctx) error {
 		return requests.InvalidRequest(c)
 	}
 
-	/* TODO: Remimplement this
-	// Check password
-	if !acc.CheckPassword(req.Password) {
-		return requests.FailedRequest(c, "invalid.password", nil)
+	if database.DBConn.Where("id = ?", accId).Take(&account.PrivateKey{}).Error == nil {
+		return requests.FailedRequest(c, "already.set", nil)
 	}
-	*/
 
 	// Set private key
 	database.DBConn.Where("id = ?", accId).Delete(&account.PrivateKey{})

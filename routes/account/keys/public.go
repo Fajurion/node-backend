@@ -32,8 +32,7 @@ func getPublicKey(c *fiber.Ctx) error {
 }
 
 type setRequest struct {
-	Password string `json:"password"`
-	Key      string `json:"key"`
+	Key string `json:"key"`
 }
 
 // Route: /account/keys/public/set
@@ -52,15 +51,11 @@ func setPublicKey(c *fiber.Ctx) error {
 		return requests.InvalidRequest(c)
 	}
 
-	/* TODO: Remimplement this
-	// Check password
-	if !acc.CheckPassword(req.Password) {
-		return requests.FailedRequest(c, "invalid.password", nil)
+	if database.DBConn.Where("id = ?", accId).Take(&account.PublicKey{}).Error == nil {
+		return requests.FailedRequest(c, "already.set", nil)
 	}
-	*/
 
 	// Set public key
-	database.DBConn.Where("id = ?", accId).Delete(&account.PublicKey{})
 	if database.DBConn.Create(&account.PublicKey{
 		ID:  accId,
 		Key: req.Key,
