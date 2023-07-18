@@ -34,5 +34,5 @@ func GetLoginDataFromToken(c *fiber.Ctx) (id string, device string, step uint) {
 	token := c.Locals("user").(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
 
-	return claims["acc"].(string), claims["d"].(string), uint(claims["at"].(float64))
+	return claims["acc"].(string), claims["d"].(string), uint(claims["s"].(float64))
 }

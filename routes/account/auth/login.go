@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"gorm.io/gorm"
 )
 
 // LoginRequest is the request body for the login request
@@ -29,7 +30,7 @@ func startLogin(c *fiber.Ctx) error {
 	// Check if user exists
 	var acc account.Account
 	if database.DBConn.Where("email = ?", req.Email).Take(&acc).Error != nil {
-		return requests.InvalidRequest(c)
+		return requests.FailedRequest(c, "invalid.email", nil)
 	}
 
 	valid, err := checkSessions(acc.ID)
@@ -91,16 +92,14 @@ func runAuthStep(id string, device string, step uint, c *fiber.Ctx) error {
 	}
 
 	var methods []uint
-	if database.DBConn.Where("type IN ? AND account = ?", availableMethods, id).Select("type").Take(&methods).Error != nil {
-		return requests.FailedRequest(c, "server.error", nil)
-	}
+	query := database.DBConn.Model(&account.Authentication{}).Where("type IN ? AND account = ?", availableMethods, id).Select("type").Take(&methods)
 
-	if len(methods) == 0 && step == account.StartStep {
+	if query.Error == gorm.ErrRecordNotFound && step == account.StartStep {
 		// TODO: SERIOUS SECURITY ISSUE WARNING HERE
 		return requests.FailedRequest(c, "no.methods", nil)
 	}
 
-	if len(methods) == 0 {
+	if query.Error == gorm.ErrRecordNotFound {
 
 		var acc account.Account
 		if err := database.DBConn.Where("id = ?", id).Preload("Rank").Take(&acc).Error; err != nil {
@@ -135,6 +134,10 @@ func runAuthStep(id string, device string, step uint, c *fiber.Ctx) error {
 			"token":         jwtToken,
 			"refresh_token": tk,
 		})
+	}
+
+	if query.Error != nil {
+		return requests.FailedRequest(c, "server.error", nil)
 	}
 
 	return c.JSON(fiber.Map{
