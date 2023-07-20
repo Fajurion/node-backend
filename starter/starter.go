@@ -53,17 +53,25 @@ func Startup() {
 
 func testMode() {
 
-	log.Print("\n TEST MODE ENABLED \n")
-	log.Println("Do you want to continue in test mode? (y/n)")
+	if os.Getenv("TESTING") != "" {
+		util.Testing = os.Getenv("TESTING") == "true"
+		if util.Testing {
+			log.Println("Test mode enabled (Read from .env).")
+		}
+	} else {
+		log.Println("Do you want to continue in test mode? (y/n)")
 
-	scanner := bufio.NewScanner(os.Stdin)
+		scanner := bufio.NewScanner(os.Stdin)
 
-	scanner.Scan()
-	input := scanner.Text()
+		scanner.Scan()
+		util.Testing = scanner.Text() == "y"
+	}
 
-	if input != "y" {
+	if !util.Testing {
 		return
 	}
+
+	log.Println("Test mode enabled.")
 
 	token, _ := util.Token("123", "123", 100, time.Now().Add(time.Hour*24))
 

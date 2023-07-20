@@ -8,6 +8,8 @@ import (
 	"github.com/bytedance/sonic"
 )
 
+var Testing = false
+
 const PermissionUseServices = 10
 const PermissionServicesUnlimited = 20
 const PermissionViewSettings = 50
