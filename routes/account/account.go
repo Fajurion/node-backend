@@ -1,6 +1,7 @@
 package account
 
 import (
+	"node-backend/routes/account/friends"
 	"node-backend/routes/account/keys"
 	"node-backend/routes/account/profile"
 	"node-backend/routes/account/rank"
@@ -19,6 +20,7 @@ func Authorized(router fiber.Router) {
 	router.Route("/keys", keys.Authorized)
 	router.Route("/profile", profile.SetupRoutes)
 	router.Route("/stored_actions", stored_actions.Authorized)
+	router.Route("/friends", friends.Authorized)
 
 	router.Post("/remote_id", generateRemoteId)
 	router.Post("/me", me)
