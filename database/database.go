@@ -49,6 +49,7 @@ func Connect() {
 	// Migrate account properties related tables
 	db.AutoMigrate(&properties.Friendship{})
 	db.AutoMigrate(&properties.Profile{})
+	db.AutoMigrate(&properties.StoredAction{})
 
 	// Migrate node related tables
 	db.AutoMigrate(&node.Cluster{})

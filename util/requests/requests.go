@@ -22,6 +22,11 @@ func SuccessfulRequest(c *fiber.Ctx) error {
 }
 
 func FailedRequest(c *fiber.Ctx, error string, err error) error {
+
+	if util.Testing && err != nil {
+		log.Println(c.Route().Path+":", err)
+	}
+
 	return c.Status(200).JSON(fiber.Map{
 		"success": false,
 		"error":   error,
