@@ -3,7 +3,6 @@ package profile
 import (
 	"node-backend/database"
 	"node-backend/entities/account/properties"
-	"node-backend/util"
 	"node-backend/util/requests"
 
 	"github.com/gofiber/fiber/v2"
@@ -21,12 +20,15 @@ func getProfile(c *fiber.Ctx) error {
 		return requests.InvalidRequest(c)
 	}
 
-	accId := util.GetAcc(c)
+	//accId := util.GetAcc(c)
 
-	if database.DBConn.Model(&properties.Friend{}).Where("account = ? AND friend = ? AND request = ?", accId, req.Account, false).
-		Take(&properties.Friend{}).Error != nil {
-		return requests.FailedRequest(c, "not.friends", nil)
-	}
+	// TODO: Reimplement friendship check
+	/*
+		if database.DBConn.Model(&properties.Friend{}).Where("account = ? AND friend = ? AND request = ?", accId, req.Account, false).
+			Take(&properties.Friend{}).Error != nil {
+			return requests.FailedRequest(c, "not.friends", nil)
+		}
+	*/
 
 	var profile properties.Profile
 	if err := database.DBConn.Where("id = ?", req.Account).Take(&profile).Error; err != nil {

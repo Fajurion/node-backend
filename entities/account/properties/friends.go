@@ -1,10 +1,7 @@
 package properties
 
-type Friend struct {
-	ID        string `json:"id" gorm:"primaryKey"`
-	Account   string `json:"account" gorm:"primaryKey"`
-	Friend    string `json:"friend"`
-	Updated   int64  `gorm:"autoUpdateTime:milli"`
-	Request   bool   `json:"request"`
-	Signature string `json:"signature"`
+type Friendship struct {
+	ID      string `json:"id" gorm:"primaryKey"`
+	Account string `json:"account" gorm:"primaryKey"`
+	Payload string `json:"friend"` // Encrypted (with account's public key) friend key + data
 }

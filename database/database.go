@@ -45,10 +45,9 @@ func Connect() {
 	db.AutoMigrate(&account.Session{})
 	db.AutoMigrate(&account.Rank{})
 	db.AutoMigrate(&account.PublicKey{})
-	db.AutoMigrate(&account.PrivateKey{})
 
 	// Migrate account properties related tables
-	db.AutoMigrate(&properties.Friend{})
+	db.AutoMigrate(&properties.Friendship{})
 	db.AutoMigrate(&properties.Profile{})
 
 	// Migrate node related tables

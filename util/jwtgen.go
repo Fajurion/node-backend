@@ -28,6 +28,26 @@ func Token(session string, account string, lvl uint, exp time.Time) (string, err
 	return tokenString, nil
 }
 
+func RemoteId(lvl uint) (string, error) {
+
+	// Create jwt token
+	exp := time.Now().Add(time.Hour * 2)
+	tk := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"e_u": exp.Unix(), // Expiration unix
+		"lvl": lvl,
+		"rid": true, // tell the backend that it's a remote id
+	})
+
+	// Sign and get the complete encoded token as a string using the secret
+	tokenString, err := tk.SignedString([]byte(JWT_SECRET))
+
+	if err != nil {
+		return "", err
+	}
+
+	return tokenString, nil
+}
+
 // IsExpired checks if the token is expired
 func IsExpired(c *fiber.Ctx) bool {
 	user := c.Locals("user").(*jwt.Token)
@@ -60,4 +80,12 @@ func GetAcc(c *fiber.Ctx) string {
 	claims := user.Claims.(jwt.MapClaims)
 
 	return claims["acc"].(string)
+}
+
+func IsRemoteId(c *fiber.Ctx) bool {
+	user := c.Locals("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+
+	_, ok := claims["rid"]
+	return ok
 }

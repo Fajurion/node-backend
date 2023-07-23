@@ -27,6 +27,7 @@ func Router(router fiber.Router) {
 	router.Post("/challenge/generate", nb_challenges.Generate)
 	router.Post("/challenge/solve", nb_challenges.Solve)
 
+	// Authorized by using a remote id or normal token
 	router.Use(jwtware.New(jwtware.Config{
 		SigningKey: []byte(util.JWT_SECRET),
 
@@ -35,6 +36,36 @@ func Router(router fiber.Router) {
 
 			if util.IsExpired(c) {
 				return requests.InvalidRequest(c)
+			}
+
+			return c.Next()
+		},
+
+		// Error handler
+		ErrorHandler: func(c *fiber.Ctx, err error) error {
+
+			log.Println(err.Error())
+
+			// Return error message
+			return c.SendStatus(401)
+		},
+	}))
+
+	// Routes that require a remote id or normal JWT
+
+	// Autorized by using a normal JWT token
+	router.Use(jwtware.New(jwtware.Config{
+		SigningKey: []byte(util.JWT_SECRET),
+
+		// Checks if the token is expired
+		SuccessHandler: func(c *fiber.Ctx) error {
+
+			if util.IsExpired(c) {
+				return requests.InvalidRequest(c)
+			}
+
+			if util.IsRemoteId(c) {
+				requests.InvalidRequest(c)
 			}
 
 			return c.Next()
