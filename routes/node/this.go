@@ -1,6 +1,7 @@
 package node
 
 import (
+	"node-backend/util"
 	"node-backend/util/nodes"
 	"node-backend/util/requests"
 
@@ -28,6 +29,7 @@ func this(c *fiber.Ctx) error {
 
 	return c.JSON(fiber.Map{
 		"success": true,
+		"jwt_secret": util.JWT_SECRET,
 		"node":    node.ToEntity(),
 	})
 
