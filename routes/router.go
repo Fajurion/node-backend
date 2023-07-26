@@ -11,8 +11,8 @@ import (
 	"node-backend/util"
 	"node-backend/util/requests"
 
+	jwtware "github.com/gofiber/contrib/jwt"
 	"github.com/gofiber/fiber/v2"
-	jwtware "github.com/gofiber/jwt/v3"
 )
 
 func Router(router fiber.Router) {
@@ -29,7 +29,10 @@ func Router(router fiber.Router) {
 
 	// Authorized by using a remote id or normal token
 	router.Use(jwtware.New(jwtware.Config{
-		SigningKey: []byte(util.JWT_SECRET),
+		SigningKey: jwtware.SigningKey{
+			JWTAlg: jwtware.HS256,
+			Key:    []byte(util.JWT_SECRET),
+		},
 
 		// Checks if the token is expired
 		SuccessHandler: func(c *fiber.Ctx) error {
@@ -55,7 +58,10 @@ func Router(router fiber.Router) {
 
 	// Autorized by using a normal JWT token
 	router.Use(jwtware.New(jwtware.Config{
-		SigningKey: []byte(util.JWT_SECRET),
+		SigningKey: jwtware.SigningKey{
+			JWTAlg: jwtware.HS256,
+			Key:    []byte(util.JWT_SECRET),
+		},
 
 		// Checks if the token is expired
 		SuccessHandler: func(c *fiber.Ctx) error {
