@@ -5,7 +5,6 @@ go 1.19
 require (
 	github.com/bytedance/sonic v1.8.0
 	github.com/gofiber/fiber/v2 v2.48.0
-	github.com/golang-jwt/jwt/v4 v4.4.3
 	github.com/joho/godotenv v1.5.1
 	gorm.io/driver/postgres v1.4.7
 	gorm.io/gorm v1.24.5
@@ -16,7 +15,7 @@ require (
 	github.com/andybalholm/brotli v1.0.5 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
 	github.com/gofiber/contrib/jwt v1.0.4
-	github.com/golang-jwt/jwt/v5 v5.0.0 // indirect
+	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
