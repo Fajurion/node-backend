@@ -4,10 +4,8 @@ import (
 	"bufio"
 	"log"
 	"node-backend/database"
-	"node-backend/entities/node"
 	"node-backend/routes"
 	"node-backend/util"
-	"node-backend/util/nodes"
 	"os"
 	"time"
 
@@ -77,6 +75,7 @@ func testMode() {
 
 	log.Println("Test token: " + token)
 
+	/* not need for now
 	var foundNodes []node.Node
 	database.DBConn.Find(&foundNodes)
 
@@ -87,4 +86,5 @@ func testMode() {
 			nodes.TurnOff(&n, node.StatusStopped)
 		}
 	}
+	*/
 }

@@ -3,7 +3,7 @@ module node-backend
 go 1.19
 
 require (
-	github.com/bytedance/sonic v1.8.0
+	github.com/bytedance/sonic v1.8.8
 	github.com/gofiber/fiber/v2 v2.48.0
 	github.com/joho/godotenv v1.5.1
 	gorm.io/driver/postgres v1.4.7
@@ -23,7 +23,7 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/klauspost/compress v1.16.7 // indirect
-	github.com/klauspost/cpuid/v2 v2.2.3 // indirect
+	github.com/klauspost/cpuid/v2 v2.2.4 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/mattn/go-runewidth v0.0.15 // indirect

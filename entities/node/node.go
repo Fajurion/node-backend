@@ -4,6 +4,7 @@ import (
 	"errors"
 	"node-backend/entities/account"
 	"node-backend/util"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -42,12 +43,10 @@ func (n *Node) GetConnection(acc account.Account, session string, sessionIds []s
 
 	// Send request to node
 	res, err := util.PostRequest("http://"+n.Domain+"/auth/initialize", fiber.Map{
-		"node_token":  n.Token,
-		"session":     session,
-		"user_id":     acc.ID,
-		"username":    acc.Username,
-		"tag":         acc.Tag,
-		"session_ids": sessionIds,
+		"node_token": n.Token,
+		"session":    session,
+		"account":    acc.ID,
+		"end":        time.Now().UnixMilli(),
 	})
 
 	if err != nil {

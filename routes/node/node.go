@@ -4,6 +4,7 @@ import (
 	"node-backend/routes/node/connect"
 	"node-backend/routes/node/manage"
 	"node-backend/routes/node/status"
+	"node-backend/util"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -13,6 +14,10 @@ func Unauthorized(router fiber.Router) {
 	router.Route("/manage", manage.Unauthorized)
 	router.Post("/this", this)
 	router.Post("/disconnect", connect.Disconnect)
+
+	if util.Testing {
+		router.Post("/test", sendToNode)
+	}
 }
 
 func Authorized(router fiber.Router) {

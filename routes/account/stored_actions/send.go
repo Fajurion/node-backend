@@ -51,6 +51,21 @@ func sendStoredAction(c *fiber.Ctx) error {
 		return requests.FailedRequest(c, "server.error", err)
 	}
 
+	// Send to node if possible
+	var session account.Session
+	if err := database.DBConn.Where("account = ? AND node != ?", acc.ID, 0).Take(&session).Error; err == nil {
+
+		// No error handling, cause it doesn't matter if it couldn't send
+		requests.SendEventToNode(session.Node, acc.ID, requests.Event{
+			Sender: "0",
+			Name:   "s_a", // Stored action
+			Data: map[string]interface{}{
+				"id":      storedAction.ID,
+				"payload": storedAction.Payload,
+			},
+		})
+	}
+
 	// Return success
 	return requests.SuccessfulRequest(c)
 }
