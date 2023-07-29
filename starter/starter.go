@@ -18,6 +18,8 @@ import (
 
 func Startup() {
 
+	log.SetOutput(os.Stdout)
+
 	// Create a new Fiber instance
 	app := fiber.New(fiber.Config{
 		JSONEncoder: sonic.Marshal,
