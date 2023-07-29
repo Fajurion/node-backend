@@ -1,6 +1,7 @@
 package friends
 
 import (
+	"log"
 	"node-backend/database"
 	"node-backend/entities/account/properties"
 	"node-backend/util"
@@ -17,10 +18,12 @@ type addFriendRequest struct {
 // Route: /account/friends/add
 func addFriend(c *fiber.Ctx) error {
 
+	log.Println(string(c.Body()))
+
 	// Parse request
 	var req addFriendRequest
-	if err := c.BodyParser(req); err != nil {
-		return err
+	if err := c.BodyParser(&req); err != nil {
+		return requests.InvalidRequest(c)
 	}
 
 	// Check if the account has too many friends
