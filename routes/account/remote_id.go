@@ -4,6 +4,7 @@ import (
 	"node-backend/database"
 	"node-backend/entities/account"
 	"node-backend/util"
+	"node-backend/util/auth"
 	"node-backend/util/requests"
 
 	"github.com/gofiber/fiber/v2"
@@ -19,7 +20,7 @@ func generateRemoteId(c *fiber.Ctx) error {
 	}
 
 	// Generate remote id
-	rid, err := util.RemoteId(account.Rank.Level)
+	rid, err := util.RemoteId(account.Rank.Level, auth.GenerateToken(32))
 	if err != nil {
 		return requests.FailedRequest(c, "server.error", err)
 	}

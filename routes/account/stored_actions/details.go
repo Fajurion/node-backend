@@ -14,6 +14,7 @@ type detailsRequest struct {
 	Tag      string `json:"tag"`
 }
 
+// Route: /account/stored_actions/details
 func getDetails(c *fiber.Ctx) error {
 
 	if !util.IsRemoteId(c) {
@@ -29,12 +30,12 @@ func getDetails(c *fiber.Ctx) error {
 	// Get account
 	var acc account.Account
 	if err := database.DBConn.Where("username = ? AND tag = ?", req.Username, req.Tag).Take(&acc).Error; err != nil {
-		return requests.FailedRequest(c, "server.error", err)
+		return requests.FailedRequest(c, "not.found", err)
 	}
 
 	var key account.PublicKey
-	if err := database.DBConn.Where("account = ?", acc.ID).Take(&key).Error; err != nil {
-		return requests.FailedRequest(c, "server.error", err)
+	if err := database.DBConn.Where("id = ?", acc.ID).Take(&key).Error; err != nil {
+		return requests.FailedRequest(c, "not.found", err)
 	}
 
 	// Return account details

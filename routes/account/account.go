@@ -16,6 +16,10 @@ func Unauthorized(router fiber.Router) {
 	router.Post("/get", getAccount)
 }
 
+func Remote(router fiber.Router) {
+	router.Route("/stored_actions", stored_actions.Remote)
+}
+
 func Authorized(router fiber.Router) {
 	router.Route("/keys", keys.Authorized)
 	router.Route("/profile", profile.SetupRoutes)

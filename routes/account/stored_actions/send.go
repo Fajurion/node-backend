@@ -15,6 +15,7 @@ type sendRequest struct {
 	Payload string `json:"payload"`
 }
 
+// Route: /account/stored_actions/send
 func sendStoredAction(c *fiber.Ctx) error {
 
 	// Parse request

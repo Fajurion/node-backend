@@ -28,13 +28,14 @@ func Token(session string, account string, lvl uint, exp time.Time) (string, err
 	return tokenString, nil
 }
 
-func RemoteId(lvl uint) (string, error) {
+func RemoteId(lvl uint, random string) (string, error) {
 
 	// Create jwt token
 	exp := time.Now().Add(time.Hour * 2)
 	tk := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"e_u": exp.Unix(), // Expiration unix
 		"lvl": lvl,
+		"r":   random,
 		"rid": true, // tell the backend that it's a remote id
 	})
 

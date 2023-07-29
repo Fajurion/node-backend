@@ -27,6 +27,12 @@ func Router(router fiber.Router) {
 	router.Post("/challenge/generate", nb_challenges.Generate)
 	router.Post("/challenge/solve", nb_challenges.Solve)
 
+	router.Route("/", remoteIDRoutes)
+	router.Route("/", authorizedRoutes)
+}
+
+func remoteIDRoutes(router fiber.Router) {
+
 	// Authorized by using a remote id or normal token
 	router.Use(jwtware.New(jwtware.Config{
 		SigningKey: jwtware.SigningKey{
@@ -55,6 +61,11 @@ func Router(router fiber.Router) {
 	}))
 
 	// Routes that require a remote id or normal JWT
+	router.Route("/account", account.Remote)
+
+}
+
+func authorizedRoutes(router fiber.Router) {
 
 	// Autorized by using a normal JWT token
 	router.Use(jwtware.New(jwtware.Config{
