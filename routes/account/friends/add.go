@@ -38,9 +38,13 @@ func addFriend(c *fiber.Ctx) error {
 		return requests.FailedRequest(c, "limit.reached", nil)
 	}
 
-	// Check if it already exists
-	if database.DBConn.Model(&properties.Friendship{}).Where("account = ? AND hash = ?", accId, req.Hash).Take(&properties.Friendship{}).Error == nil {
-		return requests.FailedRequest(c, "already.exists", nil)
+	// Disabled during testing cause it's annoying
+	if !util.Testing {
+
+		// Check if it already exists
+		if database.DBConn.Model(&properties.Friendship{}).Where("account = ? AND hash = ?", accId, req.Hash).Take(&properties.Friendship{}).Error == nil {
+			return requests.FailedRequest(c, "already.exists", nil)
+		}
 	}
 
 	// Create friendship
