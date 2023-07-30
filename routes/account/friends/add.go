@@ -12,6 +12,7 @@ import (
 )
 
 type addFriendRequest struct {
+	Hash    string `json:"hash"`    // Payload hash
 	Payload string `json:"payload"` // Encrypted payload
 }
 
@@ -37,10 +38,16 @@ func addFriend(c *fiber.Ctx) error {
 		return requests.FailedRequest(c, "limit.reached", nil)
 	}
 
+	// Check if it already exists
+	if database.DBConn.Model(&properties.Friendship{}).Where("account = ? AND hash = ?", accId, req.Hash).Take(&properties.Friendship{}).Error == nil {
+		return requests.FailedRequest(c, "already.exists", nil)
+	}
+
 	// Create friendship
 	friendship := properties.Friendship{
 		ID:      auth.GenerateToken(12),
 		Account: accId,
+		Hash:    req.Hash,
 		Payload: req.Payload,
 	}
 	if err := database.DBConn.Create(&friendship).Error; err != nil {
@@ -50,5 +57,6 @@ func addFriend(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"success": true,
 		"id":      friendship.ID,
+		"hash":    friendship.Hash,
 	})
 }

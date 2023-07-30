@@ -7,6 +7,7 @@ import (
 	"node-backend/util/requests"
 
 	"github.com/gofiber/fiber/v2"
+	"gorm.io/gorm"
 )
 
 type removeRequest struct {
@@ -18,13 +19,24 @@ func removeFriend(c *fiber.Ctx) error {
 
 	// Parse request
 	var req removeRequest
-	if err := c.BodyParser(req); err != nil {
+	if err := c.BodyParser(&req); err != nil {
 		return requests.InvalidRequest(c)
 	}
 
-	// Delete friendship
+	// Check if friendship exists
 	accId := util.GetAcc(c)
-	if err := database.DBConn.Where("id = ? AND account = ?", req.ID, accId).Delete(&properties.Friendship{}).Error; err != nil {
+	var friendship properties.Friendship
+	if err := database.DBConn.Where("id = ? AND account = ?", req.ID, accId).Take(&friendship).Error; err != nil {
+
+		if err == gorm.ErrRecordNotFound {
+			return requests.FailedRequest(c, "not.found", nil)
+		}
+
+		return requests.FailedRequest(c, "server.error", err)
+	}
+
+	// Delete friendship
+	if err := database.DBConn.Delete(&friendship).Error; err != nil {
 		return requests.FailedRequest(c, "server.error", err)
 	}
 
