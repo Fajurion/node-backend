@@ -13,6 +13,7 @@ import (
 type sendRequest struct {
 	Account string `json:"account"`
 	Payload string `json:"payload"`
+	Key     string `json:"key"` // Authentication key
 }
 
 // Route: /account/stored_actions/send
@@ -24,20 +25,14 @@ func sendStoredAction(c *fiber.Ctx) error {
 		return requests.InvalidRequest(c)
 	}
 
+	if req.Account == "" || req.Payload == "" {
+		return requests.InvalidRequest(c)
+	}
+
 	// Get account
 	var acc account.Account
 	if err := database.DBConn.Where("id = ?", req.Account).Take(&acc).Error; err != nil {
 		return requests.InvalidRequest(c)
-	}
-
-	// Check if stored action limit is reached
-	var storedActionCount int64
-	if err := database.DBConn.Model(&properties.StoredAction{}).Where("account = ?", acc.ID).Count(&storedActionCount).Error; err != nil {
-		return requests.FailedRequest(c, "server.error", err)
-	}
-
-	if storedActionCount >= StoredActionLimit {
-		return requests.FailedRequest(c, "limit.reached", nil)
 	}
 
 	// Create stored action
@@ -47,9 +42,43 @@ func sendStoredAction(c *fiber.Ctx) error {
 		Payload: req.Payload,
 	}
 
-	// Save stored action
-	if err := database.DBConn.Create(&storedAction).Error; err != nil {
-		return requests.FailedRequest(c, "server.error", err)
+	// Check if stored action is authenticated
+	if req.Key != "" {
+
+		var storedActionKey account.StoredActionKey
+		if err := database.DBConn.Where(&account.StoredActionKey{ID: req.Account}).Take(&storedActionKey).Error; err != nil {
+			return requests.InvalidRequest(c)
+		}
+
+		if storedActionKey.Key != req.Key {
+			return requests.InvalidRequest(c)
+		}
+
+		// Save authenticated stored action
+		if err := database.DBConn.Create(&properties.AStoredAction{
+			ID:      storedAction.ID,
+			Account: storedAction.Account,
+			Payload: storedAction.Payload,
+		}).Error; err != nil {
+			return requests.FailedRequest(c, "server.error", err)
+		}
+
+	} else {
+
+		// Check if stored action limit is reached
+		var storedActionCount int64
+		if err := database.DBConn.Model(&properties.StoredAction{}).Where("account = ?", acc.ID).Count(&storedActionCount).Error; err != nil {
+			return requests.FailedRequest(c, "server.error", err)
+		}
+
+		if storedActionCount >= StoredActionLimit {
+			return requests.FailedRequest(c, "limit.reached", nil)
+		}
+
+		// Save stored action
+		if err := database.DBConn.Create(&storedAction).Error; err != nil {
+			return requests.FailedRequest(c, "server.error", err)
+		}
 	}
 
 	// Send to node if possible
@@ -61,6 +90,7 @@ func sendStoredAction(c *fiber.Ctx) error {
 			Sender: "0",
 			Name:   "s_a", // Stored action
 			Data: map[string]interface{}{
+				"a":       req.Key != "", // Authenticated
 				"id":      storedAction.ID,
 				"payload": storedAction.Payload,
 			},

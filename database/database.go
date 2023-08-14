@@ -46,11 +46,13 @@ func Connect() {
 	db.AutoMigrate(&account.Rank{})
 	db.AutoMigrate(&account.PublicKey{})
 	db.AutoMigrate(&account.ProfileKey{})
+	db.AutoMigrate(&account.StoredActionKey{})
 
 	// Migrate account properties related tables
 	db.AutoMigrate(&properties.Friendship{})
 	db.AutoMigrate(&properties.Profile{})
 	db.AutoMigrate(&properties.StoredAction{})
+	db.AutoMigrate(&properties.AStoredAction{})
 
 	// Migrate node related tables
 	db.AutoMigrate(&node.Cluster{})

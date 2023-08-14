@@ -7,8 +7,8 @@ type StoredAction struct {
 	Payload string `json:"action" gorm:"not null"` // Encrypted payload (encrypted with the account's public key)
 }
 
-// TODO: Implement some sort of key that one can send to friends for them to be able to send those actions
-type AuthenticatedStoredAction struct {
+// Authenticated stored actions
+type AStoredAction struct {
 	ID string `json:"-" gorm:"primaryKey"`
 
 	Account string `json:"-" gorm:"not null"`
