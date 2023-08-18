@@ -23,7 +23,7 @@ func deleteStoredAction(c *fiber.Ctx) error {
 
 	// Delete stored action
 	accId := util.GetAcc(c)
-	if err := database.DBConn.Where("account = ?", accId).Delete(&properties.StoredAction{}, req.ID).Error; err != nil {
+	if err := database.DBConn.Where("account = ? AND id = ?", accId, req.ID).Delete(&properties.StoredAction{}).Error; err != nil {
 		return requests.FailedRequest(c, "server.error", err)
 	}
 

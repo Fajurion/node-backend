@@ -11,6 +11,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// Route: /account/stored_actions/list
 func listStoredActions(c *fiber.Ctx) error {
 
 	// Get stored actions
