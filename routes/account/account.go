@@ -12,6 +12,7 @@ import (
 
 func Unauthorized(router fiber.Router) {
 	router.Route("/rank", rank.Unauthorized)
+	router.Route("/stored_actions", stored_actions.Unauthorized)
 
 	router.Post("/get", getAccount)
 }

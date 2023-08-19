@@ -45,6 +45,16 @@ func sendStoredAction(c *fiber.Ctx) error {
 	// Check if stored action is authenticated
 	if req.Key != "" {
 
+		// Check if stored action limit is reached
+		var storedActionCount int64
+		if err := database.DBConn.Model(&properties.AStoredAction{}).Where("account = ?", acc.ID).Count(&storedActionCount).Error; err != nil {
+			return requests.FailedRequest(c, "server.error", err)
+		}
+
+		if storedActionCount >= AuthenticatedStoredActionLimit {
+			return requests.FailedRequest(c, "limit.reached", nil)
+		}
+
 		var storedActionKey account.StoredActionKey
 		if err := database.DBConn.Where(&account.StoredActionKey{ID: req.Account}).Take(&storedActionKey).Error; err != nil {
 			return requests.InvalidRequest(c)
@@ -82,21 +92,26 @@ func sendStoredAction(c *fiber.Ctx) error {
 	}
 
 	// Send to node if possible
+	sendStoredActionTo(acc.ID, req.Key != "", storedAction)
+
+	// Return success
+	return requests.SuccessfulRequest(c)
+}
+
+func sendStoredActionTo(accId string, authenticated bool, storedAction properties.StoredAction) {
+
 	var session account.Session
-	if err := database.DBConn.Where("account = ? AND node != ?", acc.ID, 0).Take(&session).Error; err == nil {
+	if err := database.DBConn.Where("account = ? AND node != ?", accId, 0).Take(&session).Error; err == nil {
 
 		// No error handling, cause it doesn't matter if it couldn't send
-		requests.SendEventToNode(session.Node, acc.ID, requests.Event{
+		requests.SendEventToNode(session.Node, accId, requests.Event{
 			Sender: "0",
 			Name:   "s_a", // Stored action
 			Data: map[string]interface{}{
-				"a":       req.Key != "", // Authenticated
+				"a":       authenticated, // Authenticated
 				"id":      storedAction.ID,
 				"payload": storedAction.Payload,
 			},
 		})
 	}
-
-	// Return success
-	return requests.SuccessfulRequest(c)
 }
