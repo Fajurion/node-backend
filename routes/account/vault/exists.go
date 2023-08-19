@@ -1,4 +1,4 @@
-package friends
+package vault
 
 import (
 	"node-backend/database"
@@ -13,7 +13,8 @@ type existsRequest struct {
 	Hash string `json:"hash"`
 }
 
-func existsFriend(c *fiber.Ctx) error {
+// Route: /account/vault/exists
+func existsEntry(c *fiber.Ctx) error {
 
 	var req existsRequest
 	if err := c.BodyParser(&req); err != nil {
@@ -22,7 +23,7 @@ func existsFriend(c *fiber.Ctx) error {
 
 	// Check if the friendship exists
 	accId := util.GetAcc(c)
-	if err := database.DBConn.Where("account = ? AND hash = ?", accId, req.Hash).Take(&properties.Friendship{}).Error; err != nil {
+	if err := database.DBConn.Where("account = ? AND hash = ?", accId, req.Hash).Take(&properties.VaultEntry{}).Error; err != nil {
 		return requests.FailedRequest(c, "not.found", nil)
 	}
 

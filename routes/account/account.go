@@ -6,6 +6,7 @@ import (
 	"node-backend/routes/account/profile"
 	"node-backend/routes/account/rank"
 	"node-backend/routes/account/stored_actions"
+	"node-backend/routes/account/vault"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -26,6 +27,7 @@ func Authorized(router fiber.Router) {
 	router.Route("/profile", profile.SetupRoutes)
 	router.Route("/stored_actions", stored_actions.Authorized)
 	router.Route("/friends", friends.Authorized)
+	router.Route("/vault", vault.Authorized)
 
 	router.Post("/remote_id", generateRemoteId)
 	router.Post("/me", me)

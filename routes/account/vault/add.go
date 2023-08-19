@@ -1,4 +1,4 @@
-package friends
+package vault
 
 import (
 	"node-backend/database"
@@ -10,54 +10,55 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type addFriendRequest struct {
+type addEntryRequest struct {
 	Hash    string `json:"hash"`    // Payload hash
 	Payload string `json:"payload"` // Encrypted payload
 }
 
-// Route: /account/friends/add
-func addFriend(c *fiber.Ctx) error {
+// Route: /account/vault/add
+func addEntry(c *fiber.Ctx) error {
 
 	// Parse request
-	var req addFriendRequest
+	var req addEntryRequest
 	if err := c.BodyParser(&req); err != nil {
 		return requests.InvalidRequest(c)
 	}
 
 	// Check if the account has too many friends
 	accId := util.GetAcc(c)
-	var friendCount int64
-	if err := database.DBConn.Model(&properties.Friendship{}).Where("account = ?", accId).Count(&friendCount).Error; err != nil {
+	var entryCount int64
+	if err := database.DBConn.Model(&properties.VaultEntry{}).Where("account = ?", accId).Count(&entryCount).Error; err != nil {
 		return requests.FailedRequest(c, "server.error", err)
 	}
 
-	if friendCount >= MaximumFriends {
+	if entryCount >= MaximumEntries {
 		return requests.FailedRequest(c, "limit.reached", nil)
 	}
 
+	// TODO: Remove and test like normal
 	// Disabled during testing cause it's annoying
 	if !util.Testing {
 
 		// Check if it already exists
-		if database.DBConn.Model(&properties.Friendship{}).Where("account = ? AND hash = ?", accId, req.Hash).Take(&properties.Friendship{}).Error == nil {
+		if database.DBConn.Model(&properties.VaultEntry{}).Where("account = ? AND hash = ?", accId, req.Hash).Take(&properties.VaultEntry{}).Error == nil {
 			return requests.FailedRequest(c, "already.exists", nil)
 		}
 	}
 
-	// Create friendship
-	friendship := properties.Friendship{
+	// Create vault entry
+	vaultEntry := properties.VaultEntry{
 		ID:      auth.GenerateToken(12),
 		Account: accId,
 		Hash:    req.Hash,
 		Payload: req.Payload,
 	}
-	if err := database.DBConn.Create(&friendship).Error; err != nil {
+	if err := database.DBConn.Create(&vaultEntry).Error; err != nil {
 		return requests.FailedRequest(c, "server.error", err)
 	}
 
 	return c.JSON(fiber.Map{
 		"success": true,
-		"id":      friendship.ID,
-		"hash":    friendship.Hash,
+		"id":      vaultEntry.ID,
+		"hash":    vaultEntry.Hash,
 	})
 }
