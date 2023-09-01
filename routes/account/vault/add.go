@@ -11,6 +11,7 @@ import (
 )
 
 type addEntryRequest struct {
+	Tag     string `json:"tag"`     // Tag
 	Hash    string `json:"hash"`    // Payload hash
 	Payload string `json:"payload"` // Encrypted payload
 }
@@ -49,6 +50,7 @@ func addEntry(c *fiber.Ctx) error {
 	vaultEntry := properties.VaultEntry{
 		ID:      auth.GenerateToken(12),
 		Account: accId,
+		Tag:     req.Tag,
 		Hash:    req.Hash,
 		Payload: req.Payload,
 	}
