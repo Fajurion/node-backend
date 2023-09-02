@@ -26,10 +26,7 @@ func listStoredActions(c *fiber.Ctx) error {
 		return requests.FailedRequest(c, "server.error", nil)
 	}
 	for _, aStoredAction := range aStoredActions {
-		storedActions = append(storedActions, properties.StoredAction{
-			ID:      aStoredAction.ID,
-			Account: aStoredAction.Account,
-		})
+		storedActions = append(storedActions, properties.StoredAction(aStoredAction))
 	}
 
 	// Get authenticated stored action key

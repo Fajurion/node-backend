@@ -23,7 +23,7 @@ func removeEntry(c *fiber.Ctx) error {
 		return requests.InvalidRequest(c)
 	}
 
-	// Check if friendship exists
+	// Check if entry exists
 	accId := util.GetAcc(c)
 	var entry properties.VaultEntry
 	if err := database.DBConn.Where("id = ? AND account = ?", req.ID, accId).Take(&entry).Error; err != nil {
@@ -35,7 +35,7 @@ func removeEntry(c *fiber.Ctx) error {
 		return requests.FailedRequest(c, "server.error", err)
 	}
 
-	// Delete friendship
+	// Delete entry
 	if err := database.DBConn.Delete(&entry).Error; err != nil {
 		return requests.FailedRequest(c, "server.error", err)
 	}

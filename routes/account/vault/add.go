@@ -12,7 +12,6 @@ import (
 
 type addEntryRequest struct {
 	Tag     string `json:"tag"`     // Tag
-	Hash    string `json:"hash"`    // Payload hash
 	Payload string `json:"payload"` // Encrypted payload
 }
 
@@ -25,7 +24,7 @@ func addEntry(c *fiber.Ctx) error {
 		return requests.InvalidRequest(c)
 	}
 
-	// Check if the account has too many friends
+	// Check if the account has too many entries
 	accId := util.GetAcc(c)
 	var entryCount int64
 	if err := database.DBConn.Model(&properties.VaultEntry{}).Where("account = ?", accId).Count(&entryCount).Error; err != nil {
@@ -36,22 +35,11 @@ func addEntry(c *fiber.Ctx) error {
 		return requests.FailedRequest(c, "limit.reached", nil)
 	}
 
-	// TODO: Remove and test like normal
-	// Disabled during testing cause it's annoying
-	if !util.Testing {
-
-		// Check if it already exists
-		if database.DBConn.Model(&properties.VaultEntry{}).Where("account = ? AND hash = ?", accId, req.Hash).Take(&properties.VaultEntry{}).Error == nil {
-			return requests.FailedRequest(c, "already.exists", nil)
-		}
-	}
-
 	// Create vault entry
 	vaultEntry := properties.VaultEntry{
 		ID:      auth.GenerateToken(12),
 		Account: accId,
 		Tag:     req.Tag,
-		Hash:    req.Hash,
 		Payload: req.Payload,
 	}
 	if err := database.DBConn.Create(&vaultEntry).Error; err != nil {
@@ -61,6 +49,5 @@ func addEntry(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"success": true,
 		"id":      vaultEntry.ID,
-		"hash":    vaultEntry.Hash,
 	})
 }

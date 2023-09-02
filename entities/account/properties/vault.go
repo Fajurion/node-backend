@@ -15,7 +15,6 @@ type VaultEntry struct {
 
 	Tag       string `json:"tag" gorm:"not null"` // Tag for the entry (e.g. "conversation")
 	Account   string `json:"account" gorm:"not null"`
-	Hash      string `json:"hash" gorm:"not null"`
 	Payload   string `json:"payload" gorm:"not null"` // Encrypted (with account's public key) data
 	UpdatedAt int64  `json:"updated_at" gorm:"autoUpdateTime:milli"`
 }
