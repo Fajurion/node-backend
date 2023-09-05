@@ -46,9 +46,20 @@ func Startup() {
 	testMode()
 
 	// Listen on port 3000
-	err = app.Listen(os.Getenv("LISTEN"))
+	if os.Getenv("CLI") == "true" {
+		go func() {
+			err = app.Listen(os.Getenv("LISTEN"))
 
-	log.Println(err.Error())
+			log.Println(err.Error())
+		}()
+
+		// Listen for commands
+		listenForCommands()
+	} else {
+		err = app.Listen(os.Getenv("LISTEN"))
+
+		log.Println(err.Error())
+	}
 }
 
 func testMode() {
