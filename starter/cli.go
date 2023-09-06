@@ -140,6 +140,8 @@ func listenForCommands() {
 			fmt.Println("create-default - Create default ranks and cluster")
 			fmt.Println("create-app - Create a new app")
 			fmt.Println("create-node - Get a node token (rest of setup in the CLI of the node)")
+			fmt.Println("delete-data - Delete the data to restart the setup process on an account")
+			fmt.Println("account-token - Generate a JWT token for an account")
 
 		default:
 			fmt.Println("Unknown command. Type 'help' for a list of commands.")
