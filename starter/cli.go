@@ -138,7 +138,13 @@ func listenForCommands() {
 			}
 
 			// Generate new token
-			util.Token("test", acc.ID, acc.Rank.Level, time.Now().Add(time.Hour*24*365))
+			token, err := util.Token("test", acc.ID, acc.Rank.Level, time.Now().Add(time.Hour*24*365))
+			if err != nil {
+				fmt.Println("Failed to generate token")
+				continue
+			}
+
+			fmt.Println("Token:", token)
 
 		case "help":
 			fmt.Println("exit - Exit the CLI")
