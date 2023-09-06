@@ -7,6 +7,7 @@ import (
 	"node-backend/entities/account"
 	"node-backend/entities/app"
 	"node-backend/entities/node"
+	"node-backend/util"
 	"node-backend/util/auth"
 	"os"
 	"strconv"
@@ -99,6 +100,40 @@ func listenForCommands() {
 			}
 
 			fmt.Println("Created node token", tk)
+
+		case "delete-data":
+
+			fmt.Print("Account E-Mail: ")
+			email, _ := reader.ReadString('\n')
+			email = strings.TrimSpace(email)
+
+			// Delete all data
+			var acc account.Account
+			if err := database.DBConn.Where("email = ?", email).Take(&acc).Error; err != nil {
+				fmt.Println("Failed to find account")
+				continue
+			}
+
+			database.DBConn.Where("account = ?", acc.ID).Delete(&account.Session{})
+			database.DBConn.Where("id = ?", acc.ID).Delete(&account.ProfileKey{})
+			database.DBConn.Where("id = ?", acc.ID).Delete(&account.StoredActionKey{})
+			database.DBConn.Where("id = ?", acc.ID).Delete(&account.PublicKey{})
+
+		case "account-token":
+
+			fmt.Print("Account E-Mail: ")
+			email, _ := reader.ReadString('\n')
+			email = strings.TrimSpace(email)
+
+			// Get account
+			var acc account.Account
+			if err := database.DBConn.Where("email = ?", email).Preload("Rank").Take(&acc).Error; err != nil {
+				fmt.Println("Failed to find account")
+				continue
+			}
+
+			// Generate new token
+			util.Token("test", acc.ID, acc.Rank.Level, time.Now().Add(time.Hour*24*365))
 
 		case "help":
 			fmt.Println("exit - Exit the CLI")
