@@ -7,6 +7,7 @@ import (
 	"node-backend/util"
 	"node-backend/util/auth"
 	"node-backend/util/requests"
+	"sort"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -28,6 +29,11 @@ func listStoredActions(c *fiber.Ctx) error {
 	for _, aStoredAction := range aStoredActions {
 		storedActions = append(storedActions, properties.StoredAction(aStoredAction))
 	}
+
+	// Sort stored actions by created_at
+	sort.Slice(storedActions, func(i, j int) bool {
+		return storedActions[i].CreatedAt < storedActions[j].CreatedAt
+	})
 
 	// Get authenticated stored action key
 	var storedActionKey account.StoredActionKey

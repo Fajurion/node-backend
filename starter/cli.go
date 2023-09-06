@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"node-backend/database"
 	"node-backend/entities/account"
+	"node-backend/entities/account/properties"
 	"node-backend/entities/app"
 	"node-backend/entities/node"
 	"node-backend/util"
@@ -118,6 +119,10 @@ func listenForCommands() {
 			database.DBConn.Where("id = ?", acc.ID).Delete(&account.ProfileKey{})
 			database.DBConn.Where("id = ?", acc.ID).Delete(&account.StoredActionKey{})
 			database.DBConn.Where("id = ?", acc.ID).Delete(&account.PublicKey{})
+			database.DBConn.Where("account = ?", acc.ID).Delete(&properties.AStoredAction{})
+			database.DBConn.Where("account = ?", acc.ID).Delete(&properties.StoredAction{})
+			database.DBConn.Where("account = ?", acc.ID).Delete(&properties.Friendship{})
+			database.DBConn.Where("account = ?", acc.ID).Delete(&properties.VaultEntry{})
 
 		case "account-token":
 
