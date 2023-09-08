@@ -87,7 +87,7 @@ func Connect(c *fiber.Ctx) error {
 		return requests.FailedRequest(c, "not.setup", nil)
 	}
 
-	connectionTk, success, err := lowest.GetConnection(acc, currentSessionId, sessionIds)
+	connectionTk, success, err := lowest.GetConnection(acc.ID, currentSessionId, sessionIds)
 	if err != nil {
 
 		if success {

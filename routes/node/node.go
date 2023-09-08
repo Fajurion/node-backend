@@ -14,6 +14,7 @@ func Unauthorized(router fiber.Router) {
 	router.Route("/manage", manage.Unauthorized)
 	router.Post("/this", this)
 	router.Post("/disconnect", connect.Disconnect)
+	router.Post("/get_lowest", connect.GetLowest)
 
 	if util.Testing {
 		router.Post("/test", sendToNode)

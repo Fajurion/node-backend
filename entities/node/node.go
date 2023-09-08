@@ -2,7 +2,6 @@ package node
 
 import (
 	"errors"
-	"node-backend/entities/account"
 	"node-backend/util"
 	"time"
 
@@ -39,13 +38,13 @@ func (n *Node) SendPing(node Node) error {
 	return err
 }
 
-func (n *Node) GetConnection(acc account.Account, session string, sessionIds []string) (string, bool, error) {
+func (n *Node) GetConnection(accId string, session string, sessionIds []string) (string, bool, error) {
 
 	// Send request to node
 	res, err := util.PostRequest("http://"+n.Domain+"/auth/initialize", fiber.Map{
 		"node_token": n.Token,
 		"session":    session,
-		"account":    acc.ID,
+		"account":    accId,
 		"end":        time.Now().UnixMilli(),
 	})
 
