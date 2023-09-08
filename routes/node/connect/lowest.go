@@ -11,6 +11,7 @@ import (
 
 type LowestUsageRequest struct {
 	Account string `json:"account"`
+	Session string `json:"session"`
 	Cluster uint   `json:"cluster"`
 	App     uint   `json:"app"`
 	Node    uint   `json:"node"`  // Node ID
@@ -43,7 +44,7 @@ func GetLowest(c *fiber.Ctx) error {
 		return requests.FailedRequest(c, "not.setup", nil)
 	}
 
-	connectionTk, success, err := lowest.GetConnection(req.Account, "", []string{})
+	connectionTk, success, err := lowest.GetConnection(req.Account, req.Session, []string{}, node.SenderNode)
 	if err != nil {
 
 		if success {

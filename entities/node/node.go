@@ -38,10 +38,19 @@ func (n *Node) SendPing(node Node) error {
 	return err
 }
 
-func (n *Node) GetConnection(accId string, session string, sessionIds []string) (string, bool, error) {
+// Sender for GetConnection
+const SenderUser = 0
+const SenderNode = 1
+
+func (n *Node) GetConnection(accId string, session string, sessionIds []string, sender int) (string, bool, error) {
+
+	if sender != SenderUser && sender != SenderNode {
+		return "", false, errors.New("invalid.sender")
+	}
 
 	// Send request to node
 	res, err := util.PostRequest("http://"+n.Domain+"/auth/initialize", fiber.Map{
+		"sender":     sender,
 		"node_token": n.Token,
 		"session":    session,
 		"account":    accId,
