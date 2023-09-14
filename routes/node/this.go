@@ -31,6 +31,7 @@ func this(c *fiber.Ctx) error {
 		"success":    true,
 		"jwt_secret": util.JWT_SECRET,
 		"node":       node.ToEntity(),
+		"cluster":    node.ClusterID,
 	})
 
 }

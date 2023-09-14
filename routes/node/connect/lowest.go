@@ -18,6 +18,7 @@ type LowestUsageRequest struct {
 	Token   string `json:"token"` // Node token
 }
 
+// Route: /node/get_lowest
 func GetLowest(c *fiber.Ctx) error {
 
 	// Parse request
@@ -34,7 +35,7 @@ func GetLowest(c *fiber.Ctx) error {
 
 	// Get lowest load node
 	var lowest node.Node
-	var search node.Node = node.Node{
+	search := node.Node{
 		ClusterID: req.Cluster,
 		AppID:     req.App,
 		Status:    node.StatusStarted,
