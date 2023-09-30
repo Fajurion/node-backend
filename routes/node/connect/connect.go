@@ -72,19 +72,16 @@ func Connect(c *fiber.Ctx) error {
 
 	// Get lowest load node
 	var lowest node.Node
-	var search node.Node = node.Node{
-		ClusterID: req.Cluster,
-		AppID:     req.App,
-		Status:    node.StatusStarted,
-	}
 
 	// Connect to the same node if possible
-	if mostRecent.Token != "-1" {
-		search.ID = mostRecent.Node
-	}
-
-	if err := database.DBConn.Model(&node.Node{}).Where(&search).Order("load DESC").Take(&lowest).Error; err != nil {
-		return requests.FailedRequest(c, "not.setup", nil)
+	if mostRecent.Node != 0 {
+		if err := database.DBConn.Model(&node.Node{}).Where("cluster_id = ? AND app_id = ? AND status = ? AND id = ?", req.Cluster, req.App, node.StatusStarted, mostRecent.Node).Order("load DESC").Take(&lowest).Error; err != nil {
+			return requests.FailedRequest(c, "not.setup", nil)
+		}
+	} else {
+		if err := database.DBConn.Model(&node.Node{}).Where("cluster_id = ? AND app_id = ? AND status = ?", req.Cluster, req.App, node.StatusStarted).Order("load DESC").Take(&lowest).Error; err != nil {
+			return requests.FailedRequest(c, "not.setup", nil)
+		}
 	}
 
 	connectionTk, success, err := lowest.GetConnection(acc.ID, currentSessionId, sessionIds, node.SenderUser)
