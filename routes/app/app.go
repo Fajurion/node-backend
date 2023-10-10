@@ -7,6 +7,7 @@ import (
 )
 
 func Unauthorized(router fiber.Router) {
+	router.Post("/version", getVersion)
 }
 
 func Authorized(router fiber.Router) {

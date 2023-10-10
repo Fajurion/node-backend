@@ -61,10 +61,6 @@ func listenForCommands() {
 			appDescription, _ := reader.ReadString('\n')
 			appDescription = strings.TrimSpace(appDescription)
 
-			fmt.Print("App version: ")
-			appVersion, _ := reader.ReadString('\n')
-			appVersion = strings.TrimSpace(appVersion)
-
 			fmt.Print("App access level: ")
 			appAccessLevel, _ := reader.ReadString('\n')
 			appAccessLevel = strings.TrimSpace(appAccessLevel)
@@ -79,12 +75,37 @@ func listenForCommands() {
 			app := &app.App{
 				Name:        appName,
 				Description: appDescription,
-				Version:     appVersion,
+				Version:     0,
 				AccessLevel: uint(accessLevel),
 			}
 			database.DBConn.Create(&app)
 
 			fmt.Println("Created app with ID", app.ID)
+
+		case "increment-version":
+
+			fmt.Print("App id: ")
+			appIdString, _ := reader.ReadString('\n')
+			appIdString = strings.TrimSpace(appIdString)
+			appId, err := strconv.Atoi(appIdString)
+			if err != nil {
+				fmt.Println("Please enter an integer as the ID.")
+				continue
+			}
+
+			var application app.App
+			if database.DBConn.Where("id = ?", appId).Take(&application).Error != nil {
+				fmt.Println("Couldn't get the app from the database")
+				continue
+			}
+
+			// Increment version
+			if database.DBConn.Model(&app.App{}).Where("id = ?", application.ID).Update("version", application.Version+1).Error != nil {
+				fmt.Println("Couldn't increment version of the app in the database")
+				continue
+			}
+
+			fmt.Println("Version has been incremented!")
 
 		case "create-node":
 
@@ -147,9 +168,10 @@ func listenForCommands() {
 			fmt.Println("Token:", token)
 
 		case "help":
-			fmt.Println("exit - Exit the CLI")
+			fmt.Println("exit - Exit the application")
 			fmt.Println("create-default - Create default ranks and cluster")
 			fmt.Println("create-app - Create a new app")
+			fmt.Println("increment-version - Increment the version of an app (when a breaking change is made)")
 			fmt.Println("create-node - Get a node token (rest of setup in the CLI of the node)")
 			fmt.Println("delete-data - Delete the data to restart the setup process on an account")
 			fmt.Println("account-token - Generate a JWT token for an account")

@@ -12,7 +12,6 @@ import (
 type addRequest struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
-	Version     string `json:"version"`
 	AccessLevel uint   `json:"access_level"`
 }
 
@@ -25,7 +24,7 @@ func addApp(c *fiber.Ctx) error {
 		return requests.InvalidRequest(c)
 	}
 
-	if len(req.Name) < 3 || len(req.Description) < 3 || len(req.Version) < 3 {
+	if len(req.Name) < 3 || len(req.Description) < 3 {
 		return requests.InvalidRequest(c)
 	}
 
@@ -37,7 +36,7 @@ func addApp(c *fiber.Ctx) error {
 	created := app.App{
 		Name:        req.Name,
 		Description: req.Description,
-		Version:     req.Version,
+		Version:     0,
 		AccessLevel: req.AccessLevel,
 	}
 
