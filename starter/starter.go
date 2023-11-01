@@ -22,8 +22,9 @@ func Startup() {
 
 	// Create a new Fiber instance
 	app := fiber.New(fiber.Config{
-		JSONEncoder: sonic.Marshal,
-		JSONDecoder: sonic.Unmarshal,
+		JSONEncoder:       sonic.Marshal,
+		JSONDecoder:       sonic.Unmarshal,
+		StreamRequestBody: true,
 	})
 
 	// Load environment variables
@@ -33,7 +34,7 @@ func Startup() {
 	}
 	util.JWT_SECRET = os.Getenv("JWT_SECRET")
 
-	// Connect to the database
+	// Connect to the databases
 	database.Connect()
 
 	app.Use(cors.New())
