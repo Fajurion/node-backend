@@ -23,7 +23,8 @@ func uploadFile(c *fiber.Ctx) error {
 	// Form data
 	key := c.FormValue("key", "-")
 	name := c.FormValue("name", "-")
-	if key == "-" || name == "-" {
+	extension := c.FormValue("extension", "-")
+	if key == "-" || name == "-" || extension == "-" {
 		return requests.InvalidRequest(c)
 	}
 	file, err := c.FormFile("file")
@@ -52,11 +53,10 @@ func uploadFile(c *fiber.Ctx) error {
 	}
 
 	// Generate file name Format: a-[accountId]-[objectIdentifier].[extension]
-	fileId := "a-" + accId + "-" + auth.GenerateToken(16)
+	fileId := "a-" + accId + "-" + auth.GenerateToken(16) + "." + extension
 	if err := database.DBConn.Create(&account.CloudFile{
 		Id:       fileId,
 		Name:     name,
-		Path:     "-",
 		Type:     file.Header.Get("Content-Type"),
 		Key:      key,
 		Account:  accId,
@@ -91,5 +91,9 @@ func uploadFile(c *fiber.Ctx) error {
 		return requests.FailedRequest(c, "server.error", err)
 	}
 
-	return requests.SuccessfulRequest(c)
+	return c.JSON(fiber.Map{
+		"success": true,
+		"id":      fileId,
+		"url":     result.Location,
+	})
 }

@@ -24,7 +24,7 @@ func Startup() {
 	app := fiber.New(fiber.Config{
 		JSONEncoder:       sonic.Marshal,
 		JSONDecoder:       sonic.Unmarshal,
-		StreamRequestBody: true,
+		StreamRequestBody: true, // TODO: Proper request body protection (Make only certain endpoints accept streams)
 	})
 
 	// Load environment variables

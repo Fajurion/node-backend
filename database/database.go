@@ -47,6 +47,7 @@ func Connect() {
 	db.AutoMigrate(&account.PublicKey{})
 	db.AutoMigrate(&account.ProfileKey{})
 	db.AutoMigrate(&account.StoredActionKey{})
+	db.AutoMigrate(&account.CloudFile{})
 
 	// Migrate account properties related tables
 	db.AutoMigrate(&properties.Friendship{})

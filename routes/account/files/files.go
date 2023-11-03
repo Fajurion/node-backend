@@ -22,7 +22,6 @@ var uploader *manager.Uploader
 var disabled = false
 
 // Configuration
-const minUploadSize = 1_000            // 1 KB
 const maxUploadSize = 10_000_000       // 10 MB
 const maxFavoriteStorage = 500_000_000 // 500 MB
 const maxTotalStorage = 1_000_000_000  // 1 GB
@@ -62,13 +61,21 @@ func Authorized(router fiber.Router) {
 	router.Post("/unfavorite", unfavoriteFile)
 }
 
+func RemoteID(router fiber.Router) {
+	router.Post("/info", fileInfo)
+}
+
 func CountTotalStorage(accId string) (int64, error) {
 
 	// Get total storage
 	var totalStorage int64
 	unix := time.Now().Add(-time.Hour * 24 * 30).UnixMilli()
-	if err := database.DBConn.Model(&account.CloudFile{}).Where("account = ? AND (created_at > ? OR favorite = ?)", accId, unix, true).Select("sum(size)").Scan(&totalStorage).Error; err != nil {
-		return 0, err
+	rq := database.DBConn.Model(&account.CloudFile{}).Where("account = ? AND (created_at > ? OR favorite = ?)", accId, unix, true).Select("sum(size)").Scan(&totalStorage)
+	if rq.Error != nil {
+		if rq.RowsAffected > 0 {
+			return 0, nil
+		}
+		return 0, rq.Error
 	}
 
 	return totalStorage, nil

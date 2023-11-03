@@ -1,6 +1,7 @@
 package account
 
 import (
+	"node-backend/routes/account/files"
 	"node-backend/routes/account/friends"
 	"node-backend/routes/account/keys"
 	"node-backend/routes/account/profile"
@@ -20,6 +21,7 @@ func Unauthorized(router fiber.Router) {
 
 func Remote(router fiber.Router) {
 	router.Route("/stored_actions", stored_actions.Remote)
+	router.Route("/files", files.RemoteID)
 }
 
 func Authorized(router fiber.Router) {
@@ -31,4 +33,5 @@ func Authorized(router fiber.Router) {
 
 	router.Post("/remote_id", generateRemoteId)
 	router.Post("/me", me)
+	router.Route("/files", files.Authorized)
 }
