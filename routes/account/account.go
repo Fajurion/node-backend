@@ -15,13 +15,13 @@ import (
 func Unauthorized(router fiber.Router) {
 	router.Route("/rank", rank.Unauthorized)
 	router.Route("/stored_actions", stored_actions.Unauthorized)
-
-	router.Post("/get", getAccount)
 }
 
 func Remote(router fiber.Router) {
 	router.Route("/stored_actions", stored_actions.Remote)
 	router.Route("/files", files.RemoteID)
+
+	router.Post("/get", getAccount)
 }
 
 func Authorized(router fiber.Router) {
