@@ -2,11 +2,14 @@ package files
 
 import (
 	"context"
+	"fmt"
 	"node-backend/database"
 	"node-backend/entities/account"
 	"node-backend/util"
 	"node-backend/util/auth"
 	"node-backend/util/requests"
+	"os"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -53,7 +56,7 @@ func uploadFile(c *fiber.Ctx) error {
 	}
 
 	// Generate file name Format: a-[accountId]-[objectIdentifier].[extension]
-	fileId := "a-" + accId + "-" + auth.GenerateToken(16) + "." + extension
+	fileId := "a-" + fmt.Sprintf("%d", time.Now().UnixMilli()) + "-" + accId + "-" + auth.GenerateToken(16) + "." + extension
 	if err := database.DBConn.Create(&account.CloudFile{
 		Id:       fileId,
 		Name:     name,
@@ -72,7 +75,7 @@ func uploadFile(c *fiber.Ctx) error {
 	}
 
 	// Upload to R2
-	result, err := uploader.Upload(context.TODO(), &s3.PutObjectInput{
+	_, err = uploader.Upload(context.TODO(), &s3.PutObjectInput{
 		Bucket: aws.String(bucketName),
 		Key:    aws.String(fileId),
 		Body:   f,
@@ -81,9 +84,10 @@ func uploadFile(c *fiber.Ctx) error {
 	if err != nil {
 		return requests.FailedRequest(c, "server.error", err)
 	}
+	location := os.Getenv("R2_PUBLIC_URL") + fileId
 
 	// Update file path
-	if err := database.DBConn.Model(&account.CloudFile{}).Where("id = ?", fileId).Update("path", result.Location).Error; err != nil {
+	if err := database.DBConn.Model(&account.CloudFile{}).Where("id = ?", fileId).Update("path", location).Error; err != nil {
 		client.DeleteObject(context.TODO(), &s3.DeleteObjectInput{
 			Bucket: aws.String(bucketName),
 			Key:    aws.String(file.Filename),
@@ -94,6 +98,6 @@ func uploadFile(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"success": true,
 		"id":      fileId,
-		"url":     result.Location,
+		"url":     location,
 	})
 }
