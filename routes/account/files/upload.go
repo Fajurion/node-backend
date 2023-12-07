@@ -3,6 +3,7 @@ package files
 import (
 	"context"
 	"fmt"
+	"log"
 	"node-backend/database"
 	"node-backend/entities/account"
 	"node-backend/util"
@@ -28,15 +29,18 @@ func uploadFile(c *fiber.Ctx) error {
 	name := c.FormValue("name", "-")
 	extension := c.FormValue("extension", "-")
 	if key == "-" || name == "-" || extension == "-" {
+		log.Println("invalid form data")
 		return requests.InvalidRequest(c)
 	}
 	file, err := c.FormFile("file")
 	if err != nil {
+		log.Println("no file")
 		return requests.InvalidRequest(c)
 	}
 	accId := util.GetAcc(c)
 	fileType := file.Header.Get("Content-Type")
 	if fileType == "" {
+		log.Println("invalid headers")
 		return requests.InvalidRequest(c)
 	}
 
