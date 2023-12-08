@@ -38,10 +38,16 @@ func getDetails(c *fiber.Ctx) error {
 		return requests.FailedRequest(c, "not.found", err)
 	}
 
+	var signatureKey account.SignatureKey
+	if err := database.DBConn.Where("id = ?", acc.ID).Take(&signatureKey).Error; err != nil {
+		return requests.FailedRequest(c, "not.found", err)
+	}
+
 	// Return account details
 	return c.JSON(fiber.Map{
 		"success": true,
 		"account": acc.ID,
 		"key":     key.Key,
+		"sg":      signatureKey.Key,
 	})
 }

@@ -46,6 +46,7 @@ func Connect() {
 	db.AutoMigrate(&account.Rank{})
 	db.AutoMigrate(&account.PublicKey{})
 	db.AutoMigrate(&account.ProfileKey{})
+	db.AutoMigrate(&account.SignatureKey{})
 	db.AutoMigrate(&account.StoredActionKey{})
 	db.AutoMigrate(&account.CloudFile{})
 

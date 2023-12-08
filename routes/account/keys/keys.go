@@ -8,4 +8,7 @@ func Authorized(router fiber.Router) {
 
 	router.Post("/profile/get", getProfileKey)
 	router.Post("/profile/set", setProfileKey)
+
+	router.Post("/signature/get", getSignatureKey)
+	router.Post("/signature/set", setSignatureKey)
 }
