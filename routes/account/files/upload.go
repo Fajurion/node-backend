@@ -68,6 +68,7 @@ func uploadFile(c *fiber.Ctx) error {
 		Key:      key,
 		Account:  accId,
 		Favorite: false,
+		System:   false,
 		Size:     file.Size,
 	}).Error; err != nil {
 		return requests.FailedRequest(c, "server.error", err)
