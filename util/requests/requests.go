@@ -23,7 +23,7 @@ func SuccessfulRequest(c *fiber.Ctx) error {
 
 func FailedRequest(c *fiber.Ctx, error string, err error) error {
 
-	if util.Testing && err != nil {
+	if util.LogErrors && err != nil {
 		log.Println(c.Route().Path+":", err)
 	}
 

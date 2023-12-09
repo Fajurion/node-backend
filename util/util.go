@@ -9,6 +9,7 @@ import (
 )
 
 var Testing = false
+var LogErrors = true
 
 const PermissionUseServices = 10
 const PermissionServicesUnlimited = 20
