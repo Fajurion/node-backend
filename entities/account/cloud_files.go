@@ -9,6 +9,6 @@ type CloudFile struct {
 	Account   string `json:"account,omitempty"`
 	Size      int64  `json:"size,omitempty"` // In bytes
 	Favorite  bool   `json:"favorite,omitempty"`
-	System    bool   `json:"system,omitempty"` // If in use by system
+	System    bool   `json:"system,omitempty"` // If in use by system (won't be deleted)
 	CreatedAt int64  `json:"created,omitempty" gorm:"not null,autoCreateTime:milli"`
 }
