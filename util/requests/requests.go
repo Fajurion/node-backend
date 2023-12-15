@@ -9,6 +9,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+const ErrorNode = "node.error"
+const ErrorServer = "server.error"
+
 func DebugRouteError(c *fiber.Ctx, msg string) {
 	if util.Testing {
 		log.Println(c.Route().Path+":", msg)

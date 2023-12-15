@@ -7,5 +7,5 @@ func Authorized(router fiber.Router) {
 }
 
 func Remote(router fiber.Router) {
-
+	router.Post("/get", getProfile)
 }
