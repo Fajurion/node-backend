@@ -65,7 +65,7 @@ func newNode(c *fiber.Ctx) error {
 		return util.FailedRequest(c, "invalid.domain", nil)
 	}
 
-	return c.JSON(fiber.Map{
+	return util.ReturnJSON(c, fiber.Map{
 		"success": true,
 		"token":   created.Token,
 		"cluster": cluster.Country,

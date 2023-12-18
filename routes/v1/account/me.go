@@ -26,7 +26,7 @@ func me(c *fiber.Ctx) error {
 	}
 
 	// Retrun details
-	return c.JSON(fiber.Map{
+	return util.ReturnJSON(c, fiber.Map{
 		"success": true,
 		"account": acc,
 	})

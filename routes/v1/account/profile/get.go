@@ -25,7 +25,7 @@ func getProfile(c *fiber.Ctx) error {
 		return util.FailedRequest(c, util.ErrorServer, err)
 	}
 
-	return c.JSON(fiber.Map{
+	return util.ReturnJSON(c, fiber.Map{
 		"success": true,
 		"profile": profile,
 	})

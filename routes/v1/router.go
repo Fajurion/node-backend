@@ -52,6 +52,9 @@ func Router(router fiber.Router) {
 		return c.Next()
 	})
 
+	// Endpoint to get server public key
+	router.Post("/pub", getPublicKey)
+
 	// Unauthorized routes
 	router.Route("/auth", auth.Unauthorized)
 	router.Route("/node", node.Unauthorized)

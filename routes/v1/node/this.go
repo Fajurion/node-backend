@@ -26,7 +26,7 @@ func this(c *fiber.Ctx) error {
 		return util.InvalidRequest(c)
 	}
 
-	return c.JSON(fiber.Map{
+	return util.ReturnJSON(c, fiber.Map{
 		"success":    true,
 		"jwt_secret": util.JWT_SECRET,
 		"node":       node.ToEntity(),

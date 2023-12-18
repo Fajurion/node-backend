@@ -45,7 +45,7 @@ func addEntry(c *fiber.Ctx) error {
 		return util.FailedRequest(c, "server.error", err)
 	}
 
-	return c.JSON(fiber.Map{
+	return util.ReturnJSON(c, fiber.Map{
 		"success": true,
 		"id":      vaultEntry.ID,
 	})

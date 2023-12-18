@@ -27,7 +27,7 @@ func Generate(c *fiber.Ctx) error {
 
 	challengeMap[tk] = result
 
-	return c.JSON(fiber.Map{
+	return util.ReturnJSON(c, fiber.Map{
 		"success": true,
 		"tk":      tk,
 		"js":      js,
@@ -47,12 +47,12 @@ func Solve(c *fiber.Ctx) error {
 	}
 
 	if req.Result != challengeMap[req.Token] {
-		return c.JSON(fiber.Map{
+		return util.ReturnJSON(c, fiber.Map{
 			"success": false,
 		})
 	}
 
-	return c.JSON(fiber.Map{
+	return util.ReturnJSON(c, fiber.Map{
 		"success": true,
 	})
 }

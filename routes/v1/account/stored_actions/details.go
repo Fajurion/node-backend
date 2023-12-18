@@ -43,7 +43,7 @@ func getDetails(c *fiber.Ctx) error {
 	}
 
 	// Return account details
-	return c.JSON(fiber.Map{
+	return util.ReturnJSON(c, fiber.Map{
 		"success": true,
 		"account": acc.ID,
 		"key":     key.Key,

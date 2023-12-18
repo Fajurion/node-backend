@@ -55,7 +55,7 @@ func online(c *fiber.Ctx) error {
 		}
 	}
 
-	return c.JSON(fiber.Map{
+	return util.ReturnJSON(c, fiber.Map{
 		"success": true,
 		"nodes":   startedNodes,
 	})

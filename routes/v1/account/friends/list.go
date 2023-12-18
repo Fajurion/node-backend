@@ -18,7 +18,7 @@ func listFriends(c *fiber.Ctx) error {
 	}
 
 	// Return friends list
-	return c.JSON(fiber.Map{
+	return util.ReturnJSON(c, fiber.Map{
 		"success": true,
 		"friends": friends,
 	})

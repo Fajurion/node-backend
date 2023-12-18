@@ -25,7 +25,7 @@ func getVersion(c *fiber.Ctx) error {
 		return util.FailedRequest(c, "not.found", nil)
 	}
 
-	return c.JSON(fiber.Map{
+	return util.ReturnJSON(c, fiber.Map{
 		"success": true,
 		"version": app.Version,
 	})

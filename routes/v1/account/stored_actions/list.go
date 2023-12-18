@@ -51,7 +51,7 @@ func listStoredActions(c *fiber.Ctx) error {
 	}
 
 	// Return stored actions
-	return c.JSON(fiber.Map{
+	return util.ReturnJSON(c, fiber.Map{
 		"success": true,
 		"key":     storedActionKey.Key,
 		"actions": storedActions,

@@ -17,7 +17,7 @@ func listClusters(c *fiber.Ctx) error {
 	var clusters []node.Cluster
 	database.DBConn.Find(&clusters)
 
-	return c.JSON(fiber.Map{
+	return util.ReturnJSON(c, fiber.Map{
 		"success":  true,
 		"clusters": clusters,
 	})

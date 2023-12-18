@@ -29,7 +29,7 @@ func listFiles(c *fiber.Ctx) error {
 		return util.FailedRequest(c, "server.error", nil)
 	}
 
-	return c.JSON(fiber.Map{
+	return util.ReturnJSON(c, fiber.Map{
 		"success": true,
 		"file":    files,
 	})
