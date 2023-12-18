@@ -1,13 +1,13 @@
 package account
 
 import (
-	"node-backend/routes/account/files"
-	"node-backend/routes/account/friends"
-	"node-backend/routes/account/keys"
-	"node-backend/routes/account/profile"
-	"node-backend/routes/account/rank"
-	"node-backend/routes/account/stored_actions"
-	"node-backend/routes/account/vault"
+	"node-backend/routes/v1/account/files"
+	"node-backend/routes/v1/account/friends"
+	"node-backend/routes/v1/account/keys"
+	"node-backend/routes/v1/account/profile"
+	"node-backend/routes/v1/account/rank"
+	"node-backend/routes/v1/account/stored_actions"
+	"node-backend/routes/v1/account/vault"
 
 	"github.com/gofiber/fiber/v2"
 )

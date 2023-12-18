@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"log"
 	"node-backend/database"
-	"node-backend/routes"
+	routes_v1 "node-backend/routes/v1"
 	"node-backend/util"
 	"os"
 	"time"
@@ -41,7 +41,7 @@ func Startup() {
 	app.Use(logger.New())
 
 	// Handle routing
-	app.Route("/", routes.Router)
+	app.Route("/v1", routes_v1.Router)
 
 	// Ask user for test mode
 	testMode()

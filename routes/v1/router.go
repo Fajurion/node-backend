@@ -1,13 +1,13 @@
-package routes
+package routes_v1
 
 import (
 	"log"
 	nb_challenges "node-backend/nbchallenges"
-	"node-backend/routes/account"
-	"node-backend/routes/account/auth"
-	"node-backend/routes/app"
-	"node-backend/routes/cluster"
-	"node-backend/routes/node"
+	"node-backend/routes/v1/account"
+	"node-backend/routes/v1/account/auth"
+	"node-backend/routes/v1/app"
+	"node-backend/routes/v1/cluster"
+	"node-backend/routes/v1/node"
 	"node-backend/util"
 	"node-backend/util/requests"
 

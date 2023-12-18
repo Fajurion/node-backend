@@ -1,9 +1,9 @@
 package node
 
 import (
-	"node-backend/routes/node/connect"
-	"node-backend/routes/node/manage"
-	"node-backend/routes/node/status"
+	"node-backend/routes/v1/node/connect"
+	"node-backend/routes/v1/node/manage"
+	"node-backend/routes/v1/node/status"
 	"node-backend/util"
 
 	"github.com/gofiber/fiber/v2"
