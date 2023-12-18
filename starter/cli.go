@@ -3,6 +3,7 @@ package starter
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"node-backend/database"
 	"node-backend/entities/account"
 	"node-backend/entities/account/properties"
@@ -168,6 +169,56 @@ func listenForCommands() {
 
 			fmt.Println("Token:", token)
 
+		case "keypair":
+
+			priv, pub, err := util.GenerateRSAKey(util.StandardKeySize)
+			if err != nil {
+				fmt.Println("Failed to generate a keypair!")
+				continue
+			}
+
+			fmt.Println("Packaged public key:", util.PackageRSAPublicKey(pub))
+			fmt.Println("Packaged private key:", util.PackageRSAPrivateKey(priv))
+
+		case "test-message":
+
+			fmt.Print("Test message: ")
+			msg, _ := reader.ReadString('\n')
+			msg = strings.TrimSpace(msg)
+
+			_, pub, err := util.GenerateRSAKey(util.StandardKeySize)
+			if err != nil {
+				fmt.Println("Failed to generate a keypair!")
+				continue
+			}
+
+			// Get default private and public key
+			serverPub, err := util.UnpackageRSAPublicKey(os.Getenv("TC_PUBLIC_KEY"))
+			if err != nil {
+				panic("Couldn't unpackage public key. Required for v1 API. Please set TC_PUBLIC_KEY in your environment variables or .env file.")
+			}
+
+			encrypted, err := util.EncryptRSA(serverPub, []byte(msg))
+			if err != nil {
+				fmt.Println("Couldn't encrypt using server pub")
+				continue
+			}
+
+			directory := os.Getenv("TC_WRITE_TO")
+			if directory == "" {
+				fmt.Println("Please provide the environment variable TC_WRITE_TO (file directory for message).")
+				continue
+			}
+			directory = directory + "/test.msg"
+			log.Println(directory)
+			err = os.WriteFile(directory, encrypted, os.ModeAppend)
+			if err != nil {
+				fmt.Println("Couldn't write file:", err)
+				continue
+			}
+
+			fmt.Println("Packaged public key:", util.PackageRSAPublicKey(pub))
+
 		case "help":
 			fmt.Println("exit - Exit the application")
 			fmt.Println("create-default - Create default ranks and cluster")
@@ -176,6 +227,8 @@ func listenForCommands() {
 			fmt.Println("create-node - Get a node token (rest of setup in the CLI of the node)")
 			fmt.Println("delete-data - Delete the data to restart the setup process on an account")
 			fmt.Println("account-token - Generate a JWT token for an account")
+			fmt.Println("keypair - Generate a new RSA key pair")
+			fmt.Println("test-message - Encrypt a test message to send to an endpoint using TC")
 
 		default:
 			fmt.Println("Unknown command. Type 'help' for a list of commands.")

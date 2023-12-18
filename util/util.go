@@ -1,11 +1,13 @@
 package util
 
 import (
+	"crypto/rsa"
 	"io"
 	"net/http"
 	"strings"
 
 	"github.com/bytedance/sonic"
+	"github.com/gofiber/fiber/v2"
 )
 
 var Testing = false
@@ -45,4 +47,25 @@ func PostRequest(url string, body map[string]interface{}) (map[string]interface{
 	}
 
 	return data, nil
+}
+
+// Parse encrypted json
+func BodyParser(c *fiber.Ctx, data interface{}) error {
+	return sonic.Unmarshal(c.Locals("body").([]byte), data)
+}
+
+// Return encrypted json
+func ReturnJSON(c *fiber.Ctx, data interface{}) error {
+
+	encoded, err := sonic.Marshal(data)
+	if err != nil {
+		return FailedRequest(c, ErrorServer, err)
+	}
+
+	encrypted, err := EncryptRSA(c.Locals("srv_pub").(*rsa.PublicKey), encoded)
+	if err != nil {
+		return FailedRequest(c, ErrorServer, err)
+	}
+
+	return c.Send(encrypted)
 }

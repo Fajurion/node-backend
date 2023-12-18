@@ -4,7 +4,6 @@ import (
 	"node-backend/database"
 	"node-backend/entities/account/properties"
 	"node-backend/util"
-	"node-backend/util/requests"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
@@ -19,8 +18,8 @@ func removeEntry(c *fiber.Ctx) error {
 
 	// Parse request
 	var req removeRequest
-	if err := c.BodyParser(&req); err != nil {
-		return requests.InvalidRequest(c)
+	if err := util.BodyParser(c, &req); err != nil {
+		return util.InvalidRequest(c)
 	}
 
 	// Check if entry exists
@@ -29,16 +28,16 @@ func removeEntry(c *fiber.Ctx) error {
 	if err := database.DBConn.Where("id = ? AND account = ?", req.ID, accId).Take(&entry).Error; err != nil {
 
 		if err == gorm.ErrRecordNotFound {
-			return requests.FailedRequest(c, "not.found", nil)
+			return util.FailedRequest(c, "not.found", nil)
 		}
 
-		return requests.FailedRequest(c, "server.error", err)
+		return util.FailedRequest(c, "server.error", err)
 	}
 
 	// Delete entry
 	if err := database.DBConn.Delete(&entry).Error; err != nil {
-		return requests.FailedRequest(c, "server.error", err)
+		return util.FailedRequest(c, "server.error", err)
 	}
 
-	return requests.SuccessfulRequest(c)
+	return util.SuccessfulRequest(c)
 }

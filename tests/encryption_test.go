@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"encoding/base64"
 	"fmt"
 	"log"
 	"node-backend/util"
@@ -34,7 +35,7 @@ func TestEncryption(t *testing.T) {
 	//* Test encryption
 	// Encrypt a sample plaintext using the public key
 	plaintext := "abcdefghijklmopqrstuvxyzABC-._ßäöü!"
-	ciphertext, err := util.EncryptRSA(pub, plaintext)
+	ciphertext, err := util.EncryptRSA(pub, []byte(plaintext))
 	if err != nil {
 		t.Fatalf("Failed to encrypt plaintext: %v", err)
 	}
@@ -46,7 +47,7 @@ func TestEncryption(t *testing.T) {
 	}
 
 	// Check if the decrypted plaintext matches the original plaintext
-	if decryptedPlaintext != plaintext {
+	if base64.StdEncoding.EncodeToString(decryptedPlaintext) != base64.StdEncoding.EncodeToString([]byte(plaintext)) {
 		t.Errorf("Decrypted plaintext does not match original plaintext. Expected: %s, Got: %s", plaintext, decryptedPlaintext)
 	}
 

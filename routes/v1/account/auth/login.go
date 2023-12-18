@@ -6,7 +6,6 @@ import (
 	"node-backend/entities/account"
 	"node-backend/util"
 	"node-backend/util/auth"
-	"node-backend/util/requests"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -23,23 +22,23 @@ type startLoginRequest struct {
 func startLogin(c *fiber.Ctx) error {
 
 	var req startLoginRequest
-	if err := c.BodyParser(&req); err != nil {
-		return requests.InvalidRequest(c)
+	if err := util.BodyParser(c, &req); err != nil {
+		return util.InvalidRequest(c)
 	}
 
 	// Check if user exists
 	var acc account.Account
 	if database.DBConn.Where("email = ?", req.Email).Take(&acc).Error != nil {
-		return requests.FailedRequest(c, "invalid.email", nil)
+		return util.FailedRequest(c, "invalid.email", nil)
 	}
 
 	valid, err := checkSessions(acc.ID)
 	if err != nil {
-		return requests.FailedRequest(c, err.Error(), nil)
+		return util.FailedRequest(c, err.Error(), nil)
 	}
 
 	if !valid {
-		return requests.FailedRequest(c, "too.many.sessions", nil)
+		return util.FailedRequest(c, "too.many.sessions", nil)
 	}
 
 	// Generate token
@@ -55,8 +54,8 @@ type loginStepRequest struct {
 func loginStep(c *fiber.Ctx) error {
 
 	var req loginStepRequest
-	if err := c.BodyParser(&req); err != nil {
-		return requests.InvalidRequest(c)
+	if err := util.BodyParser(c, &req); err != nil {
+		return util.InvalidRequest(c)
 	}
 
 	// Get data
@@ -64,12 +63,12 @@ func loginStep(c *fiber.Ctx) error {
 
 	var method account.Authentication
 	if err := database.DBConn.Where("account = ? AND type = ?", id, req.Type).Take(&method).Error; err != nil {
-		return requests.FailedRequest(c, "server.error", err)
+		return util.FailedRequest(c, "server.error", err)
 	}
 
 	// Check the provided secret
 	if !method.Verify(req.Type, req.Secret) {
-		return requests.FailedRequest(c, "invalid.method", nil)
+		return util.FailedRequest(c, "invalid.method", nil)
 	}
 
 	return runAuthStep(id, device, step+1, c)
@@ -80,7 +79,7 @@ func runAuthStep(id string, device string, step uint, c *fiber.Ctx) error {
 	// Generate token
 	tk, err := auth.GenerateLoginTokenWithStep(id, device, step)
 	if err != nil {
-		return requests.FailedRequest(c, "server.error", err)
+		return util.FailedRequest(c, "server.error", err)
 	}
 
 	// Get authentication methods for step
@@ -96,14 +95,14 @@ func runAuthStep(id string, device string, step uint, c *fiber.Ctx) error {
 
 	if query.Error == gorm.ErrRecordNotFound && step == account.StartStep {
 		// TODO: SERIOUS SECURITY ISSUE WARNING HERE
-		return requests.FailedRequest(c, "no.methods", nil)
+		return util.FailedRequest(c, "no.methods", nil)
 	}
 
 	if query.Error == gorm.ErrRecordNotFound {
 
 		var acc account.Account
 		if err := database.DBConn.Where("id = ?", id).Preload("Rank").Take(&acc).Error; err != nil {
-			return requests.FailedRequest(c, "server.error", err)
+			return util.FailedRequest(c, "server.error", err)
 		}
 
 		// Create session
@@ -119,14 +118,14 @@ func runAuthStep(id string, device string, step uint, c *fiber.Ctx) error {
 		}
 
 		if err := database.DBConn.Create(&createdSession).Error; err != nil {
-			requests.FailedRequest(c, "server.error", err)
+			util.FailedRequest(c, "server.error", err)
 		}
 
 		// Generate jwt token
 		jwtToken, err := util.Token(createdSession.ID, acc.ID, acc.Rank.Level, time.Now().Add(time.Hour*24*3))
 
 		if err != nil {
-			return requests.FailedRequest(c, "server.error", err)
+			return util.FailedRequest(c, "server.error", err)
 		}
 
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
@@ -137,7 +136,7 @@ func runAuthStep(id string, device string, step uint, c *fiber.Ctx) error {
 	}
 
 	if query.Error != nil {
-		return requests.FailedRequest(c, "server.error", nil)
+		return util.FailedRequest(c, "server.error", nil)
 	}
 
 	return c.JSON(fiber.Map{

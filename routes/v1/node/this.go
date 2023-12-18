@@ -3,7 +3,6 @@ package node
 import (
 	"node-backend/util"
 	"node-backend/util/nodes"
-	"node-backend/util/requests"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -17,14 +16,14 @@ func this(c *fiber.Ctx) error {
 
 	// Parse request
 	var req thisRequest
-	if err := c.BodyParser(&req); err != nil {
-		return requests.InvalidRequest(c)
+	if err := util.BodyParser(c, &req); err != nil {
+		return util.InvalidRequest(c)
 	}
 
 	// Get node
 	node, err := nodes.Node(req.Node, req.Token)
 	if err != nil {
-		return requests.InvalidRequest(c)
+		return util.InvalidRequest(c)
 	}
 
 	return c.JSON(fiber.Map{

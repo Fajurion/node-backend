@@ -4,7 +4,6 @@ import (
 	"node-backend/database"
 	"node-backend/entities/account"
 	"node-backend/util"
-	"node-backend/util/requests"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -17,13 +16,13 @@ func me(c *fiber.Ctx) error {
 
 	var session account.Session
 	if database.DBConn.Where(&account.Session{ID: sessionId}).Take(&session).Error != nil {
-		return requests.InvalidRequest(c)
+		return util.InvalidRequest(c)
 	}
 
 	// Get account
 	var acc account.Account
 	if err := database.DBConn.Where(&account.Account{ID: session.Account}).Take(&acc).Error; err != nil {
-		return requests.FailedRequest(c, "server.error", err)
+		return util.FailedRequest(c, "server.error", err)
 	}
 
 	// Retrun details

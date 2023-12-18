@@ -8,7 +8,6 @@ import (
 	"node-backend/entities/account"
 	"node-backend/util"
 	"node-backend/util/auth"
-	"node-backend/util/requests"
 	"os"
 	"time"
 
@@ -21,7 +20,7 @@ import (
 func uploadFile(c *fiber.Ctx) error {
 
 	if disabled {
-		return requests.FailedRequest(c, "file.disabled", nil)
+		return util.FailedRequest(c, "file.disabled", nil)
 	}
 
 	// Form data
@@ -30,33 +29,33 @@ func uploadFile(c *fiber.Ctx) error {
 	extension := c.FormValue("extension", "-")
 	if key == "-" || name == "-" || extension == "-" {
 		log.Println("invalid form data")
-		return requests.InvalidRequest(c)
+		return util.InvalidRequest(c)
 	}
 	file, err := c.FormFile("file")
 	if err != nil {
 		log.Println("no file")
-		return requests.InvalidRequest(c)
+		return util.InvalidRequest(c)
 	}
 	accId := util.GetAcc(c)
 	fileType := file.Header.Get("Content-Type")
 	if fileType == "" {
 		log.Println("invalid headers")
-		return requests.InvalidRequest(c)
+		return util.InvalidRequest(c)
 	}
 
 	// Check file size
 	if file.Size > maxUploadSize {
-		return requests.FailedRequest(c, "file.too_large", nil)
+		return util.FailedRequest(c, "file.too_large", nil)
 	}
 
 	// Check total storage
 	totalStorage, err := CountTotalStorage(accId)
 	if err != nil {
-		return requests.FailedRequest(c, "server.error", err)
+		return util.FailedRequest(c, "server.error", err)
 	}
 
 	if totalStorage+file.Size > maxTotalStorage {
-		return requests.FailedRequest(c, "file.storage_limit", nil)
+		return util.FailedRequest(c, "file.storage_limit", nil)
 	}
 
 	// Generate file name Format: a-[accountId]-[objectIdentifier].[extension]
@@ -71,12 +70,12 @@ func uploadFile(c *fiber.Ctx) error {
 		System:   false,
 		Size:     file.Size,
 	}).Error; err != nil {
-		return requests.FailedRequest(c, "server.error", err)
+		return util.FailedRequest(c, "server.error", err)
 	}
 
 	f, err := file.Open()
 	if err != nil {
-		return requests.FailedRequest(c, "server.error", err)
+		return util.FailedRequest(c, "server.error", err)
 	}
 
 	// Upload to R2
@@ -87,7 +86,7 @@ func uploadFile(c *fiber.Ctx) error {
 		ACL:    "public-read",
 	})
 	if err != nil {
-		return requests.FailedRequest(c, "server.error", err)
+		return util.FailedRequest(c, "server.error", err)
 	}
 	location := os.Getenv("R2_PUBLIC_URL") + fileId
 
@@ -97,7 +96,7 @@ func uploadFile(c *fiber.Ctx) error {
 			Bucket: aws.String(bucketName),
 			Key:    aws.String(file.Filename),
 		})
-		return requests.FailedRequest(c, "server.error", err)
+		return util.FailedRequest(c, "server.error", err)
 	}
 
 	return c.JSON(fiber.Map{

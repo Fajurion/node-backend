@@ -4,7 +4,6 @@ import (
 	"node-backend/database"
 	"node-backend/entities/node"
 	"node-backend/util"
-	"node-backend/util/requests"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -12,7 +11,7 @@ import (
 func listClusters(c *fiber.Ctx) error {
 
 	if !util.Permission(c, util.PermissionUseServices) {
-		return requests.InvalidRequest(c)
+		return util.InvalidRequest(c)
 	}
 
 	var clusters []node.Cluster

@@ -4,7 +4,6 @@ import (
 	"node-backend/database"
 	"node-backend/entities/account"
 	"node-backend/util"
-	"node-backend/util/requests"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -18,8 +17,8 @@ type listRequest struct {
 func listFiles(c *fiber.Ctx) error {
 
 	var req listRequest
-	if err := c.BodyParser(&req); err != nil {
-		return requests.InvalidRequest(c)
+	if err := util.BodyParser(c, &req); err != nil {
+		return util.InvalidRequest(c)
 	}
 
 	accId := util.GetAcc(c)
@@ -27,7 +26,7 @@ func listFiles(c *fiber.Ctx) error {
 	// Get files
 	var files []account.CloudFile
 	if database.DBConn.Where("account = ? AND favorite = ? AND created_at < ?", accId, req.Start).Limit(40).Find(&[]account.CloudFile{}).Error != nil {
-		return requests.FailedRequest(c, "server.error", nil)
+		return util.FailedRequest(c, "server.error", nil)
 	}
 
 	return c.JSON(fiber.Map{

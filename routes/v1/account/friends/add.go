@@ -5,7 +5,6 @@ import (
 	"node-backend/entities/account/properties"
 	"node-backend/util"
 	"node-backend/util/auth"
-	"node-backend/util/requests"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -20,24 +19,24 @@ func addFriend(c *fiber.Ctx) error {
 
 	// Parse request
 	var req addFriendRequest
-	if err := c.BodyParser(&req); err != nil {
-		return requests.InvalidRequest(c)
+	if err := util.BodyParser(c, &req); err != nil {
+		return util.InvalidRequest(c)
 	}
 
 	// Check if the account has too many friends
 	accId := util.GetAcc(c)
 	var friendCount int64
 	if err := database.DBConn.Model(&properties.Friendship{}).Where("account = ?", accId).Count(&friendCount).Error; err != nil {
-		return requests.FailedRequest(c, "server.error", err)
+		return util.FailedRequest(c, "server.error", err)
 	}
 
 	if friendCount >= MaximumFriends {
-		return requests.FailedRequest(c, "limit.reached", nil)
+		return util.FailedRequest(c, "limit.reached", nil)
 	}
 
 	// Check if it already exists
 	if database.DBConn.Model(&properties.Friendship{}).Where("account = ? AND hash = ?", accId, req.Hash).Take(&properties.Friendship{}).Error == nil {
-		return requests.FailedRequest(c, "already.exists", nil)
+		return util.FailedRequest(c, "already.exists", nil)
 	}
 
 	// Create friendship
@@ -48,7 +47,7 @@ func addFriend(c *fiber.Ctx) error {
 		Payload: req.Payload,
 	}
 	if err := database.DBConn.Create(&friendship).Error; err != nil {
-		return requests.FailedRequest(c, "server.error", err)
+		return util.FailedRequest(c, "server.error", err)
 	}
 
 	return c.JSON(fiber.Map{

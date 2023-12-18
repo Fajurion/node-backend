@@ -4,8 +4,8 @@ import (
 	"node-backend/database"
 	"node-backend/entities/app"
 	"node-backend/entities/node"
+	"node-backend/util"
 	"node-backend/util/auth"
-	"node-backend/util/requests"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -22,32 +22,32 @@ func newNode(c *fiber.Ctx) error {
 
 	// Parse body to add request
 	var req newRequest
-	if err := c.BodyParser(&req); err != nil {
-		return requests.InvalidRequest(c)
+	if err := util.BodyParser(c, &req); err != nil {
+		return util.InvalidRequest(c)
 	}
 
 	// Check if token is valid
 	var ct node.NodeCreation
 	if err := database.DBConn.Where("token = ?", req.Token).Take(&ct).Error; err != nil {
-		return requests.FailedRequest(c, "invalid", nil)
+		return util.FailedRequest(c, "invalid", nil)
 	}
 
 	if req.Cluster == 0 || req.Domain == "" {
-		return requests.FailedRequest(c, "invalid", nil)
+		return util.FailedRequest(c, "invalid", nil)
 	}
 
 	if len(req.Domain) < 3 {
-		return requests.FailedRequest(c, "invalid.domain", nil)
+		return util.FailedRequest(c, "invalid.domain", nil)
 	}
 
 	var cluster node.Cluster
 	if err := database.DBConn.Where("id = ?", req.Cluster).Take(&cluster).Error; err != nil {
-		return requests.FailedRequest(c, "invalid", nil)
+		return util.FailedRequest(c, "invalid", nil)
 	}
 
 	var app app.App
 	if err := database.DBConn.Take(&app, req.App).Error; err != nil {
-		return requests.FailedRequest(c, "invalid", nil)
+		return util.FailedRequest(c, "invalid", nil)
 	}
 
 	// Create node
@@ -62,7 +62,7 @@ func newNode(c *fiber.Ctx) error {
 	}
 
 	if err := database.DBConn.Create(&created).Error; err != nil {
-		return requests.FailedRequest(c, "invalid.domain", nil)
+		return util.FailedRequest(c, "invalid.domain", nil)
 	}
 
 	return c.JSON(fiber.Map{

@@ -4,7 +4,6 @@ import (
 	"node-backend/database"
 	"node-backend/entities/account"
 	"node-backend/util"
-	"node-backend/util/requests"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -18,11 +17,11 @@ func getProfileKey(c *fiber.Ctx) error {
 	// Get public key
 	var key account.ProfileKey
 	if database.DBConn.Where("id = ?", accId).Take(&key).Error != nil {
-		return requests.FailedRequest(c, "not.found", nil)
+		return util.FailedRequest(c, "not.found", nil)
 	}
 
 	if key.Key == "" {
-		return requests.FailedRequest(c, "not.found", nil)
+		return util.FailedRequest(c, "not.found", nil)
 	}
 
 	return c.Status(200).JSON(fiber.Map{
@@ -35,8 +34,8 @@ func getProfileKey(c *fiber.Ctx) error {
 func setProfileKey(c *fiber.Ctx) error {
 
 	var req setRequest
-	if err := c.BodyParser(&req); err != nil {
-		return requests.InvalidRequest(c)
+	if err := util.BodyParser(c, &req); err != nil {
+		return util.InvalidRequest(c)
 	}
 
 	// Get account
@@ -44,11 +43,11 @@ func setProfileKey(c *fiber.Ctx) error {
 
 	var acc account.Account
 	if database.DBConn.Where("id = ?", accId).Take(&acc).Error != nil {
-		return requests.InvalidRequest(c)
+		return util.InvalidRequest(c)
 	}
 
 	if database.DBConn.Where("id = ?", accId).Take(&account.ProfileKey{}).Error == nil {
-		return requests.FailedRequest(c, "already.set", nil)
+		return util.FailedRequest(c, "already.set", nil)
 	}
 
 	// Set public key
@@ -56,8 +55,8 @@ func setProfileKey(c *fiber.Ctx) error {
 		ID:  accId,
 		Key: req.Key,
 	}).Error != nil {
-		return requests.FailedRequest(c, "server.error", nil)
+		return util.FailedRequest(c, "server.error", nil)
 	}
 
-	return requests.SuccessfulRequest(c)
+	return util.SuccessfulRequest(c)
 }

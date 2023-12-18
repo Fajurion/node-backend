@@ -3,7 +3,7 @@ package status
 import (
 	"node-backend/database"
 	"node-backend/entities/node"
-	"node-backend/util/requests"
+	"node-backend/util"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -17,8 +17,8 @@ func update(c *fiber.Ctx) error {
 
 	// Parse request
 	var req updateRequest
-	if err := c.BodyParser(&req); err != nil {
-		return requests.InvalidRequest(c)
+	if err := util.BodyParser(c, &req); err != nil {
+		return util.InvalidRequest(c)
 	}
 
 	// Get node
@@ -26,12 +26,12 @@ func update(c *fiber.Ctx) error {
 	database.DBConn.Where("token = ?", req.Token).Take(&requested)
 
 	if requested.ID == 0 {
-		return requests.InvalidRequest(c)
+		return util.InvalidRequest(c)
 	}
 
 	// Update status
 	requested.Status = req.NewStatus
 	database.DBConn.Save(&requested)
 
-	return requests.SuccessfulRequest(c)
+	return util.SuccessfulRequest(c)
 }

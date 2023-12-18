@@ -3,8 +3,8 @@ package auth
 import (
 	"node-backend/database"
 	"node-backend/entities/account"
+	"node-backend/util"
 	"node-backend/util/auth"
-	"node-backend/util/requests"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -21,18 +21,18 @@ func register_test(c *fiber.Ctx) error {
 
 	// Parse body to register request
 	var registerRequest registerRequest
-	if err := c.BodyParser(&registerRequest); err != nil {
-		return requests.InvalidRequest(c)
+	if err := util.BodyParser(c, &registerRequest); err != nil {
+		return util.InvalidRequest(c)
 	}
 
 	// Check if email is already registered
 	valid, normalizedEmail := account.CheckEmail(registerRequest.Email)
 	if !valid {
-		return requests.FailedRequest(c, "email.invalid", nil)
+		return util.FailedRequest(c, "email.invalid", nil)
 	}
 
 	if database.DBConn.Where("email = ?", normalizedEmail).Take(&account.Account{}).RowsAffected > 0 {
-		return requests.FailedRequest(c, "email.registered", nil)
+		return util.FailedRequest(c, "email.registered", nil)
 	}
 
 	var acc account.Account = account.Account{
@@ -46,7 +46,7 @@ func register_test(c *fiber.Ctx) error {
 	err := database.DBConn.Create(&acc).Error
 
 	if err != nil {
-		return requests.InvalidRequest(c)
+		return util.InvalidRequest(c)
 	}
 
 	err = database.DBConn.Create(&account.Authentication{
@@ -57,7 +57,7 @@ func register_test(c *fiber.Ctx) error {
 	}).Error
 
 	if err != nil {
-		return requests.InvalidRequest(c)
+		return util.InvalidRequest(c)
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{

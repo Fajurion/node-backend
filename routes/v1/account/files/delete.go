@@ -5,7 +5,6 @@ import (
 	"node-backend/database"
 	"node-backend/entities/account"
 	"node-backend/util"
-	"node-backend/util/requests"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -20,8 +19,8 @@ type deleteRequest struct {
 func deleteFile(c *fiber.Ctx) error {
 
 	var req deleteRequest
-	if err := c.BodyParser(&req); err != nil {
-		return requests.InvalidRequest(c)
+	if err := util.BodyParser(c, &req); err != nil {
+		return util.InvalidRequest(c)
 	}
 
 	accId := util.GetAcc(c)
@@ -29,7 +28,7 @@ func deleteFile(c *fiber.Ctx) error {
 	// Get file
 	var file account.CloudFile
 	if database.DBConn.Where("account = ? AND id = ?", accId, req.Id).First(&file).Error != nil {
-		return requests.FailedRequest(c, "file.not_found", nil)
+		return util.FailedRequest(c, "file.not_found", nil)
 	}
 
 	// Delete file from S3
@@ -38,13 +37,13 @@ func deleteFile(c *fiber.Ctx) error {
 		Key:    aws.String(file.Key),
 	})
 	if err != nil {
-		return requests.FailedRequest(c, "server.error", err)
+		return util.FailedRequest(c, "server.error", err)
 	}
 
 	// Delete file from DB
 	if err := database.DBConn.Delete(&file).Error; err != nil {
-		return requests.FailedRequest(c, "server.error", err)
+		return util.FailedRequest(c, "server.error", err)
 	}
 
-	return requests.SuccessfulRequest(c)
+	return util.SuccessfulRequest(c)
 }

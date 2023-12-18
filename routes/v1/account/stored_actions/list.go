@@ -6,7 +6,6 @@ import (
 	"node-backend/entities/account/properties"
 	"node-backend/util"
 	"node-backend/util/auth"
-	"node-backend/util/requests"
 	"sort"
 
 	"github.com/gofiber/fiber/v2"
@@ -19,12 +18,12 @@ func listStoredActions(c *fiber.Ctx) error {
 	accId := util.GetAcc(c)
 	var storedActions []properties.StoredAction
 	if database.DBConn.Where("account = ?", accId).Find(&storedActions).Error != nil {
-		return requests.FailedRequest(c, "server.error", nil)
+		return util.FailedRequest(c, "server.error", nil)
 	}
 
 	var aStoredActions []properties.AStoredAction
 	if database.DBConn.Where("account = ?", accId).Find(&aStoredActions).Error != nil {
-		return requests.FailedRequest(c, "server.error", nil)
+		return util.FailedRequest(c, "server.error", nil)
 	}
 	for _, aStoredAction := range aStoredActions {
 		storedActions = append(storedActions, properties.StoredAction(aStoredAction))
@@ -47,7 +46,7 @@ func listStoredActions(c *fiber.Ctx) error {
 
 		// Save stored action key
 		if err := database.DBConn.Create(&storedActionKey).Error; err != nil {
-			return requests.FailedRequest(c, "server.error", err)
+			return util.FailedRequest(c, "server.error", err)
 		}
 	}
 

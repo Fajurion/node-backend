@@ -4,8 +4,8 @@ import (
 	"log"
 	"node-backend/database"
 	"node-backend/entities/node"
+	"node-backend/util"
 	"node-backend/util/nodes"
-	"node-backend/util/requests"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -19,14 +19,14 @@ func online(c *fiber.Ctx) error {
 
 	// Parse request
 	var req onlineRequest
-	if err := c.BodyParser(&req); err != nil {
-		return requests.InvalidRequest(c)
+	if err := util.BodyParser(c, &req); err != nil {
+		return util.InvalidRequest(c)
 	}
 
 	// Get node
 	requested, err := nodes.Node(req.ID, req.Token)
 	if err != nil {
-		return requests.InvalidRequest(c)
+		return util.InvalidRequest(c)
 	}
 
 	// Update status
@@ -39,7 +39,7 @@ func online(c *fiber.Ctx) error {
 		AppID:  requested.AppID,
 		Status: node.StatusStarted,
 	}).Find(&foundNodes).Error; err != nil {
-		return requests.FailedRequest(c, "server.error", err)
+		return util.FailedRequest(c, "server.error", err)
 	}
 
 	for _, n := range foundNodes {

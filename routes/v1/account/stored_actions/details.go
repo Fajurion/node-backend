@@ -4,7 +4,6 @@ import (
 	"node-backend/database"
 	"node-backend/entities/account"
 	"node-backend/util"
-	"node-backend/util/requests"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -18,29 +17,29 @@ type detailsRequest struct {
 func getDetails(c *fiber.Ctx) error {
 
 	if !util.IsRemoteId(c) {
-		return requests.InvalidRequest(c)
+		return util.InvalidRequest(c)
 	}
 
 	// Parse request
 	var req detailsRequest
-	if err := c.BodyParser(&req); err != nil {
-		return requests.InvalidRequest(c)
+	if err := util.BodyParser(c, &req); err != nil {
+		return util.InvalidRequest(c)
 	}
 
 	// Get account
 	var acc account.Account
 	if err := database.DBConn.Where("username = ? AND tag = ?", req.Username, req.Tag).Take(&acc).Error; err != nil {
-		return requests.FailedRequest(c, "not.found", err)
+		return util.FailedRequest(c, "not.found", err)
 	}
 
 	var key account.PublicKey
 	if err := database.DBConn.Where("id = ?", acc.ID).Take(&key).Error; err != nil {
-		return requests.FailedRequest(c, "not.found", err)
+		return util.FailedRequest(c, "not.found", err)
 	}
 
 	var signatureKey account.SignatureKey
 	if err := database.DBConn.Where("id = ?", acc.ID).Take(&signatureKey).Error; err != nil {
-		return requests.FailedRequest(c, "not.found", err)
+		return util.FailedRequest(c, "not.found", err)
 	}
 
 	// Return account details

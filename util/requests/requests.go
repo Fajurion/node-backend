@@ -1,44 +1,9 @@
 package requests
 
 import (
-	"log"
 	"node-backend/database"
 	"node-backend/entities/account"
-	"node-backend/util"
-
-	"github.com/gofiber/fiber/v2"
 )
-
-const ErrorNode = "node.error"
-const ErrorServer = "server.error"
-
-func DebugRouteError(c *fiber.Ctx, msg string) {
-	if util.Testing {
-		log.Println(c.Route().Path+":", msg)
-	}
-}
-
-func SuccessfulRequest(c *fiber.Ctx) error {
-	return c.Status(200).JSON(fiber.Map{
-		"success": true,
-	})
-}
-
-func FailedRequest(c *fiber.Ctx, error string, err error) error {
-
-	if util.LogErrors && err != nil {
-		log.Println(c.Route().Path+":", err)
-	}
-
-	return c.Status(200).JSON(fiber.Map{
-		"success": false,
-		"error":   error,
-	})
-}
-
-func InvalidRequest(c *fiber.Ctx) error {
-	return c.SendStatus(fiber.StatusBadRequest)
-}
 
 // GetSession gets the session from the database (returns false if it doesn't exist)
 func GetSession(id string, session *account.Session) bool {

@@ -3,7 +3,7 @@ package profile
 import (
 	"node-backend/database"
 	"node-backend/entities/account/properties"
-	"node-backend/util/requests"
+	"node-backend/util"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -16,13 +16,13 @@ type getProfileRequest struct {
 func getProfile(c *fiber.Ctx) error {
 
 	var req getProfileRequest
-	if err := c.BodyParser(&req); err != nil {
-		return requests.InvalidRequest(c)
+	if err := util.BodyParser(c, &req); err != nil {
+		return util.InvalidRequest(c)
 	}
 
 	var profile properties.Profile
 	if err := database.DBConn.Where("id = ?", req.ID).Take(&profile).Error; err != nil {
-		return requests.FailedRequest(c, requests.ErrorServer, err)
+		return util.FailedRequest(c, util.ErrorServer, err)
 	}
 
 	return c.JSON(fiber.Map{

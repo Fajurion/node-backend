@@ -5,7 +5,6 @@ import (
 	"node-backend/entities/account/properties"
 	"node-backend/util"
 	"node-backend/util/auth"
-	"node-backend/util/requests"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -20,19 +19,19 @@ func addEntry(c *fiber.Ctx) error {
 
 	// Parse request
 	var req addEntryRequest
-	if err := c.BodyParser(&req); err != nil {
-		return requests.InvalidRequest(c)
+	if err := util.BodyParser(c, &req); err != nil {
+		return util.InvalidRequest(c)
 	}
 
 	// Check if the account has too many entries
 	accId := util.GetAcc(c)
 	var entryCount int64
 	if err := database.DBConn.Model(&properties.VaultEntry{}).Where("account = ?", accId).Count(&entryCount).Error; err != nil {
-		return requests.FailedRequest(c, "server.error", err)
+		return util.FailedRequest(c, "server.error", err)
 	}
 
 	if entryCount >= MaximumEntries {
-		return requests.FailedRequest(c, "limit.reached", nil)
+		return util.FailedRequest(c, "limit.reached", nil)
 	}
 
 	// Create vault entry
@@ -43,7 +42,7 @@ func addEntry(c *fiber.Ctx) error {
 		Payload: req.Payload,
 	}
 	if err := database.DBConn.Create(&vaultEntry).Error; err != nil {
-		return requests.FailedRequest(c, "server.error", err)
+		return util.FailedRequest(c, "server.error", err)
 	}
 
 	return c.JSON(fiber.Map{

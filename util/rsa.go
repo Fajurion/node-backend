@@ -44,25 +44,13 @@ func VerifyRSASignature(signature string, publicKey *rsa.PublicKey, message stri
 }
 
 // Encrypt a message with a public key.
-func EncryptRSA(publicKey *rsa.PublicKey, message string) (string, error) {
-	ciphertext, err := rsa.EncryptPKCS1v15(rand.Reader, publicKey, []byte(message))
-	if err != nil {
-		return "", err
-	}
-	return base64.StdEncoding.EncodeToString(ciphertext), nil
+func EncryptRSA(publicKey *rsa.PublicKey, message []byte) ([]byte, error) {
+	return rsa.EncryptPKCS1v15(rand.Reader, publicKey, []byte(message))
 }
 
 // Decrypt a message with a private key.
-func DecryptRSA(privateKey *rsa.PrivateKey, ciphertext string) (string, error) {
-	ct, err := base64.StdEncoding.DecodeString(ciphertext)
-	if err != nil {
-		return "", err
-	}
-	plaintext, err := rsa.DecryptPKCS1v15(rand.Reader, privateKey, ct)
-	if err != nil {
-		return "", err
-	}
-	return string(plaintext), nil
+func DecryptRSA(privateKey *rsa.PrivateKey, ciphertext []byte) ([]byte, error) {
+	return rsa.DecryptPKCS1v15(rand.Reader, privateKey, ciphertext)
 }
 
 // Unpackage public key (in our own format that is kinda crappy but who cares)

@@ -4,7 +4,6 @@ import (
 	"node-backend/database"
 	"node-backend/entities/app"
 	"node-backend/util"
-	"node-backend/util/requests"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -17,20 +16,20 @@ func removeApp(c *fiber.Ctx) error {
 
 	// Parse request
 	var req removeRequest
-	if err := c.BodyParser(&req); err != nil {
-		return requests.InvalidRequest(c)
+	if err := util.BodyParser(c, &req); err != nil {
+		return util.InvalidRequest(c)
 	}
 
 	if !util.Permission(c, util.PermissionAdmin) {
-		return requests.InvalidRequest(c)
+		return util.InvalidRequest(c)
 	}
 
 	// Delete app
 	if err := database.DBConn.Delete(&app.App{}, req.ID).Error; err != nil {
-		return requests.InvalidRequest(c)
+		return util.InvalidRequest(c)
 	}
 
 	// TOOD: Purge everything related to the app
 
-	return requests.SuccessfulRequest(c)
+	return util.SuccessfulRequest(c)
 }

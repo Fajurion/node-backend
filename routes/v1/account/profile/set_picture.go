@@ -6,7 +6,6 @@ import (
 	"node-backend/entities/account"
 	"node-backend/entities/account/properties"
 	"node-backend/util"
-	"node-backend/util/requests"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -29,14 +28,14 @@ var fileTypes = []string{
 func setProfilePicture(c *fiber.Ctx) error {
 
 	var req setProfileRequest
-	if err := c.BodyParser(&req); err != nil {
-		return requests.InvalidRequest(c)
+	if err := util.BodyParser(c, &req); err != nil {
+		return util.InvalidRequest(c)
 	}
 	accId := util.GetAcc(c)
 
 	var file account.CloudFile
 	if err := database.DBConn.Where("id = ?", req.File).Take(&file).Error; err != nil {
-		return requests.FailedRequest(c, "server.error", err)
+		return util.FailedRequest(c, "server.error", err)
 	}
 
 	args := strings.Split(file.Id, ".")
@@ -50,20 +49,20 @@ func setProfilePicture(c *fiber.Ctx) error {
 	}
 
 	if !found {
-		return requests.InvalidRequest(c)
+		return util.InvalidRequest(c)
 	}
 
 	var profile properties.Profile
 	err := database.DBConn.Where("id = ?", accId).Take(&profile).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
-		return requests.FailedRequest(c, "server.error", err)
+		return util.FailedRequest(c, "server.error", err)
 	}
 
 	if err == nil {
 
 		// Make previous profile picture no longer saved
 		if err := database.DBConn.Model(&account.CloudFile{}).Where("id = ?", profile.Picture).Update("system", false).Error; err != nil {
-			return requests.FailedRequest(c, "server.error", err)
+			return util.FailedRequest(c, "server.error", err)
 		}
 	}
 
@@ -77,13 +76,13 @@ func setProfilePicture(c *fiber.Ctx) error {
 
 	// Save new profile
 	if err := database.DBConn.Save(&profile).Error; err != nil {
-		return requests.FailedRequest(c, "server.error", err)
+		return util.FailedRequest(c, "server.error", err)
 	}
 
 	// Mark new profile picture as system file
 	if err := database.DBConn.Model(&account.CloudFile{}).Where("id = ?", req.File).Update("system", true).Error; err != nil {
-		return requests.FailedRequest(c, "server.error", err)
+		return util.FailedRequest(c, "server.error", err)
 	}
 
-	return requests.SuccessfulRequest(c)
+	return util.SuccessfulRequest(c)
 }

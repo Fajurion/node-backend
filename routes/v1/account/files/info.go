@@ -3,7 +3,7 @@ package files
 import (
 	"node-backend/database"
 	"node-backend/entities/account"
-	"node-backend/util/requests"
+	"node-backend/util"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -16,14 +16,14 @@ type infoRequest struct {
 func fileInfo(c *fiber.Ctx) error {
 
 	var req infoRequest
-	if err := c.BodyParser(&req); err != nil {
-		return requests.InvalidRequest(c)
+	if err := util.BodyParser(c, &req); err != nil {
+		return util.InvalidRequest(c)
 	}
 
 	// Get file info
 	var cloudFile account.CloudFile
 	if err := database.DBConn.Select("id,name,size,account").Where("id = ?", req.Id).Take(&cloudFile).Error; err != nil {
-		return requests.InvalidRequest(c)
+		return util.InvalidRequest(c)
 	}
 
 	return c.JSON(fiber.Map{

@@ -2,6 +2,7 @@ package node
 
 import (
 	"log"
+	"node-backend/util"
 	"node-backend/util/requests"
 
 	"github.com/gofiber/fiber/v2"
@@ -17,8 +18,8 @@ func sendToNode(c *fiber.Ctx) error {
 
 	// Parse request
 	var req sendRequest
-	if err := c.BodyParser(&req); err != nil {
-		return requests.InvalidRequest(c)
+	if err := util.BodyParser(c, &req); err != nil {
+		return util.InvalidRequest(c)
 	}
 
 	// Send event
@@ -29,7 +30,7 @@ func sendToNode(c *fiber.Ctx) error {
 			"message": req.Message,
 		},
 	}); err != nil {
-		return requests.FailedRequest(c, "node.error", err)
+		return util.FailedRequest(c, "node.error", err)
 	}
 
 	log.Println("sent to pipes")

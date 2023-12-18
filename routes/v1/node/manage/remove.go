@@ -4,7 +4,6 @@ import (
 	"node-backend/database"
 	"node-backend/entities/node"
 	"node-backend/util"
-	"node-backend/util/requests"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -17,23 +16,23 @@ func removeNode(c *fiber.Ctx) error {
 
 	// Parse body to remove request
 	var req removeRequest
-	if err := c.BodyParser(&req); err != nil {
-		return requests.InvalidRequest(c)
+	if err := util.BodyParser(c, &req); err != nil {
+		return util.InvalidRequest(c)
 	}
 
 	// Check permission
 	if !util.Permission(c, util.PermissionAdmin) {
-		return requests.InvalidRequest(c)
+		return util.InvalidRequest(c)
 	}
 
 	if req.Node == 0 {
-		return requests.FailedRequest(c, "invalid", nil)
+		return util.FailedRequest(c, "invalid", nil)
 	}
 
 	// Delete node
 	if err := database.DBConn.Delete(node.Node{}, req.Node).Error; err != nil {
-		return requests.FailedRequest(c, "invalid", err)
+		return util.FailedRequest(c, "invalid", err)
 	}
 
-	return requests.SuccessfulRequest(c)
+	return util.SuccessfulRequest(c)
 }

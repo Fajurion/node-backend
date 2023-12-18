@@ -1,7 +1,7 @@
 package nb_challenges
 
 import (
-	"node-backend/util/requests"
+	"node-backend/util"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -16,8 +16,8 @@ var challengeMap = map[string]string{}
 func Generate(c *fiber.Ctx) error {
 
 	var req generateRequest
-	if err := c.BodyParser(&req); err != nil {
-		return requests.InvalidRequest(c)
+	if err := util.BodyParser(c, &req); err != nil {
+		return util.InvalidRequest(c)
 	}
 
 	// Generate challenge
@@ -42,8 +42,8 @@ type solveRequest struct {
 
 func Solve(c *fiber.Ctx) error {
 	var req solveRequest
-	if err := c.BodyParser(&req); err != nil {
-		return requests.InvalidRequest(c)
+	if err := util.BodyParser(c, &req); err != nil {
+		return util.InvalidRequest(c)
 	}
 
 	if req.Result != challengeMap[req.Token] {

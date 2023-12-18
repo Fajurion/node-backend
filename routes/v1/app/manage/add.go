@@ -4,7 +4,6 @@ import (
 	"node-backend/database"
 	"node-backend/entities/app"
 	"node-backend/util"
-	"node-backend/util/requests"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -20,16 +19,16 @@ func addApp(c *fiber.Ctx) error {
 
 	// Parse request
 	var req addRequest
-	if err := c.BodyParser(&req); err != nil {
-		return requests.InvalidRequest(c)
+	if err := util.BodyParser(c, &req); err != nil {
+		return util.InvalidRequest(c)
 	}
 
 	if len(req.Name) < 3 || len(req.Description) < 3 {
-		return requests.InvalidRequest(c)
+		return util.InvalidRequest(c)
 	}
 
 	if !util.Permission(c, util.PermissionAdmin) {
-		return requests.InvalidRequest(c)
+		return util.InvalidRequest(c)
 	}
 
 	// Create app
@@ -41,7 +40,7 @@ func addApp(c *fiber.Ctx) error {
 	}
 
 	if err := database.DBConn.Create(&created).Error; err != nil {
-		return requests.InvalidRequest(c)
+		return util.InvalidRequest(c)
 	}
 
 	return c.JSON(fiber.Map{

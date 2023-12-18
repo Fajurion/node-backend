@@ -9,13 +9,48 @@ import (
 	"node-backend/routes/v1/cluster"
 	"node-backend/routes/v1/node"
 	"node-backend/util"
-	"node-backend/util/requests"
+	"os"
 
 	jwtware "github.com/gofiber/contrib/jwt"
 	"github.com/gofiber/fiber/v2"
 )
 
 func Router(router fiber.Router) {
+
+	// Get default private and public key
+	serverPublicKey, err := util.UnpackageRSAPublicKey(os.Getenv("TC_PUBLIC_KEY"))
+	if err != nil {
+		panic("Couldn't unpackage public key. Required for v1 API. Please set TC_PUBLIC_KEY in your environment variables or .env file.")
+	}
+
+	serverPrivateKey, err := util.UnpackageRSAPrivateKey(os.Getenv("TC_PRIVATE_KEY"))
+	if err != nil {
+		panic("Couldn't unpackage private key. Required for v1 API. Please set TC_PRIVATE_KEY in your environment variables or .env file.")
+	}
+
+	// Through Cloudflare Protection (Decryption method)
+	router.Use(func(c *fiber.Ctx) error {
+
+		packagedPub, valid := c.GetReqHeaders()["Public-Key"]
+		if !valid {
+			return c.SendStatus(fiber.StatusPreconditionFailed)
+		}
+
+		pub, err := util.UnpackageRSAPublicKey(packagedPub)
+		if err != nil {
+			return c.SendStatus(fiber.StatusPreconditionFailed)
+		}
+
+		decrypted, err := util.DecryptRSA(serverPrivateKey, c.Body())
+		if err != nil {
+			return c.SendStatus(fiber.StatusNetworkAuthenticationRequired)
+		}
+		c.Locals("body", decrypted)
+		c.Locals("pub", pub)
+		c.Locals("srv_pub", serverPublicKey)
+
+		return c.Next()
+	})
 
 	// Unauthorized routes
 	router.Route("/auth", auth.Unauthorized)
@@ -44,7 +79,7 @@ func remoteIDRoutes(router fiber.Router) {
 		SuccessHandler: func(c *fiber.Ctx) error {
 
 			if util.IsExpired(c) {
-				return requests.InvalidRequest(c)
+				return util.InvalidRequest(c)
 			}
 
 			return c.Next()
@@ -78,11 +113,11 @@ func authorizedRoutes(router fiber.Router) {
 		SuccessHandler: func(c *fiber.Ctx) error {
 
 			if util.IsExpired(c) {
-				return requests.InvalidRequest(c)
+				return util.InvalidRequest(c)
 			}
 
 			if util.IsRemoteId(c) {
-				requests.InvalidRequest(c)
+				util.InvalidRequest(c)
 			}
 
 			return c.Next()

@@ -4,7 +4,6 @@ import (
 	"node-backend/database"
 	"node-backend/entities/account/properties"
 	"node-backend/util"
-	"node-backend/util/requests"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -19,15 +18,15 @@ func listEntries(c *fiber.Ctx) error {
 
 	// Parse request
 	var req ListRequest
-	if err := c.BodyParser(&req); err != nil {
-		return requests.FailedRequest(c, "server.error", err)
+	if err := util.BodyParser(c, &req); err != nil {
+		return util.FailedRequest(c, "server.error", err)
 	}
 
 	// Get friends list
 	accId := util.GetAcc(c)
 	var entries []properties.VaultEntry
 	if err := database.DBConn.Where("account = ? AND tag = ? AND updated_at > ?", accId, req.Tag, req.After).Find(&entries).Error; err != nil {
-		return requests.FailedRequest(c, "server.error", err)
+		return util.FailedRequest(c, "server.error", err)
 	}
 
 	// Return friends list

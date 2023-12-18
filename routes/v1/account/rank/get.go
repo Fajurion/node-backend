@@ -3,8 +3,8 @@ package rank
 import (
 	"node-backend/database"
 	"node-backend/entities/account"
+	"node-backend/util"
 	"node-backend/util/nodes"
-	"node-backend/util/requests"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -23,20 +23,20 @@ func getRank(c *fiber.Ctx) error {
 
 	// Parse request
 	var req getRequest
-	if err := c.BodyParser(&req); err != nil {
-		return requests.InvalidRequest(c)
+	if err := util.BodyParser(c, &req); err != nil {
+		return util.InvalidRequest(c)
 	}
 
 	// Check node token
 	_, err := nodes.Node(req.Node, req.Token)
 	if err != nil {
-		return requests.InvalidRequest(c)
+		return util.InvalidRequest(c)
 	}
 
 	// Get rank
 	var rank account.Rank
 	if database.DBConn.Where("id = ?", req.ID).Find(&rank).Error != nil {
-		return requests.FailedRequest(c, "server.error", nil)
+		return util.FailedRequest(c, "server.error", nil)
 	}
 
 	return c.JSON(fiber.Map{
