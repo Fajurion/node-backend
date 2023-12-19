@@ -1,7 +1,7 @@
 package session
 
 import (
-	"node-backend/routes/session/manage"
+	"node-backend/routes/v1/session/manage"
 
 	"github.com/gofiber/fiber/v2"
 )
