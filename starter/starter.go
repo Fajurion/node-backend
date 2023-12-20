@@ -27,6 +27,8 @@ func Startup() {
 		StreamRequestBody: true, // TODO: Proper request body protection (Make only certain endpoints accept streams)
 	})
 
+	util.TestAES()
+
 	// Load environment variables
 	err := godotenv.Load()
 	if err != nil {

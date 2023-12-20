@@ -43,12 +43,12 @@ func VerifyRSASignature(signature string, publicKey *rsa.PublicKey, message stri
 	return rsa.VerifyPKCS1v15(publicKey, crypto.SHA256, hashed[:], sig)
 }
 
-// Encrypt a message with a public key.
+// Encrypt a message with a public key. (can't be infinitely long)
 func EncryptRSA(publicKey *rsa.PublicKey, message []byte) ([]byte, error) {
-	return rsa.EncryptPKCS1v15(rand.Reader, publicKey, []byte(message))
+	return rsa.EncryptPKCS1v15(rand.Reader, publicKey, message)
 }
 
-// Decrypt a message with a private key.
+// Decrypt a message with a private key. (can't be infinitely long)
 func DecryptRSA(privateKey *rsa.PrivateKey, ciphertext []byte) ([]byte, error) {
 	return rsa.DecryptPKCS1v15(rand.Reader, privateKey, ciphertext)
 }

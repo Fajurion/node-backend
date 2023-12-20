@@ -1,7 +1,6 @@
 package util
 
 import (
-	"crypto/rsa"
 	"io"
 	"net/http"
 	"strings"
@@ -62,7 +61,7 @@ func ReturnJSON(c *fiber.Ctx, data interface{}) error {
 		return FailedRequest(c, ErrorServer, err)
 	}
 
-	encrypted, err := EncryptRSA(c.Locals("pub").(*rsa.PublicKey), encoded)
+	encrypted, err := EncryptAES(c.Locals("aes").([]byte), encoded)
 	if err != nil {
 		return FailedRequest(c, ErrorServer, err)
 	}

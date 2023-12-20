@@ -1,6 +1,8 @@
 package routes_v1
 
 import (
+	"crypto/rsa"
+	"encoding/base64"
 	"log"
 	nb_challenges "node-backend/nbchallenges"
 	"node-backend/routes/v1/account"
@@ -28,32 +30,46 @@ func Router(router fiber.Router) {
 		panic("Couldn't unpackage private key. Required for v1 API. Please set TC_PRIVATE_KEY in your environment variables or .env file.")
 	}
 
+	// Endpoint to get server public key (so no requirements apply yet)
+	router.Post("/pub", func(c *fiber.Ctx) error {
+		return c.JSON(fiber.Map{
+			"pub": util.PackageRSAPublicKey(serverPublicKey),
+		})
+	})
+
+	router.Route("/", func(router fiber.Router) {
+		encryptedRoutes(router, serverPublicKey, serverPrivateKey)
+	})
+}
+
+func encryptedRoutes(router fiber.Router, serverPublicKey *rsa.PublicKey, serverPrivateKey *rsa.PrivateKey) {
+
 	// Through Cloudflare Protection (Decryption method)
 	router.Use(func(c *fiber.Ctx) error {
 
-		packagedPub, valid := c.GetReqHeaders()["Public-Key"]
+		aesKeyEncrypted, valid := c.GetReqHeaders()["AES-Key"]
 		if !valid {
 			return c.SendStatus(fiber.StatusPreconditionFailed)
 		}
-
-		pub, err := util.UnpackageRSAPublicKey(packagedPub)
+		aesKeyDecoded, err := base64.StdEncoding.DecodeString(aesKeyEncrypted)
 		if err != nil {
 			return c.SendStatus(fiber.StatusPreconditionFailed)
 		}
 
-		decrypted, err := util.DecryptRSA(serverPrivateKey, c.Body())
+		aesKey, err := util.DecryptRSA(serverPrivateKey, aesKeyDecoded)
+		if err != nil {
+			return c.SendStatus(fiber.StatusPreconditionRequired)
+		}
+		decrypted, err := util.DecryptAES(aesKey, c.Body())
 		if err != nil {
 			return c.SendStatus(fiber.StatusNetworkAuthenticationRequired)
 		}
 		c.Locals("body", decrypted)
-		c.Locals("pub", pub)
+		c.Locals("key", aesKey)
 		c.Locals("srv_pub", serverPublicKey)
 
 		return c.Next()
 	})
-
-	// Endpoint to get server public key
-	router.Post("/pub", getPublicKey)
 
 	// Unauthorized routes
 	router.Route("/auth", auth.Unauthorized)
