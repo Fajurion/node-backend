@@ -47,16 +47,18 @@ func encryptedRoutes(router fiber.Router, serverPublicKey *rsa.PublicKey, server
 	// Through Cloudflare Protection (Decryption method)
 	router.Use(func(c *fiber.Ctx) error {
 
-		aesKeyEncrypted, valid := c.GetReqHeaders()["AES-Key"]
+		aesKeyEncoded, valid := c.GetReqHeaders()["Auth-Tag"]
 		if !valid {
+			log.Println("no header")
 			return c.SendStatus(fiber.StatusPreconditionFailed)
 		}
-		aesKeyDecoded, err := base64.StdEncoding.DecodeString(aesKeyEncrypted)
+		aesKeyEncrypted, err := base64.StdEncoding.DecodeString(aesKeyEncoded)
 		if err != nil {
+			log.Println("no decoding")
 			return c.SendStatus(fiber.StatusPreconditionFailed)
 		}
 
-		aesKey, err := util.DecryptRSA(serverPrivateKey, aesKeyDecoded)
+		aesKey, err := util.DecryptRSA(serverPrivateKey, aesKeyEncrypted)
 		if err != nil {
 			return c.SendStatus(fiber.StatusPreconditionRequired)
 		}

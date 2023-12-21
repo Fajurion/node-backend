@@ -61,7 +61,7 @@ func ReturnJSON(c *fiber.Ctx, data interface{}) error {
 		return FailedRequest(c, ErrorServer, err)
 	}
 
-	encrypted, err := EncryptAES(c.Locals("aes").([]byte), encoded)
+	encrypted, err := EncryptAES(c.Locals("key").([]byte), encoded)
 	if err != nil {
 		return FailedRequest(c, ErrorServer, err)
 	}
