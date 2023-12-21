@@ -24,7 +24,7 @@ func getSignatureKey(c *fiber.Ctx) error {
 		return util.FailedRequest(c, "not.found", nil)
 	}
 
-	return c.Status(200).JSON(fiber.Map{
+	return util.ReturnJSON(c, fiber.Map{
 		"success": true,
 		"key":     key.Key,
 	})
