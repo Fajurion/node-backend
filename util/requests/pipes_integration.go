@@ -4,6 +4,8 @@ import (
 	"node-backend/database"
 	"node-backend/entities/node"
 	"node-backend/util"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 type Event struct {
@@ -33,7 +35,19 @@ func SendEventToNode(nodeID uint, account string, event Event) error {
 		return err
 	}
 
-	util.PostRequest("http://"+receiverNode.Domain+"/adoption/socketless", map[string]interface{}{
+	// Get public key of node
+	res, err := util.PostRequestNoTC(util.NodeProtocol+receiverNode.Domain+"/pub", fiber.Map{})
+	if err != nil {
+		return err
+	}
+
+	// Unpackage the public key
+	publicKey, err := util.UnpackageRSAPublicKey(res["pub"].(string))
+	if err != nil {
+		return err
+	}
+
+	util.PostRequest(publicKey, util.NodeProtocol+receiverNode.Domain+"/adoption/socketless", map[string]interface{}{
 		"token": receiverNode.Token,
 		"message": message{
 			Channel: channel{

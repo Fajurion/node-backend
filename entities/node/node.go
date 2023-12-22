@@ -33,7 +33,7 @@ func (n *Node) ToEntity() NodeEntity {
 
 func (n *Node) SendPing(node Node) error {
 
-	_, err := util.PostRequest("http://"+n.Domain+"/ping", fiber.Map{})
+	_, err := util.PostRequestNoTC("http://"+n.Domain+"/ping", map[string]interface{}{})
 
 	return err
 }
@@ -48,60 +48,42 @@ func (n *Node) GetConnection(accId string, session string, sessionIds []string, 
 		return "", false, errors.New("invalid.sender")
 	}
 
+	// Get public key of node
+	res, err := util.PostRequestNoTC(util.NodeProtocol+n.Domain+"/pub", fiber.Map{})
+	if err != nil {
+		return "", false, err
+	}
+
+	// Unpackage the public key
+	publicKey, err := util.UnpackageRSAPublicKey(res["pub"].(string))
+	if err != nil {
+		return "", false, err
+	}
+
 	// Send request to node
-	res, err := util.PostRequest("http://"+n.Domain+"/auth/initialize", fiber.Map{
+	res, err = util.PostRequest(publicKey, util.NodeProtocol+n.Domain+"/auth/initialize", fiber.Map{
 		"sender":     sender,
 		"node_token": n.Token,
 		"session":    session,
 		"account":    accId,
 		"end":        time.Now().UnixMilli(),
 	})
-
 	if err != nil {
 		return "", false, err
 	}
 
+	// Set the new load (will later be updated in database)
 	if res["load"] != nil {
 		n.Load = res["load"].(float64)
 	}
 
+	// Check if request was successful
 	if !res["success"].(bool) {
 		return "", true, errors.New(res["message"].(string))
 	}
 
+	// Return connection token
 	return res["token"].(string), true, nil
-
-	/* PREVIOUS CODE
-	req, _ := sonic.Marshal(fiber.Map{
-		"node_token": n.Token,
-		"session":    token,
-		"user_id":    user,
-	})
-
-	reader := strings.NewReader(string(req))
-
-	res, err := http.Post("http://"+n.Domain+"/auth/initialize", "application/json", reader)
-	if err != nil {
-		return "", err
-	}
-
-	buf := new(strings.Builder)
-	_, err = io.Copy(buf, res.Body)
-
-	if err != nil {
-		return "", err
-	}
-
-	var data map[string]interface{}
-	err = sonic.Unmarshal([]byte(buf.String()), &data)
-	if err != nil {
-		return "", err
-	}
-
-	n.Load = data["load"].(float64)
-
-	return data["token"].(string), nil
-	*/
 }
 
 const StatusStarted = 1

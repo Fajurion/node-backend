@@ -60,6 +60,16 @@ func DecryptAES(key, ciphertext []byte) ([]byte, error) {
 	return plaintext, nil
 }
 
+// Generate a new AES key with a length of 32
+func NewAESKey() ([]byte, error) {
+	key := make([]byte, 32)
+	_, err := rand.Read(key)
+	if err != nil {
+		return nil, err
+	}
+	return key, nil
+}
+
 func TestAES() {
 
 	key, _ := base64.StdEncoding.DecodeString("EKc1lOIKwZXb/BSiHfilfCd+ptNMDRg7eleShj/VYrE=")
