@@ -108,7 +108,7 @@ func Connect(c *fiber.Ctx) error {
 		return util.FailedRequest(c, "server.error", err)
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+	return util.ReturnJSON(c, fiber.Map{
 		"success": true,
 		"domain":  lowest.Domain,
 		"id":      lowest.ID,
