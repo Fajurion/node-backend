@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/rsa"
 	"encoding/base64"
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -71,6 +72,10 @@ func PostRequest(key *rsa.PublicKey, url string, body map[string]interface{}) (m
 		return nil, err
 	}
 
+	if res.StatusCode != 200 {
+		return nil, fmt.Errorf("something went wrong on the node: %d", res.StatusCode)
+	}
+
 	// Get the request body in byte slice form
 	defer res.Body.Close()
 	buf := new(bytes.Buffer)
@@ -82,6 +87,7 @@ func PostRequest(key *rsa.PublicKey, url string, body map[string]interface{}) (m
 	// Decrypt the request body byte slice using AES
 	decryptedBody, err := DecryptAES(aesKey, buf.Bytes())
 	if err != nil {
+		panic(err)
 		return nil, err
 	}
 
@@ -89,6 +95,7 @@ func PostRequest(key *rsa.PublicKey, url string, body map[string]interface{}) (m
 	var data map[string]interface{}
 	err = sonic.Unmarshal(decryptedBody, &data)
 	if err != nil {
+		panic(err)
 		return nil, err
 	}
 	return data, nil
