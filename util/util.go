@@ -87,7 +87,6 @@ func PostRequest(key *rsa.PublicKey, url string, body map[string]interface{}) (m
 	// Decrypt the request body byte slice using AES
 	decryptedBody, err := DecryptAES(aesKey, buf.Bytes())
 	if err != nil {
-		panic(err)
 		return nil, err
 	}
 
@@ -95,7 +94,6 @@ func PostRequest(key *rsa.PublicKey, url string, body map[string]interface{}) (m
 	var data map[string]interface{}
 	err = sonic.Unmarshal(decryptedBody, &data)
 	if err != nil {
-		panic(err)
 		return nil, err
 	}
 	return data, nil

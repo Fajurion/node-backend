@@ -5,6 +5,7 @@ import (
 	"log"
 	"node-backend/database"
 	"node-backend/entities/account"
+	"node-backend/util"
 	"os"
 	"time"
 
@@ -13,6 +14,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	jwtware "github.com/gofiber/contrib/jwt"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -25,6 +27,42 @@ var disabled = false
 const maxUploadSize = 10_000_000       // 10 MB
 const maxFavoriteStorage = 500_000_000 // 500 MB
 const maxTotalStorage = 1_000_000_000  // 1 GB
+
+func Unencrypted(router fiber.Router) {
+
+	// Autorized by using a normal JWT token
+	router.Use(jwtware.New(jwtware.Config{
+		SigningKey: jwtware.SigningKey{
+			JWTAlg: jwtware.HS256,
+			Key:    []byte(util.JWT_SECRET),
+		},
+
+		// Checks if the token is expired
+		SuccessHandler: func(c *fiber.Ctx) error {
+
+			if util.IsExpired(c) {
+				return util.InvalidRequest(c)
+			}
+
+			if util.IsRemoteId(c) {
+				util.InvalidRequest(c)
+			}
+
+			return c.Next()
+		},
+
+		// Error handler
+		ErrorHandler: func(c *fiber.Ctx, err error) error {
+
+			log.Println(err.Error())
+
+			// Return error message
+			return c.SendStatus(401)
+		},
+	}))
+
+	router.Post("/upload", uploadFile)
+}
 
 func Authorized(router fiber.Router) {
 	url := os.Getenv("R2_URL")
@@ -54,7 +92,6 @@ func Authorized(router fiber.Router) {
 	log.Println("Successfully connected to R2.")
 
 	// Setup file routes
-	router.Post("/upload", uploadFile)
 	router.Post("/delete", deleteFile)
 	router.Post("/list", listFiles)
 	router.Post("/favorite", favoriteFile)

@@ -12,6 +12,10 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+func Unencrypted(router fiber.Router) {
+	router.Route("/files", files.Unencrypted)
+}
+
 func Unauthorized(router fiber.Router) {
 	router.Route("/rank", rank.Unauthorized)
 	router.Route("/stored_actions", stored_actions.Unauthorized)
@@ -19,8 +23,8 @@ func Unauthorized(router fiber.Router) {
 
 func Remote(router fiber.Router) {
 	router.Route("/stored_actions", stored_actions.Remote)
-	router.Route("/files", files.RemoteID)
 	router.Route("/profile", profile.Remote)
+	router.Route("/files", files.RemoteID)
 
 	router.Post("/get", getAccount)
 }

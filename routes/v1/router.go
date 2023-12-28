@@ -37,6 +37,9 @@ func Router(router fiber.Router) {
 		})
 	})
 
+	// Unencrypted account routes (only file upload thing)
+	router.Route("/account", account.Unencrypted)
+
 	router.Route("/", func(router fiber.Router) {
 		encryptedRoutes(router, serverPublicKey, serverPrivateKey)
 	})
