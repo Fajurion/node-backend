@@ -104,10 +104,10 @@ func RemoteID(router fiber.Router) {
 
 func CountTotalStorage(accId string) (int64, error) {
 
-	// Get total storage
+	// Get total storage (coalesce is important cause otherwise we get null)
 	var totalStorage int64
 	unix := time.Now().Add(-time.Hour * 24 * 30).UnixMilli()
-	rq := database.DBConn.Model(&account.CloudFile{}).Where("account = ? AND (created_at > ? OR favorite = ?)", accId, unix, true).Select("sum(size)").Scan(&totalStorage)
+	rq := database.DBConn.Model(&account.CloudFile{}).Where("account = ? AND (created_at > ? OR favorite = ?)", accId, unix, true).Select("coalesce(sum(size), 0)").Scan(&totalStorage)
 	if rq.Error != nil {
 		if rq.RowsAffected > 0 {
 			return 0, nil
@@ -120,9 +120,9 @@ func CountTotalStorage(accId string) (int64, error) {
 
 func CountFavoriteStorage(accId string) (int64, error) {
 
-	// Get total storage
+	// Get favorite storage (coalesce is important cause otherwise we get null)
 	var favoriteStorage int64
-	if err := database.DBConn.Model(&account.CloudFile{}).Where("account = ? AND favorite = ?", accId, true).Select("sum(size)").Scan(&favoriteStorage).Error; err != nil {
+	if err := database.DBConn.Model(&account.CloudFile{}).Where("account = ? AND favorite = ?", accId, true).Select("coalesce(sum(size), 0)").Scan(&favoriteStorage).Error; err != nil {
 		return 0, err
 	}
 

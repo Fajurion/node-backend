@@ -99,7 +99,8 @@ func uploadFile(c *fiber.Ctx) error {
 		return util.FailedRequest(c, "server.error", err)
 	}
 
-	return util.ReturnJSON(c, fiber.Map{
+	// Not encrypted cause this doesn't matter (and it's an unencrypted route)
+	return c.JSON(fiber.Map{
 		"success": true,
 		"id":      fileId,
 		"url":     location,
