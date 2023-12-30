@@ -25,9 +25,18 @@ func me(c *fiber.Ctx) error {
 		return util.FailedRequest(c, "server.error", err)
 	}
 
+	// Get all valid permissions the account has
+	perms := []string{}
+	for name := range util.Permissions {
+		if util.Permission(c, name) {
+			perms = append(perms, name)
+		}
+	}
+
 	// Retrun details
 	return util.ReturnJSON(c, fiber.Map{
-		"success": true,
-		"account": acc,
+		"success":     true,
+		"account":     acc,
+		"permissions": perms,
 	})
 }

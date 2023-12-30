@@ -2,6 +2,7 @@ package starter
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"log"
 	"node-backend/database"
@@ -15,6 +16,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 func listenForCommands() {
@@ -219,6 +222,46 @@ func listenForCommands() {
 
 			fmt.Println("Packaged public key:", util.PackageRSAPublicKey(pub))
 
+		case "invite-wave":
+
+			invites := 100
+			for invites > 0 {
+
+				// Get a random account
+				var acc account.Account
+				if err := database.DBConn.Order("random()").Take(&acc).Error; err != nil {
+					fmt.Println("Couldn't get a random account:", err.Error())
+					break
+				}
+
+				// Get the current invite count
+				var inviteCount account.InviteCount
+				err := database.DBConn.Where("account = ?", acc.ID).Take(&inviteCount).Error
+				if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+					fmt.Println("Couldn't get invite count:", err.Error())
+					break
+				}
+
+				if errors.Is(err, gorm.ErrRecordNotFound) {
+					inviteCount.Count = 0
+					inviteCount.Account = acc.ID
+				}
+
+				// Give the user 3 invites
+				invites -= 3
+				inviteCount.Count += 3
+				if err := database.DBConn.Save(&inviteCount).Error; err != nil {
+					fmt.Println("Couldn't increment invite count by 3:", err.Error())
+					break
+				}
+
+				fmt.Println("Gave 3 invites to", acc.Email, "("+acc.ID+")")
+			}
+
+			fmt.Println("Invite wave finished. Hope everyone enjoys them!")
+
+			continue
+
 		case "help":
 			fmt.Println("exit - Exit the application")
 			fmt.Println("create-default - Create default ranks and cluster")
@@ -229,6 +272,7 @@ func listenForCommands() {
 			fmt.Println("account-token - Generate a JWT token for an account")
 			fmt.Println("keypair - Generate a new RSA key pair")
 			fmt.Println("test-message - Encrypt a test message to send to an endpoint using TC")
+			fmt.Println("invite-wave - Give out 100 random invites.")
 
 		default:
 			fmt.Println("Unknown command. Type 'help' for a list of commands.")

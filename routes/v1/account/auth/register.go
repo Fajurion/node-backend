@@ -14,6 +14,7 @@ type registerRequest struct {
 	Username string `json:"username"`
 	Tag      string `json:"tag"`
 	Password string `json:"password"`
+	Invite   string `json:"invite"`
 }
 
 // When Redis is implemented, this will be replaced with a proper register function.
@@ -23,6 +24,17 @@ func register_test(c *fiber.Ctx) error {
 	var registerRequest registerRequest
 	if err := util.BodyParser(c, &registerRequest); err != nil {
 		return util.InvalidRequest(c)
+	}
+
+	// Check the invite
+	var invite account.Invite
+	if err := database.DBConn.Where("id = ?", registerRequest.Invite).Take(&invite).Error; err != nil {
+		return util.FailedRequest(c, "invite.invalid", err)
+	}
+
+	// Just for security
+	if invite.ID != registerRequest.Invite {
+		return util.FailedRequest(c, "invite.invalid", nil)
 	}
 
 	// Check if email is already registered

@@ -16,12 +16,13 @@ import (
 var Testing = false
 var LogErrors = true
 
-const PermissionUseServices = 10
-const PermissionServicesUnlimited = 20
-const PermissionViewSettings = 50
-const PermissionManageNodes = 55
-const PermissionChangeSettings = 60
-const PermissionAdmin = 100
+var Permissions = map[string]int16{
+	"use_services": 10,
+	"admin":        100,
+}
+
+const PermissionUseServices = "use_services"
+const PermissionAdmin = "admin"
 
 var JWT_SECRET = "hi"
 
