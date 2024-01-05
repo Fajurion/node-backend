@@ -22,6 +22,7 @@ type Node struct {
 	Status uint `json:"status"`
 }
 
+// Convert the node to a returnable entity
 func (n *Node) ToEntity() NodeEntity {
 	return NodeEntity{
 		ID:     n.ID,
@@ -31,10 +32,10 @@ func (n *Node) ToEntity() NodeEntity {
 	}
 }
 
-func (n *Node) SendPing(node Node) error {
+// Send a ping to see if the node is online
+func (n *Node) SendPing() error {
 
-	_, err := util.PostRequestNoTC("http://"+n.Domain+"/ping", map[string]interface{}{})
-
+	_, err := util.PostRequestNoTC(util.NodeProtocol+n.Domain+"/ping", map[string]interface{}{})
 	return err
 }
 

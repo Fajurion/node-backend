@@ -1,6 +1,7 @@
 package util
 
 import (
+	"fmt"
 	"reflect"
 	"time"
 
@@ -8,15 +9,26 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-// JWT_SECRET is the secret used to sign the jwt token
-func Token(session string, account string, lvl uint, exp time.Time) (string, error) {
+// Connection token struct
+type ConnectionTokenClaims struct {
+	Account        string `json:"acc"`  // Account id of the connecting client
+	ExpiredUnixSec int64  `json:"e_u"`  // Expiration time in unix seconds
+	Session        string `json:"ses"`  // Session id of the connecting client
+	Node           string `json:"node"` // Node id of the node the client is connecting to
+
+	jwt.RegisteredClaims
+}
+
+// Generate a connection token for a node
+func ConnectionToken(account string, session string, node uint) (string, error) {
 
 	// Create jwt token
-	tk := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"ses": session,
-		"e_u": exp.Unix(), // Expiration unix
-		"acc": account,
-		"lvl": lvl,
+	exp := time.Now().Add(time.Hour * 2)
+	tk := jwt.NewWithClaims(jwt.SigningMethodHS512, ConnectionTokenClaims{
+		Account:        account,
+		ExpiredUnixSec: exp.Unix(),
+		Session:        session,
+		Node:           fmt.Sprintf("%d", node),
 	})
 
 	// Sign and get the complete encoded token as a string using the secret
@@ -29,15 +41,36 @@ func Token(session string, account string, lvl uint, exp time.Time) (string, err
 	return tokenString, nil
 }
 
-func RemoteId(lvl uint, random string) (string, error) {
+// Create a token with current session information (some nodes may require this)
+func SessionInformationToken(account string, sessions []string) (string, error) {
 
 	// Create jwt token
 	exp := time.Now().Add(time.Hour * 2)
-	tk := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+	tk := jwt.NewWithClaims(jwt.SigningMethodHS512, jwt.MapClaims{
+		"acc": account,
 		"e_u": exp.Unix(), // Expiration unix
+		"se":  sessions,   // Session list (for the node)
+	})
+
+	// Sign and get the complete encoded token as a string using the secret
+	tokenString, err := tk.SignedString([]byte(JWT_SECRET))
+
+	if err != nil {
+		return "", err
+	}
+
+	return tokenString, nil
+}
+
+// Generate a normal authenticated token
+func Token(session string, account string, lvl uint, exp time.Time) (string, error) {
+
+	// Create jwt token
+	tk := jwt.NewWithClaims(jwt.SigningMethodHS512, jwt.MapClaims{
+		"ses": session,
+		"e_u": exp.Unix(), // Expiration unix
+		"acc": account,
 		"lvl": lvl,
-		"r":   random,
-		"rid": true, // tell the backend that it's a remote id
 	})
 
 	// Sign and get the complete encoded token as a string using the secret
@@ -57,6 +90,12 @@ func IsExpired(c *fiber.Ctx) bool {
 
 	num := claims["e_u"].(float64)
 	exp := int64(num)
+
+	// Check if it is actually a node token (shouldn't be usable here)
+	_, valid := claims["node"]
+	if valid {
+		return false
+	}
 
 	return time.Now().Unix() > exp
 }
@@ -100,15 +139,4 @@ func GetAcc(c *fiber.Ctx) string {
 	claims := user.Claims.(jwt.MapClaims)
 
 	return claims["acc"].(string)
-}
-
-func IsRemoteId(c *fiber.Ctx) bool {
-	if c.Locals("user") == nil || reflect.TypeOf(c.Locals("user")).String() != "*jwt.Token" {
-		return false
-	}
-	user := c.Locals("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-
-	_, ok := claims["rid"]
-	return ok
 }

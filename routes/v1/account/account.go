@@ -22,14 +22,6 @@ func Unauthorized(router fiber.Router) {
 	router.Route("/stored_actions", stored_actions.Unauthorized)
 }
 
-func Remote(router fiber.Router) {
-	router.Route("/stored_actions", stored_actions.Remote)
-	router.Route("/profile", profile.Remote)
-	router.Route("/files", files.RemoteID)
-
-	router.Post("/get", getAccount)
-}
-
 func Authorized(router fiber.Router) {
 	router.Route("/keys", keys.Authorized)
 	router.Route("/stored_actions", stored_actions.Authorized)
@@ -37,8 +29,8 @@ func Authorized(router fiber.Router) {
 	router.Route("/vault", vault.Authorized)
 	router.Route("/profile", profile.Authorized)
 	router.Route("/invite", invite_routes.Authorized)
-
-	router.Post("/remote_id", generateRemoteId)
-	router.Post("/me", me)
 	router.Route("/files", files.Authorized)
+
+	router.Post("/me", me)
+	router.Post("/get", getAccount)
 }

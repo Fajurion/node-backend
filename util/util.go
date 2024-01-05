@@ -24,7 +24,7 @@ var Permissions = map[string]int16{
 const PermissionUseServices = "use_services"
 const PermissionAdmin = "admin"
 
-var JWT_SECRET = "hi"
+var JWT_SECRET = ""
 
 const NodeProtocol = "http://"
 

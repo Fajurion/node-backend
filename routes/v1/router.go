@@ -86,42 +86,7 @@ func encryptedRoutes(router fiber.Router, serverPublicKey *rsa.PublicKey, server
 	router.Post("/challenge/generate", nb_challenges.Generate)
 	router.Post("/challenge/solve", nb_challenges.Solve)
 
-	router.Route("/", remoteIDRoutes)
 	router.Route("/", authorizedRoutes)
-}
-
-func remoteIDRoutes(router fiber.Router) {
-
-	// Authorized by using a remote id or normal token
-	router.Use(jwtware.New(jwtware.Config{
-		SigningKey: jwtware.SigningKey{
-			JWTAlg: jwtware.HS256,
-			Key:    []byte(util.JWT_SECRET),
-		},
-
-		// Checks if the token is expired
-		SuccessHandler: func(c *fiber.Ctx) error {
-
-			if util.IsExpired(c) {
-				return util.InvalidRequest(c)
-			}
-
-			return c.Next()
-		},
-
-		// Error handler
-		ErrorHandler: func(c *fiber.Ctx, err error) error {
-
-			log.Println(err.Error())
-
-			// Return error message
-			return c.SendStatus(401)
-		},
-	}))
-
-	// Routes that require a remote id or normal JWT
-	router.Route("/account", account.Remote)
-
 }
 
 func authorizedRoutes(router fiber.Router) {
@@ -129,7 +94,7 @@ func authorizedRoutes(router fiber.Router) {
 	// Autorized by using a normal JWT token
 	router.Use(jwtware.New(jwtware.Config{
 		SigningKey: jwtware.SigningKey{
-			JWTAlg: jwtware.HS256,
+			JWTAlg: jwtware.HS512,
 			Key:    []byte(util.JWT_SECRET),
 		},
 
@@ -138,10 +103,6 @@ func authorizedRoutes(router fiber.Router) {
 
 			if util.IsExpired(c) {
 				return util.InvalidRequest(c)
-			}
-
-			if util.IsRemoteId(c) {
-				util.InvalidRequest(c)
 			}
 
 			return c.Next()

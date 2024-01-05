@@ -16,10 +16,6 @@ type detailsRequest struct {
 // Route: /account/stored_actions/details
 func getDetails(c *fiber.Ctx) error {
 
-	if !util.IsRemoteId(c) {
-		return util.InvalidRequest(c)
-	}
-
 	// Parse request
 	var req detailsRequest
 	if err := util.BodyParser(c, &req); err != nil {

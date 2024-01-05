@@ -44,7 +44,7 @@ func online(c *fiber.Ctx) error {
 
 	for _, n := range foundNodes {
 		if n.ID != requested.ID {
-			if err := n.SendPing(n); err != nil {
+			if err := n.SendPing(); err != nil {
 
 				log.Println("Found offline node: " + n.Domain + "! Shutting down..")
 

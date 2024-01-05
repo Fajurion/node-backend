@@ -44,10 +44,6 @@ func Unencrypted(router fiber.Router) {
 				return util.InvalidRequest(c)
 			}
 
-			if util.IsRemoteId(c) {
-				util.InvalidRequest(c)
-			}
-
 			return c.Next()
 		},
 
@@ -96,9 +92,6 @@ func Authorized(router fiber.Router) {
 	router.Post("/list", listFiles)
 	router.Post("/favorite", favoriteFile)
 	router.Post("/unfavorite", unfavoriteFile)
-}
-
-func RemoteID(router fiber.Router) {
 	router.Post("/info", fileInfo)
 }
 

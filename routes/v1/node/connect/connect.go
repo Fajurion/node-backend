@@ -1,7 +1,6 @@
 package connect
 
 import (
-	"log"
 	"node-backend/database"
 	"node-backend/entities/account"
 	"node-backend/entities/node"
@@ -52,7 +51,6 @@ func Connect(c *fiber.Ctx) error {
 	}
 	var sessionIds []string
 	for _, session := range acc.Sessions {
-		log.Println(session.ID)
 		sessionIds = append(sessionIds, session.ID)
 
 		if session.LastConnection.After(mostRecent.LastConnection) {
@@ -83,17 +81,24 @@ func Connect(c *fiber.Ctx) error {
 		}
 	}
 
-	connectionTk, success, err := lowest.GetConnection(acc.ID, currentSessionId, sessionIds, node.SenderUser)
-	if err != nil {
-
-		if success {
-			return util.FailedRequest(c, err.Error(), nil)
-		}
+	// Ping node (to see if it's online)
+	if err := lowest.SendPing(); err != nil {
 
 		// Set the node to error
 		nodes.TurnOff(&lowest, node.StatusError)
+		return util.FailedRequest(c, util.ErrorNode, err)
+	}
 
-		return util.FailedRequest(c, "node.error", err)
+	// Generate a jwt token for the node
+	token, err := util.ConnectionToken(accId, currentSessionId, lowest.ID)
+	if err != nil {
+		return util.FailedRequest(c, util.ErrorServer, err)
+	}
+
+	// Generate a jwt token with session information
+	sessionInformationToken, err := util.SessionInformationToken(accId, sessionIds)
+	if err != nil {
+		return util.FailedRequest(c, util.ErrorServer, err)
 	}
 
 	currentSession.LastConnection = time.Now()
@@ -112,6 +117,7 @@ func Connect(c *fiber.Ctx) error {
 		"success": true,
 		"domain":  lowest.Domain,
 		"id":      lowest.ID,
-		"token":   connectionTk,
+		"token":   token,
+		"s_info":  sessionInformationToken,
 	})
 }

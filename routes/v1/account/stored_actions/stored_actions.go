@@ -12,14 +12,10 @@ func Unauthorized(router fiber.Router) {
 	router.Post("/send_auth", sendAuthenticatedStoredAction)
 }
 
-// Authorized with remote id
-func Remote(router fiber.Router) {
-	router.Post("/details", getDetails)
-	router.Post("/send", sendStoredAction)
-}
-
 // Authorized with account JWT
 func Authorized(router fiber.Router) {
 	router.Post("/list", listStoredActions)
 	router.Post("/delete", deleteStoredAction)
+	router.Post("/details", getDetails)
+	router.Post("/send", sendStoredAction)
 }
