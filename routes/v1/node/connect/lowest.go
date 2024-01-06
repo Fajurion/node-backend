@@ -45,17 +45,18 @@ func GetLowest(c *fiber.Ctx) error {
 		return util.FailedRequest(c, "not.setup", nil)
 	}
 
-	connectionTk, success, err := lowest.GetConnection(req.Account, req.Session, []string{}, node.SenderNode)
-	if err != nil {
-
-		if success {
-			return util.FailedRequest(c, err.Error(), nil)
-		}
+	// Ping node (to see if it's online)
+	if err := lowest.SendPing(); err != nil {
 
 		// Set the node to error
 		nodes.TurnOff(&lowest, node.StatusError)
+		return util.FailedRequest(c, util.ErrorNode, err)
+	}
 
-		return util.FailedRequest(c, "node.error", err)
+	// Generate a jwt token for the node
+	token, err := util.ConnectionToken(req.Account, req.Session, lowest.ID)
+	if err != nil {
+		return util.FailedRequest(c, util.ErrorServer, err)
 	}
 
 	// Save node
@@ -67,6 +68,6 @@ func GetLowest(c *fiber.Ctx) error {
 		"success": true,
 		"domain":  lowest.Domain,
 		"id":      lowest.ID,
-		"token":   connectionTk,
+		"token":   token,
 	})
 }
