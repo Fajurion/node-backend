@@ -3,6 +3,7 @@ package auth
 import (
 	"node-backend/database"
 	"node-backend/entities/account"
+	"node-backend/standards"
 	"node-backend/util"
 	"node-backend/util/auth"
 
@@ -21,24 +22,24 @@ type registerRequest struct {
 func register_test(c *fiber.Ctx) error {
 
 	// Parse body to register request
-	var registerRequest registerRequest
-	if err := util.BodyParser(c, &registerRequest); err != nil {
+	var req registerRequest
+	if err := util.BodyParser(c, &req); err != nil {
 		return util.InvalidRequest(c)
 	}
 
 	// Check the invite
 	var invite account.Invite
-	if err := database.DBConn.Where("id = ?", registerRequest.Invite).Take(&invite).Error; err != nil {
+	if err := database.DBConn.Where("id = ?", req.Invite).Take(&invite).Error; err != nil {
 		return util.FailedRequest(c, "invite.invalid", err)
 	}
 
 	// Just for security
-	if invite.ID != registerRequest.Invite {
+	if invite.ID != req.Invite {
 		return util.FailedRequest(c, "invite.invalid", nil)
 	}
 
 	// Check if email is already registered
-	valid, normalizedEmail := account.CheckEmail(registerRequest.Email)
+	valid, normalizedEmail := standards.CheckEmail(req.Email)
 	if !valid {
 		return util.FailedRequest(c, "email.invalid", nil)
 	}
@@ -47,11 +48,17 @@ func register_test(c *fiber.Ctx) error {
 		return util.FailedRequest(c, "email.registered", nil)
 	}
 
+	// Check username and tag
+	valid, message := standards.CheckUsernameAndTag(req.Username, req.Tag)
+	if !valid {
+		return util.FailedRequest(c, message, nil)
+	}
+
 	var acc account.Account = account.Account{
 		ID:       auth.GenerateToken(8),
 		Email:    normalizedEmail,
-		Username: registerRequest.Username,
-		Tag:      registerRequest.Tag,
+		Username: req.Username,
+		Tag:      req.Tag,
 		RankID:   1, // Default rank
 	}
 
@@ -65,7 +72,7 @@ func register_test(c *fiber.Ctx) error {
 		ID:      auth.GenerateToken(8),
 		Account: acc.ID,
 		Type:    account.TypePassword,
-		Secret:  auth.HashPassword(registerRequest.Password),
+		Secret:  auth.HashPassword(req.Password),
 	}).Error
 
 	if err != nil {

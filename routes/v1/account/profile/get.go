@@ -2,6 +2,7 @@ package profile
 
 import (
 	"node-backend/database"
+	"node-backend/entities/account"
 	"node-backend/entities/account/properties"
 	"node-backend/util"
 
@@ -20,6 +21,13 @@ func getProfile(c *fiber.Ctx) error {
 		return util.InvalidRequest(c)
 	}
 
+	// Get account (to notify about name & tag changes)
+	var acc account.Account
+	if err := database.DBConn.Where("id = ?", req.ID).Take(&acc).Error; err != nil {
+		return util.FailedRequest(c, util.ErrorServer, err)
+	}
+
+	// Get profile (to update profile picture, description, ...)
 	var profile properties.Profile
 	if err := database.DBConn.Where("id = ?", req.ID).Take(&profile).Error; err != nil {
 		return util.FailedRequest(c, util.ErrorServer, err)
@@ -28,5 +36,7 @@ func getProfile(c *fiber.Ctx) error {
 	return util.ReturnJSON(c, fiber.Map{
 		"success": true,
 		"profile": profile,
+		"name":    acc.Username,
+		"tag":     acc.Tag,
 	})
 }

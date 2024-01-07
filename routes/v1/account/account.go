@@ -7,6 +7,7 @@ import (
 	"node-backend/routes/v1/account/keys"
 	"node-backend/routes/v1/account/profile"
 	"node-backend/routes/v1/account/rank"
+	settings_routes "node-backend/routes/v1/account/settings"
 	"node-backend/routes/v1/account/stored_actions"
 	"node-backend/routes/v1/account/vault"
 
@@ -30,6 +31,7 @@ func Authorized(router fiber.Router) {
 	router.Route("/profile", profile.Authorized)
 	router.Route("/invite", invite_routes.Authorized)
 	router.Route("/files", files.Authorized)
+	router.Route("/settings", settings_routes.Authorized)
 
 	router.Post("/me", me)
 	router.Post("/get", getAccount)
