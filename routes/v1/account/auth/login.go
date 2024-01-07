@@ -18,7 +18,7 @@ type startLoginRequest struct {
 	Device string `json:"device"`
 }
 
-// startLogin starts the login process Route: /auth/login/start
+// startLogin starts the login process (Route: /auth/login/start)
 func startLogin(c *fiber.Ctx) error {
 
 	var req startLoginRequest
@@ -50,7 +50,7 @@ type loginStepRequest struct {
 	Secret string `json:"secret"`
 }
 
-// loginStep runs the login step Route: /auth/login/step
+// loginStep runs the login step (Route: /auth/login/step)
 func loginStep(c *fiber.Ctx) error {
 
 	var req loginStepRequest
