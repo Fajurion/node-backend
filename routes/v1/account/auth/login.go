@@ -29,7 +29,7 @@ func startLogin(c *fiber.Ctx) error {
 	// Check if user exists
 	var acc account.Account
 	if database.DBConn.Where("email = ?", req.Email).Take(&acc).Error != nil {
-		return util.FailedRequest(c, "invalid.email", nil)
+		return util.FailedRequest(c, "email.invalid", nil)
 	}
 
 	valid, err := checkSessions(acc.ID)
