@@ -6,8 +6,19 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// General errors
 const ErrorNode = "node.error"
 const ErrorServer = "server.error"
+const ErrorMail = "mail.error"
+
+// Auth errors
+const EmailInvalid = "email.invalid"
+const CodeInvalid = "code.invalid"
+const EmailRegistered = "email.registered" // When it is already registered
+const UsernameInvalid = "username.invalid"
+const UsernameTaken = "username.taken"
+const TagInvalid = "tag.invalid"
+const InviteInvalid = "invite.invalid"
 
 func DebugRouteError(c *fiber.Ctx, msg string) {
 	if Testing {

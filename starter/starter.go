@@ -2,9 +2,7 @@ package starter
 
 import (
 	"bufio"
-	"fmt"
 	"log"
-	"net/smtp"
 	"node-backend/database"
 	routes_v1 "node-backend/routes/v1"
 	"node-backend/util"
@@ -37,13 +35,6 @@ func Startup() {
 		log.Fatal("Error loading .env file")
 	}
 	util.JWT_SECRET = os.Getenv("JWT_SECRET")
-
-	/* to test email
-	err = testMail()
-	if err != nil {
-		panic(err)
-	}
-	*/
 
 	// Connect to the databases
 	database.Connect()
@@ -112,26 +103,4 @@ func testMode() {
 		}
 	}
 	*/
-}
-
-func testMail() error {
-
-	// Generate message
-	subject := "Chat app test email"
-	body := "Hello, this is a test email sent through Amazon SES by the Chat app server."
-
-	msg := []byte(fmt.Sprintf("Subject: %s\r\n\r%s", subject, body))
-
-	// Authenticate using the provided credentials
-	auth := smtp.PlainAuth("", os.Getenv("SMTP_USER"), os.Getenv("SMTP_PW"), os.Getenv("SMTP_SERVER"))
-
-	// Send the email
-	err := smtp.SendMail(
-		os.Getenv("SMTP_SERVER")+":"+os.Getenv("SMTP_PORT"),
-		auth,
-		os.Getenv("SMTP_FROM"),
-		[]string{"test@email.com"},
-		msg,
-	)
-	return err
 }

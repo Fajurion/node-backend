@@ -50,28 +50,37 @@ func encryptedRoutes(router fiber.Router, serverPublicKey *rsa.PublicKey, server
 	// Through Cloudflare Protection (Decryption method)
 	router.Use(func(c *fiber.Ctx) error {
 
+		// Check if the auth tag exists
 		aesKeyEncoded, valid := c.GetReqHeaders()["Auth-Tag"]
 		if !valid {
 			log.Println("no header")
 			return c.SendStatus(fiber.StatusPreconditionFailed)
 		}
+
+		// Decode the auth tag
 		aesKeyEncrypted, err := base64.StdEncoding.DecodeString(aesKeyEncoded)
 		if err != nil {
 			log.Println("no decoding")
 			return c.SendStatus(fiber.StatusPreconditionFailed)
 		}
 
+		// Get AES key from auth tag with server private key
 		aesKey, err := util.DecryptRSA(serverPrivateKey, aesKeyEncrypted)
 		if err != nil {
 			return c.SendStatus(fiber.StatusPreconditionRequired)
 		}
+
+		// Decrypt the content of the request with the AES key
 		decrypted, err := util.DecryptAES(aesKey, c.Body())
 		if err != nil {
 			return c.SendStatus(fiber.StatusNetworkAuthenticationRequired)
 		}
-		c.Locals("body", decrypted)
-		c.Locals("key", aesKey)
-		c.Locals("srv_pub", serverPublicKey)
+
+		// Add some variables to work with the keys
+		c.Locals(util.LocalsBody, decrypted)
+		c.Locals(util.LocalsKey, aesKey)
+		c.Locals(util.LocalsServerPub, serverPublicKey)
+		c.Locals(util.LocalsServerPriv, serverPrivateKey)
 
 		return c.Next()
 	})

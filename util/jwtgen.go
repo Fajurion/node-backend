@@ -1,6 +1,8 @@
 package util
 
 import (
+	"crypto/rsa"
+	"encoding/base64"
 	"fmt"
 	"reflect"
 	"time"
@@ -139,4 +141,37 @@ func GetAcc(c *fiber.Ctx) string {
 	claims := user.Claims.(jwt.MapClaims)
 
 	return claims["acc"].(string)
+}
+
+// Generate a JWT value that the client can't read (can't be really long because of RSA encryption)
+func MakeHiddenJWTValue(c *fiber.Ctx, value []byte) (string, error) {
+	pub := c.Locals(LocalsServerPub).(*rsa.PublicKey)
+
+	// Encrypt with RSA
+	encrypted, err := EncryptRSA(pub, value)
+	if err != nil {
+		return "", err
+	}
+
+	// Encode for use in JSON
+	encoded := base64.StdEncoding.EncodeToString(encrypted)
+	return encoded, nil
+}
+
+// Read a "hidden" JWT value encrypted by the server (referred to as a "hidden value")
+func ReadHiddenJWTValue(c *fiber.Ctx, encoded string) ([]byte, error) {
+	priv := c.Locals(LocalsServerPriv).(*rsa.PrivateKey)
+
+	// Decode to bytes
+	decoded, err := base64.StdEncoding.DecodeString(encoded)
+	if err != nil {
+		return nil, err
+	}
+
+	// Decrypt with RSA
+	decrypted, err := DecryptRSA(priv, decoded)
+	if err != nil {
+		return nil, err
+	}
+	return decrypted, nil
 }

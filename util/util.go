@@ -13,14 +13,25 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// Environment variables
+const EnvAppName = "APP_NAME" // Configure the app name
+
+// Locals constants
+const LocalsServerPriv = "srv_priv"
+const LocalsServerPub = "srv_pub"
+const LocalsKey = "key"
+const LocalsBody = "body"
+
 var Testing = false
 var LogErrors = true
 
+// Permissions
 var Permissions = map[string]int16{
 	"use_services": 10,
 	"admin":        100,
 }
 
+// Permission names
 const PermissionUseServices = "use_services"
 const PermissionAdmin = "admin"
 
