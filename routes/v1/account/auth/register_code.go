@@ -51,6 +51,9 @@ func registerCode(c *fiber.Ctx) error {
 	if claims.Step != 1 {
 		return util.InvalidRequest(c)
 	}
+	if claims.ExpiredUnixSec < time.Now().Unix() {
+		return util.InvalidRequest(c)
+	}
 
 	// Unpack hidden value
 	value, err := util.ReadHiddenJWTValue(c, claims.Code)

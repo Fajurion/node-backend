@@ -6,6 +6,7 @@ import (
 	"node-backend/standards"
 	"node-backend/util"
 	"node-backend/util/auth"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
@@ -45,6 +46,9 @@ func registerFinish(c *fiber.Ctx) error {
 		return util.InvalidRequest(c)
 	}
 	if claims.Step != 2 {
+		return util.InvalidRequest(c)
+	}
+	if claims.ExpiredUnixSec < time.Now().Unix() {
 		return util.InvalidRequest(c)
 	}
 
