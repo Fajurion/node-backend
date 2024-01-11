@@ -128,7 +128,7 @@ func runAuthStep(id string, device string, step uint, c *fiber.Ctx) error {
 			return util.FailedRequest(c, "server.error", err)
 		}
 
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		return util.ReturnJSON(c, fiber.Map{
 			"success":       true,
 			"token":         jwtToken,
 			"refresh_token": tk,

@@ -11,7 +11,7 @@ import (
 func GenerateLoginTokenWithStep(id string, device string, step uint) (string, error) {
 
 	// Create jwt token
-	tk := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+	tk := jwt.NewWithClaims(jwt.SigningMethodHS512, jwt.MapClaims{
 		"s":   step,
 		"e_u": time.Now().Add(time.Minute * 5).Unix(), // Expiration unix
 		"acc": id,

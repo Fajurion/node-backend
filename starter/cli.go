@@ -259,8 +259,19 @@ func listenForCommands() {
 			}
 
 			fmt.Println("Invite wave finished. Hope everyone enjoys them!")
-
 			continue
+
+		case "generate-invite":
+
+			invite := account.Invite{
+				ID:      auth.GenerateToken(32),
+				Creator: "0",
+			}
+			if err := database.DBConn.Create(&invite).Error; err != nil {
+				fmt.Println("err:", err.Error())
+			}
+
+			fmt.Println("invite:", invite.ID)
 
 		case "help":
 			fmt.Println("exit - Exit the application")
@@ -273,6 +284,7 @@ func listenForCommands() {
 			fmt.Println("keypair - Generate a new RSA key pair")
 			fmt.Println("test-message - Encrypt a test message to send to an endpoint using TC")
 			fmt.Println("invite-wave - Give out 100 random invites.")
+			fmt.Println("generate-invite - Generate an invite.")
 
 		default:
 			fmt.Println("Unknown command. Type 'help' for a list of commands.")

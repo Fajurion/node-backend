@@ -39,7 +39,7 @@ func SendEmail(email string, locale string, name string, args ...string) error {
 		os.Getenv("SMTP_SERVER")+":"+os.Getenv("SMTP_PORT"),
 		auth,
 		os.Getenv("SMTP_FROM"),
-		[]string{"test@email.com"},
+		[]string{email},
 		msg,
 	)
 	return err

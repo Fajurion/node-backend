@@ -88,7 +88,7 @@ func registerStart(c *fiber.Ctx) error {
 		return util.FailedRequest(c, util.ErrorMail, err)
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+	return util.ReturnJSON(c, fiber.Map{
 		"success": true,
 		"token":   tokenString,
 	})
