@@ -29,11 +29,11 @@ var Order = map[uint]uint{
 // Starting step when authenticating
 const StartStep = 0
 
-func (a *Authentication) checkPassword(password string) bool {
-	return strings.Compare(a.Secret, auth.HashPassword(password)) == 0
+func (a *Authentication) checkPassword(password string, id string) bool {
+	return strings.Compare(a.Secret, auth.HashPassword(password, id)) == 0
 }
 
-func (a *Authentication) Verify(authType uint, secret string) bool {
+func (a *Authentication) Verify(authType uint, secret string, id string) bool {
 
 	if a.Type != authType {
 		return false
@@ -41,7 +41,7 @@ func (a *Authentication) Verify(authType uint, secret string) bool {
 
 	switch authType {
 	case TypePassword:
-		return a.checkPassword(secret)
+		return a.checkPassword(secret, id)
 	case TypeTOTP:
 		return false // TODO: Implement
 	case TypeRecoveryCode:

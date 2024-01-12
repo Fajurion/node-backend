@@ -14,6 +14,7 @@ const ErrorMail = "mail.error"
 // Auth errors
 const EmailInvalid = "email.invalid"
 const CodeInvalid = "code.invalid"
+const PasswordInvalid = "password.incorrect"
 const EmailRegistered = "email.registered" // When it is already registered
 const UsernameInvalid = "username.invalid"
 const UsernameTaken = "username.taken"

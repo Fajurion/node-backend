@@ -67,13 +67,14 @@ func loginStep(c *fiber.Ctx) error {
 	}
 
 	// Check the provided secret
-	if !method.Verify(req.Type, req.Secret) {
+	if !method.Verify(req.Type, req.Secret, id) {
 		return util.FailedRequest(c, "invalid.method", nil)
 	}
 
 	return runAuthStep(id, device, step+1, c)
 }
 
+// Runs the next step in an authentication
 func runAuthStep(id string, device string, step uint, c *fiber.Ctx) error {
 
 	// Generate token
@@ -122,7 +123,7 @@ func runAuthStep(id string, device string, step uint, c *fiber.Ctx) error {
 		}
 
 		// Generate jwt token
-		jwtToken, err := util.Token(createdSession.ID, acc.ID, acc.Rank.Level, time.Now().Add(time.Hour*24*3))
+		jwtToken, err := util.Token(createdSession.ID, acc.ID, acc.Rank.Level, time.Now().Add(time.Hour*24*1))
 
 		if err != nil {
 			return util.FailedRequest(c, "server.error", err)
@@ -155,8 +156,8 @@ func checkSessions(id string) (bool, error) {
 		return false, errors.New("server.error")
 	}
 
-	if sessions > 10 {
-		return false, nil
+	if sessions > 5 {
+		return false, errors.New("sessions.limit")
 	}
 
 	return true, nil

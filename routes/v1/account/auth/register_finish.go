@@ -82,7 +82,7 @@ func registerFinish(c *fiber.Ctx) error {
 		ID:      auth.GenerateToken(8),
 		Account: acc.ID,
 		Type:    account.TypePassword,
-		Secret:  auth.HashPassword(req.Password),
+		Secret:  auth.HashPassword(req.Password, acc.ID),
 	}).Error
 	if err != nil {
 		return util.FailedRequest(c, util.ErrorServer, err)
