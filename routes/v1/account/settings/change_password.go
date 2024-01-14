@@ -30,7 +30,7 @@ func changePassword(c *fiber.Ctx) error {
 	}
 
 	// Check password
-	if match, err := auth.ComparePasswordAndHash(req.Current, authentication.Secret); err != nil || !match {
+	if match, err := auth.ComparePasswordAndHash(req.Current, accId, authentication.Secret); err != nil || !match {
 		return util.FailedRequest(c, util.PasswordInvalid, err)
 	}
 

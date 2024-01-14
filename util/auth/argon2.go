@@ -67,7 +67,7 @@ func generateRandomBytes(n uint32) ([]byte, error) {
 }
 
 // Check if a password is correct with a hash
-func ComparePasswordAndHash(password, encodedHash string) (match bool, err error) {
+func ComparePasswordAndHash(password, id, encodedHash string) (match bool, err error) {
 	// Extract the parameters, salt and derived key from the encoded password
 	// hash.
 	p, salt, hash, err := decodeHash(encodedHash)
@@ -76,7 +76,7 @@ func ComparePasswordAndHash(password, encodedHash string) (match bool, err error
 	}
 
 	// Derive the key from the other password using the same parameters.
-	otherHash := argon2.IDKey([]byte(password), salt, p.iterations, p.memory, p.parallelism, p.keyLength)
+	otherHash := argon2.IDKey([]byte(password+":"+id), salt, p.iterations, p.memory, p.parallelism, p.keyLength)
 
 	// Check that the contents of the hashed passwords are identical. Note
 	// that we are using the subtle.ConstantTimeCompare() function for this

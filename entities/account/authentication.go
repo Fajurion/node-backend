@@ -31,7 +31,7 @@ const StartStep = 0
 
 func (a *Authentication) checkPassword(password string, id string) bool {
 
-	match, err := auth.ComparePasswordAndHash(password, a.Secret)
+	match, err := auth.ComparePasswordAndHash(password, id, a.Secret)
 	if err != nil {
 		return false
 	}

@@ -261,6 +261,48 @@ func listenForCommands() {
 			fmt.Println("Invite wave finished. Hope everyone enjoys them!")
 			continue
 
+		case "test-account":
+
+			if !util.Testing {
+				fmt.Println("This is a production instance...")
+				continue
+			}
+
+			fmt.Print("Name: ")
+			name, _ := reader.ReadString('\n')
+			name = strings.TrimSpace(name)
+
+			id := auth.GenerateToken(5)
+			if err := database.DBConn.Create(&account.Account{
+				ID:       id,
+				Email:    name + "@liphium.app",
+				Username: name,
+				Tag:      "li",
+				RankID:   1, // Default
+			}).Error; err != nil {
+				fmt.Println("error:", err.Error())
+				continue
+			}
+
+			hash, err := auth.HashPassword("yourmum123", id)
+			if err != nil {
+				return
+			}
+
+			if err := database.DBConn.Create(&account.Authentication{
+				ID:      auth.GenerateToken(5),
+				Account: id,
+				Type:    account.TypePassword,
+				Secret:  hash,
+			}).Error; err != nil {
+				fmt.Println("error:", err.Error())
+				continue
+			}
+
+			fmt.Println("Name:", name+"#li")
+			fmt.Println("Email:", name+"@liphium.app")
+			fmt.Println("Password:", "yourmum123")
+
 		case "generate-invite":
 
 			invite := account.Invite{
