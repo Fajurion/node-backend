@@ -33,7 +33,7 @@ func Unencrypted(router fiber.Router) {
 	// Autorized by using a normal JWT token
 	router.Use(jwtware.New(jwtware.Config{
 		SigningKey: jwtware.SigningKey{
-			JWTAlg: jwtware.HS256,
+			JWTAlg: jwtware.HS512,
 			Key:    []byte(util.JWT_SECRET),
 		},
 

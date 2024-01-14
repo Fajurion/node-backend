@@ -30,7 +30,13 @@ var Order = map[uint]uint{
 const StartStep = 0
 
 func (a *Authentication) checkPassword(password string, id string) bool {
-	return strings.Compare(a.Secret, auth.HashPassword(password, id)) == 0
+
+	match, err := auth.ComparePasswordAndHash(password, a.Secret)
+	if err != nil {
+		return false
+	}
+
+	return match
 }
 
 func (a *Authentication) Verify(authType uint, secret string, id string) bool {

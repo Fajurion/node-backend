@@ -78,11 +78,15 @@ func registerFinish(c *fiber.Ctx) error {
 	}
 
 	// Create password authentication
+	hash, err := auth.HashPassword(req.Password, acc.ID)
+	if err != nil {
+		return util.FailedRequest(c, util.ErrorServer, err)
+	}
 	err = database.DBConn.Create(&account.Authentication{
 		ID:      auth.GenerateToken(8),
 		Account: acc.ID,
 		Type:    account.TypePassword,
-		Secret:  auth.HashPassword(req.Password, acc.ID),
+		Secret:  hash,
 	}).Error
 	if err != nil {
 		return util.FailedRequest(c, util.ErrorServer, err)

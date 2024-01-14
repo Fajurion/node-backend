@@ -2,8 +2,6 @@ package auth
 
 import (
 	"crypto/rand"
-	"crypto/sha256"
-	"encoding/base64"
 	"math/big"
 )
 
@@ -22,16 +20,4 @@ func GenerateToken(tkLength int32) string {
 	}
 
 	return string(s)
-}
-
-// HashPassword hashes a password
-func HashPassword(password string, id string) string {
-
-	// Get hash of password (Should be secure enough)
-	hash := sha256.Sum256([]byte(password + id))
-	for i := 0; i < 50; i++ {
-		hash = sha256.Sum256(hash[:])
-	}
-
-	return base64.StdEncoding.EncodeToString(hash[:])
 }

@@ -1,7 +1,6 @@
 package settings_routes
 
 import (
-	"log"
 	"node-backend/database"
 	"node-backend/entities/account"
 	"node-backend/util"
@@ -30,11 +29,9 @@ func changePassword(c *fiber.Ctx) error {
 		return util.FailedRequest(c, util.ErrorServer, err)
 	}
 
-	log.Println(auth.HashPassword(req.Current, accId))
-
 	// Check password
-	if auth.HashPassword(req.Current, accId) != authentication.Secret {
-		return util.FailedRequest(c, util.PasswordInvalid, nil)
+	if match, err := auth.ComparePasswordAndHash(req.Current, authentication.Secret); err != nil || !match {
+		return util.FailedRequest(c, util.PasswordInvalid, err)
 	}
 
 	// Log out all devices
@@ -44,8 +41,13 @@ func changePassword(c *fiber.Ctx) error {
 	}
 
 	// Change password
-	err := database.DBConn.Model(&account.Authentication{}).Where("account = ? AND type = ?", accId, account.TypePassword).
-		Update("secret", auth.HashPassword(req.New, accId)).Error
+	hash, err := auth.HashPassword(req.New, accId)
+	if err != nil {
+		return util.FailedRequest(c, util.ErrorServer, err)
+	}
+
+	err = database.DBConn.Model(&account.Authentication{}).Where("account = ? AND type = ?", accId, account.TypePassword).
+		Update("secret", hash).Error
 	if err != nil {
 		return util.FailedRequest(c, util.ErrorServer, err)
 	}
