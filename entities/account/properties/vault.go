@@ -4,9 +4,10 @@ package properties
 type Friendship struct {
 	ID string `json:"id" gorm:"primaryKey"`
 
-	Account string `json:"account" gorm:"not null"`
-	Hash    string `json:"hash" gorm:"not null"`
-	Payload string `json:"friend" gorm:"not null"` // Encrypted (with account's public key) friend key + data
+	Account   string `json:"account" gorm:"not null"`
+	Hash      string `json:"hash" gorm:"not null"`
+	Payload   string `json:"friend" gorm:"not null"` // Encrypted (with account's public key) friend key + data
+	UpdatedAt int64  `json:"updated_at" gorm:"autoUpdateTime:milli"`
 }
 
 // Vault for all kinds of things (e.g. conversation tokens, etc.)
