@@ -149,7 +149,7 @@ func listenForCommands() {
 			database.DBConn.Where("account = ?", acc.ID).Delete(&properties.StoredAction{})
 			database.DBConn.Where("account = ?", acc.ID).Delete(&properties.Friendship{})
 			database.DBConn.Where("account = ?", acc.ID).Delete(&properties.VaultEntry{})
-			database.DBConn.Where("account = ?", acc.ID).Delete(&properties.Profile{})
+			database.DBConn.Where("id = ?", acc.ID).Delete(&properties.Profile{})
 
 		case "account-token":
 

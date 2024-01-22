@@ -27,6 +27,7 @@ func uploadFile(c *fiber.Ctx) error {
 	key := c.FormValue("key", "-")
 	name := c.FormValue("name", "-")
 	extension := c.FormValue("extension", "-")
+	favorite := c.FormValue("favorite", "false")
 	if key == "-" || name == "-" || extension == "-" {
 		log.Println("invalid form data")
 		return util.InvalidRequest(c)
@@ -66,7 +67,7 @@ func uploadFile(c *fiber.Ctx) error {
 		Type:     file.Header.Get("Content-Type"),
 		Key:      key,
 		Account:  accId,
-		Favorite: false,
+		Favorite: favorite == "true",
 		System:   false,
 		Size:     file.Size,
 	}).Error; err != nil {
