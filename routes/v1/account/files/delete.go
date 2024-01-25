@@ -34,7 +34,7 @@ func deleteFile(c *fiber.Ctx) error {
 	// Delete file from S3
 	_, err := client.DeleteObject(context.Background(), &s3.DeleteObjectInput{
 		Bucket: aws.String(bucketName),
-		Key:    aws.String(file.Key),
+		Key:    aws.String(file.Id),
 	})
 	if err != nil {
 		return util.FailedRequest(c, "server.error", err)
