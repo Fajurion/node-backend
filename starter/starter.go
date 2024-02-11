@@ -44,6 +44,9 @@ func Startup() {
 
 	// Handle routing
 	app.Route("/v1", routes_v1.Router)
+	app.Get("/", func(c *fiber.Ctx) error {
+		return c.SendString("Hello from the backend, you probably shouldn't be here though.. Anyway, enjoy your time!")
+	})
 
 	// Ask user for test mode
 	testMode()
