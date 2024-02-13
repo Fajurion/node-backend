@@ -80,7 +80,7 @@ func uploadFile(c *fiber.Ctx) error {
 	}
 
 	// Upload to R2
-	_, err = uploader.Upload(context.TODO(), &s3.PutObjectInput{
+	_, err = client.PutObject(context.TODO(), &s3.PutObjectInput{
 		Bucket: aws.String(bucketName),
 		Key:    aws.String(fileId),
 		Body:   f,

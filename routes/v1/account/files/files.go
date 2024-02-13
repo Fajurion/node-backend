@@ -75,6 +75,7 @@ func Authorized(router fiber.Router) {
 	cfg, err := config.LoadDefaultConfig(context.TODO(),
 		config.WithEndpointResolverWithOptions(r2Resolver),
 		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(accessKeyId, accessKeySecret, "")),
+		config.WithRegion("auto"),
 	)
 	if err != nil {
 		disabled = true
@@ -84,7 +85,15 @@ func Authorized(router fiber.Router) {
 
 	// Setup uploader
 	client = s3.NewFromConfig(cfg)
-	uploader = manager.NewUploader(client)
+
+	log.Println("Checking R2 connection..")
+	_, err = client.HeadBucket(context.TODO(), &s3.HeadBucketInput{
+		Bucket: aws.String(bucketName),
+	})
+	if err != nil {
+		log.Println("R2 NOT WORKING")
+		panic(err)
+	}
 	log.Println("Successfully connected to R2.")
 
 	// Setup file routes
