@@ -58,7 +58,7 @@ func encryptedRoutes(router fiber.Router, serverPublicKey *rsa.PublicKey, server
 		}
 
 		// Decode the auth tag
-		aesKeyEncrypted, err := base64.StdEncoding.DecodeString(aesKeyEncoded)
+		aesKeyEncrypted, err := base64.StdEncoding.DecodeString(aesKeyEncoded[0])
 		if err != nil {
 			log.Println("no decoding")
 			return c.SendStatus(fiber.StatusPreconditionFailed)
