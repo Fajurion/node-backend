@@ -328,6 +328,7 @@ func listenForCommands() {
 			fmt.Println("test-message - Encrypt a test message to send to an endpoint using TC")
 			fmt.Println("invite-wave - Give out 100 random invites.")
 			fmt.Println("generate-invite - Generate an invite.")
+			fmt.Println("test-account - Create a test account.")
 
 		default:
 			fmt.Println("Unknown command. Type 'help' for a list of commands.")
