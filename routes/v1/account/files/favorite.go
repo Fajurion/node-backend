@@ -37,11 +37,9 @@ func favoriteFile(c *fiber.Ctx) error {
 	}
 
 	// Toggle favorite
-	if err := database.DBConn.Model(&account.CloudFile{}).Update("favorite", true).Where("id = ?", file.Id).Error; err != nil {
+	if err := database.DBConn.Model(&account.CloudFile{}).Where("account = ? AND id = ?", accId, file.Id).Update("favorite", true).Error; err != nil {
 		return util.FailedRequest(c, "server.error", err)
 	}
 
-	return util.ReturnJSON(c, fiber.Map{
-		"success": true,
-	})
+	return util.SuccessfulRequest(c)
 }

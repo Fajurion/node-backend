@@ -12,6 +12,7 @@ type unfavoriteRequest struct {
 	Id string `json:"id"`
 }
 
+// Route: /account/files/unfavorite
 func unfavoriteFile(c *fiber.Ctx) error {
 
 	var req unfavoriteRequest
@@ -27,11 +28,10 @@ func unfavoriteFile(c *fiber.Ctx) error {
 	}
 
 	// Toggle favorite
-	if err := database.DBConn.Model(&account.CloudFile{}).Update("favorite", false).Where("id = ?", file.Id).Error; err != nil {
+	if err := database.DBConn.Model(&account.CloudFile{}).Where("account = ? AND id = ?", accId, req.Id).
+		Update("favorite", false).Error; err != nil {
 		return util.FailedRequest(c, "server.error", err)
 	}
 
-	return util.ReturnJSON(c, fiber.Map{
-		"success": true,
-	})
+	return util.SuccessfulRequest(c)
 }
