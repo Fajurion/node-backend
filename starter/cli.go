@@ -264,11 +264,6 @@ func listenForCommands() {
 
 		case "test-account":
 
-			if !util.Testing {
-				fmt.Println("This is a production instance...")
-				continue
-			}
-
 			fmt.Print("Name: ")
 			name, _ := reader.ReadString('\n')
 			name = strings.TrimSpace(name)
