@@ -37,7 +37,7 @@ const PermissionAdmin = "admin"
 
 var JWT_SECRET = ""
 
-const NodeProtocol = "http://"
+var NodeProtocol = "http://"
 
 // Send a post request (with TC protection encryption)
 func PostRequest(key *rsa.PublicKey, url string, body map[string]interface{}) (map[string]interface{}, error) {

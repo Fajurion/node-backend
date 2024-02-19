@@ -36,6 +36,13 @@ func Startup() {
 	}
 	util.JWT_SECRET = os.Getenv("JWT_SECRET")
 
+	// Set node protocol
+	if os.Getenv("PROTOCOL") == "" {
+		util.NodeProtocol = "https://"
+	} else {
+		util.NodeProtocol = os.Getenv("PROTOCOL")
+	}
+
 	// Connect to the databases
 	database.Connect()
 

@@ -2,6 +2,8 @@ package util
 
 import (
 	"log"
+	"os"
+	"runtime/debug"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -37,6 +39,9 @@ func FailedRequest(c *fiber.Ctx, error string, err error) error {
 
 	if LogErrors && err != nil {
 		log.Println(c.Route().Path+":", err)
+		if os.Getenv("SHOW_STACK") == "1" {
+			debug.PrintStack()
+		}
 	}
 
 	return ReturnJSON(c, fiber.Map{
