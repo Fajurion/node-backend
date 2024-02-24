@@ -60,7 +60,7 @@ func Connect(c *fiber.Ctx) error {
 
 	var currentSession account.Session
 	if err := database.DBConn.Where("id = ?", currentSessionId).Take(&currentSession).Error; err != nil {
-		return util.FailedRequest(c, "not.found", nil)
+		return util.FailedRequest(c, "not.found", err)
 	}
 
 	if currentSession.Token != tk {
@@ -105,12 +105,12 @@ func Connect(c *fiber.Ctx) error {
 	currentSession.Node = lowest.ID
 	currentSession.App = req.App
 	if err := database.DBConn.Save(&currentSession).Error; err != nil {
-		return util.FailedRequest(c, "server.error", err)
+		return util.FailedRequest(c, util.ErrorServer, err)
 	}
 
 	// Save node
 	if err := database.DBConn.Save(&lowest).Error; err != nil {
-		return util.FailedRequest(c, "server.error", err)
+		return util.FailedRequest(c, util.ErrorServer, err)
 	}
 
 	return util.ReturnJSON(c, fiber.Map{
