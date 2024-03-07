@@ -28,6 +28,7 @@ var LogErrors = true
 // Permissions
 var Permissions = map[string]int16{
 	"use_services": 10,
+	"use_video":    50,
 	"admin":        100,
 }
 
