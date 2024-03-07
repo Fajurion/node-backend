@@ -1,6 +1,6 @@
 module node-backend
 
-go 1.21.0
+go 1.22.1
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.25.2
@@ -33,7 +33,6 @@ require (
 	github.com/chenzhuoyu/iasm v0.9.1 // indirect
 	github.com/jackc/puddle/v2 v2.2.1 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
-	github.com/stretchr/testify v1.9.0 // indirect
 	golang.org/x/sync v0.6.0 // indirect
 )
 
