@@ -4,7 +4,6 @@ import (
 	"crypto/rsa"
 	"encoding/base64"
 	"log"
-	nb_challenges "node-backend/nbchallenges"
 	"node-backend/routes/v1/account"
 	"node-backend/routes/v1/account/auth"
 	"node-backend/routes/v1/app"
@@ -90,10 +89,6 @@ func encryptedRoutes(router fiber.Router, serverPublicKey *rsa.PublicKey, server
 	router.Route("/node", node.Unauthorized)
 	router.Route("/app", app.Unauthorized)
 	router.Route("/account", account.Unauthorized)
-
-	// Challenge test
-	router.Post("/challenge/generate", nb_challenges.Generate)
-	router.Post("/challenge/solve", nb_challenges.Solve)
 
 	router.Route("/", authorizedRoutes)
 }
